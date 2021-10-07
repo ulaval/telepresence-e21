@@ -2,7 +2,7 @@
 
 Système: Salles comodales 2021
 Script: JoindreZoom_UI
-Version: 1.0
+Version: ->2.0
 Description: Interface graphique pour JoindreZoom
 
 Auteur: Zacharie.Gignac.1@ulaval.ca
@@ -32,11 +32,43 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+Version 4
+  - Ajout du support pour les commandes avancées
+  - Ajout du support pour l'ordre des icônes
+  - Ajustement pour les options avancées
+
+
 *************************************************************/
 
 import xapi from 'xapi';
 
-export function createUi() {
+var advOptions;
+
+function getControls() {
+  var xml = '';
+  if (advOptions.includes(504)) {
+    xml += `
+      <Row>
+      <Name>Row</Name>
+      <Widget>
+          <WidgetId>widget_9</WidgetId>
+          <Name>Activer/Désactiver le menu</Name>
+          <Type>Text</Type>
+          <Options>size=3;fontSize=normal;align=left</Options>
+      </Widget>
+      <Widget>
+          <WidgetId>zoomMenu</WidgetId>
+          <Type>Button</Type>
+          <Options>size=1;icon=list</Options>
+      </Widget>
+      </Row>
+    `;
+  }
+
+  return xml;
+}
+export function createUi(options, io) {
+  advOptions = options;
   xapi.command('UserInterface Extensions Panel Save', {
     PanelId: 'joinzoom'
 
@@ -45,7 +77,7 @@ export function createUi() {
 <Extensions>
   <Version>1.8</Version>
   <Panel>
-    <Order>1</Order>
+    <Order>${io}</Order>
     <PanelId>joinzoom</PanelId>
     <Origin>local</Origin>
     <Type>Home</Type>
@@ -139,6 +171,7 @@ export function createUi() {
           <Options>size=1;icon=red</Options>
         </Widget>
       </Row>
+      ${getControls()}
       <Options>hideRowNames=1</Options>
     </Page>
   </Panel>

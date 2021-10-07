@@ -2,7 +2,7 @@
 
 Système: Salles comodales 2021
 Script: Rkhelper
-Version: 2
+Version: ->2.0
 Description: Librairie qui bonifie et simplifie certaines 
              fonctionnalités des systèmes de téléprésence Cisco Webex.
 
@@ -45,6 +45,9 @@ Plusieurs composantes sont disponibles, entre autre:
 */
 
 /* CHANGELOG
+Version 4
+
+
 VERSION 2
       - Remplacé certaines commandes réservées à ES6 par des commandes ES5 car mismatch de version de transpiler entre la page web et le codec (bug rapporté chez CISCO)
       
@@ -639,6 +642,10 @@ function privatemode_enabled() {
 function privatemode_disabled() {
   privateModeEnabled = false;
 }
+function forceNotifyStatusChange() {
+  Status.notifyChange();
+}
+
 
 function init() {
   currentActivity = 'normal';
@@ -646,7 +653,7 @@ function init() {
   /* Private mode handlers */
   IMC.registerFunction(privatemode_enabled);
   IMC.registerFunction(privatemode_disabled);
-
+  IMC.registerFunction(forceNotifyStatusChange);
 
 
   /* notification triggers */

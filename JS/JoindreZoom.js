@@ -2,7 +2,7 @@
 
 Système: Salles comodales 2021
 Script: JoindreZoom
-Version: 1.1
+Version: ->2.0
 Description: Ajoute les fonctionnalités d'appel et de contrôle
              de Zoom CRC
 
@@ -35,6 +35,13 @@ SOFTWARE.
 
 CHANGELOG
 
+VERSION 4
+      - Correction d'un bug mineur (warning) lors d'un appel non-sip (spark)
+      - Ajout des options avancées
+      - Ajout du support pour l'ordre des icônes
+      - Ajustement de l'envoi des touches DTMF pour inclure une commande de sortie de menu avant une nouvelle commande
+
+
 VERSION 1.1
       - Correction d'un bug DTMF lors d'un meeting joint par OBTP
 
@@ -55,7 +62,7 @@ BETA 5
 
 BETA 4 
       - Ajout du support pour "USBMODE"
-      - Ajout dyu support pour "PRIVATEMODE"
+      - Ajout du support pour "PRIVATEMODE"
       
 BETA 3 (2021-07-07)
       - Support pour plusieurs domaines SIP (préconfiguré pour zmca.us et zoomcrc.com)
@@ -77,13 +84,30 @@ BETA 1 (2021-03-25)
 
 *************************************************************/
 
+const OPT_FORCE_OUT_OF_BAND_DTMF = 200001;
+const OPT_SUPPRESS_AUDIO_PROMPTS = 200006;
+const OPT_ENABLE_1080P = 309;
+const OPT_SUPPRESS_VISUAL_MENU = 504;
 
+/* Options disponibles dans la section "options" ci-dessous
+
+OPT_FORCE_OUT_OF_BAND_DTMF       -- Force les touches numérique à être transmises en dehors du canal audio
+OPT_SUPPRESS_AUDIO_PROMPTS       -- Enlève les messages audio d'accueil de Zoom
+OPT_ENABLE_1080P                 -- Active le support 1080p (Full HD)
+OPT_SUPPRESS_VISUAL_MENU         -- Désactive le menu à l'écran (une option s'ajoute dans les contrôles zoom pour l'activer)
+
+*/
+const advancedOptions = [
+  OPT_FORCE_OUT_OF_BAND_DTMF,
+  OPT_ENABLE_1080P,
+  OPT_SUPPRESS_AUDIO_PROMPTS,
+  OPT_SUPPRESS_VISUAL_MENU
+];
 
 
 //CONFIGURATION CI-DESSOUS
-
 /* POUR UTILISATION AVEC SYSTÈME SSE-COMODALE-E2021 */
-
+/*
 import xapi from 'xapi';
 import * as JoindreZoomUI from './JoindreZoom_UI';
 import * as RoomConfig from './RoomConfig';
@@ -101,34 +125,36 @@ var zoomConfig = {
     autoDelete: RoomConfig.config.zoom.callHistoryAutoDelete,
     autoDeleteMethod: RoomConfig.config.zoom.callHistoryAutoDeleteMethod,
     autoDeleteTimeout: RoomConfig.config.zoom.callHistoryAutoDeleteTimeout
+  },  
+  ui:{
+    iconOrder: RoomConfig.config.ui.iconOrder.zoom
   }
 }
-
-
-
-
-
+*/
 
 /* POUR UTILISATION EN MODE STANDALONE */
-/*
+
 import xapi from 'xapi';
 import * as JoindreZoomUI from './JoindreZoom_UI';
 import * as Rkhelper from './Rkhelper';
+
+const DEBUG = false;
 
 var standalone = true;
 var zoomConfig = {
   call: {
     sipDomains: [`zmca.us`, `zoomcrc.com`], //Domaines SIP reconnus. Le premier est celui par défaut pour la composition.
-    askHostKeyWithOBTP:true //Demande le host key dans une boite de dialogue lorsque l'appel est effectué via le OBTP
+    askHostKeyWithOBTP: true //Demande le host key dans une boite de dialogue lorsque l'appel est effectué via le OBTP
   },
   callHistory: {
     autoDelete: true, //Nettoyage de l'historique d'appel: true, false
     autoDeleteMethod: METHOD_ONDISCONNECT, //Méthode de nettoyage: METHOD_ONDISCONNECT , METHOD_ONSTANDBY
     autoDeleteTimeout: 3000 //Temps de grâce avant le nettoyage (ms)
+  },
+  ui: {
+    iconOrder: 1
   }
 }
-*/
-
 
 
 
@@ -147,19 +173,24 @@ const METHOD_ONSTANDBY = `AUTODELETEMETHOD_ONSTANDBY`;
 
 var currentCall = {};
 var deleteCallHistoryTimeout;
+var hostkeyShown = false;
 var obtpPattern = /\d*\.\d*@/;
 var zoomCallConfig = {
   obtp: true
 };
 
 
+function getOptions() {
+  return advancedOptions.join('');
+}
+
 function callZoom() {
   var sipuri = '';
   if (zoomCallConfig.conferenceType == CONFTYPE_HOST) {
-    sipuri = `${zoomCallConfig.conferenceNumber}.${zoomCallConfig.conferencePin}..${zoomCallConfig.hostKey}@${zoomConfig.call.sipDomains[0]}`;
+    sipuri = `${zoomCallConfig.conferenceNumber}.${zoomCallConfig.conferencePin}.${getOptions()}.${zoomCallConfig.hostKey}@${zoomConfig.call.sipDomains[0]}`;
   }
   else if (zoomCallConfig.conferenceType == CONFTYPE_GUEST) {
-    sipuri = zoomCallConfig.conferenceNumber + '.' + zoomCallConfig.conferencePin + `@${zoomConfig.call.sipDomains[0]}`;
+    sipuri = zoomCallConfig.conferenceNumber + '.' + zoomCallConfig.conferencePin + `.${getOptions()}@${zoomConfig.call.sipDomains[0]}`;
   }
 
 
@@ -370,6 +401,12 @@ btnAdmitAll.onClick(() => {
   xapi.Command.UserInterface.Extensions.Panel.Close();
 });
 
+var btnMenu = new Rkhelper.UI.Button('zoomMenu');
+btnMenu.onClick(() => {
+  dtmfSend('7');
+  xapi.Command.UserInterface.Extensions.Panel.Close();
+});
+
 
 
 
@@ -395,7 +432,12 @@ function deleteCallHistory() {
 
 function dtmfSend(string) {
   xapi.Command.Call.dtmfSend({
-    DTMFString: string
+    DTMFString: `*${string}`
+  });
+}
+function dtmfSendCode(string) {
+    xapi.Command.Call.dtmfSend({
+    DTMFString: `${string}`
   });
 }
 
@@ -415,12 +457,13 @@ xapi.Status.Call.on(call => {
   Object.assign(currentCall, call);
   if (currentCall.Status === 'Connected') {
     if (isZoom(currentCall.CallbackNumber)) {
-      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP) {
+      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown) {
         if (DEBUG)
           console.log(zoomConfig);
+        hostkeyShown = true;
         zoomAskHostKeyOBTP(response => {
           if (response != '') {
-            dtmfSend(`${response}#`);
+            dtmfSendCode(`${response}#`);
           }
         },
           cancel => {
@@ -443,6 +486,7 @@ xapi.Status.Call.on(call => {
 xapi.Event.CallDisconnect.on(call => {
   hideZoomInCallMenu();
   zoomCallConfig.obtp = true;
+  hostkeyShown = false;
   if (zoomConfig.callHistory.autoDeleteMethod === METHOD_ONDISCONNECT) {
     deleteCallHistoryTimeout = setTimeout(deleteCallHistory, zoomConfig.callHistory.autoDeleteTimeout);
   }
@@ -452,6 +496,9 @@ xapi.Event.CallDisconnect.on(call => {
 xapi.Status.Standby.on(status => {
   if (status.State === `Standby` && zoomConfig.callHistory.autoDeleteMethod === METHOD_ONSTANDBY) {
     deleteCallHistoryTimeout = setTimeout(deleteCallHistory, zoomConfig.callHistory.autoDeleteTimeout);
+  }
+  else if (status.State == 'Off') {
+    JoindreZoomUI.createUi(advancedOptions, zoomConfig.ui.iconOrder);
   }
 });
 
@@ -510,27 +557,5 @@ function init() {
 
 
 
-JoindreZoomUI.createUi();
+JoindreZoomUI.createUi(advancedOptions, zoomConfig.ui.iconOrder);
 init();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

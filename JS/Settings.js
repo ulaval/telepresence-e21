@@ -2,7 +2,7 @@
 
 Système: Salles comodales 2021
 Script: Settings
-Version: 2
+Version: ->2.0
 Description: Gestion de la fenêtre de paramètres
 
 Auteur: Zacharie Gignac
@@ -34,6 +34,12 @@ SOFTWARE.
 
 CHANGELOG
 
+Version 4:
+  - Ajout du support pour l'ordre des icônes
+  - Correction d'un bug de layout des boutons d'activité
+  - Le système enlève maintenant le mute lors de la routine de remise à zéro (mise en veille)
+  - Le système remet automatiquement le volume par défaut (spécifié dans la configuration) lors de la routine de remise à zéro (mise en veille)
+  
 Version 2:
   - Enlevé le bouton "STOP" de la toile en mode manuel
   - Arrangé un bug lorsque le niveau audio demandé dépasse la limite de 70db
@@ -70,7 +76,6 @@ var ceilingMicsMode = 'on';
 
 
 function drawRoomConfigPanel() {
-
   xapi.Command.UserInterface.Extensions.Panel.Save({
     PanelId: 'roomconfig'
   },
@@ -78,7 +83,7 @@ function drawRoomConfigPanel() {
 <Extensions>
   <Version>1.8</Version>
   <Panel>
-    <Order>10</Order>
+    <Order>${RoomConfig.config.ui.iconOrder.settings}</Order>
     <PanelId>roomconfig</PanelId>
     <Origin>local</Origin>
     <Type>Statusbar</Type>
@@ -175,7 +180,7 @@ function getActivitiesControls() {
         <Widget>
           <WidgetId>currentactivity</WidgetId>
           <Type>GroupButton</Type>
-          <Options>size=2</Options>
+          <Options>size=4;columns=2</Options>
           <ValueSpace>`;
 
     RoomConfig.config.room.activities.forEach(activity => {
@@ -416,6 +421,9 @@ function setDefaultValues() {
     });
   }
 
+  xapi.Command.Audio.Microphones.Unmute();
+  xapi.Command.Audio.Volume.Set({ Level: RoomConfig.config.audio.defaultVolume});
+
   setCeilingMicsMode('on');
 
   showdisplaycontrols = false;
@@ -479,8 +487,8 @@ function updateUiElements() {
     });
 
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
-      WidgetId:TGL_CEILINGMICS,
-      Value:ceilingMicsMode
+      WidgetId: TGL_CEILINGMICS,
+      Value: ceilingMicsMode
     });
   }
 
@@ -632,6 +640,7 @@ export function init(c) {
     }
     else if (value == 'Off') {
       setDefaultValues();
+      drawRoomConfigPanel();
     }
 
   });

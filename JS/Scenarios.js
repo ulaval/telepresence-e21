@@ -2,9 +2,8 @@
 
 Système: Salles comodales 2021
 Script: Scenarios
-Version: 3
 Description: Gestion des scénarios
-
+Version: ->2.0
 Auteur: Zacharie Gignac
 Date: Août 2021
 Organisation: Université Laval
@@ -34,6 +33,10 @@ SOFTWARE.
 
 CHANGELOG
 
+Version 4:
+  - Ajout du support pour les "customScenarios"
+
+  
 Version 3:
   - Arrangé un bug d'affichage lorsque le présentateur est à distance et qu'il n'y a pas de présentation
   - Arrangé un bug de routage audio lorsque le présentateur est à distance. Le son sera seulement routé dans la salle, pas dans la barre de son
@@ -75,6 +78,9 @@ const SCE_STANDBY = 'SCE_STANDBY';
 const SCE_NOCALL = 'SCE_NOCALL';
 const SCE_INCALL = 'SCE_INCALL';
 
+var customScenario = false;
+var customScenarioName = '';
+
 
 
 export class Scenarios {
@@ -84,18 +90,22 @@ export class Scenarios {
     this.type = 'Scenarios';
     this.controller = controller;
     this.currentScenario = undefined;
+    this.customScenario = false;
     this.systemReady = false;
     this.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
       this.statusChanged(status);
     });
+    
+    Rkhelper.IMC.registerFunction(this.enableCustomScenario);
+    Rkhelper.IMC.registerFunction(this.disableCustomScenario);
+
+    
   }
   tvOn() {
     clearTimeout(this.tvOffTimer);
     this.controller.tvOn();
   }
   tvOff() {
-    //const that = this;
-    //this.tvOffTimer = setTimeout(function () { that.controller.tvOff(); }, RoomConfig.config.room.tvOffDelay);
     this.controller.tvOff(false, false);
   }
   tvOffNow() {
@@ -106,8 +116,6 @@ export class Scenarios {
     this.controller.projOn();
   }
   projOff() {
-    //const that = this;
-    //this.projOffTimer = setTimeout(function () { that.controller.projOff(); }, RoomConfig.config.room.projOffDelay);
     this.controller.projOff(false, false);
   }
   projOffNow() {
@@ -120,6 +128,19 @@ export class Scenarios {
     this.controller.screenDown();
   }
 
+
+  enableCustomScenario(name) {
+    if (DEBUG)
+      console.log(`Enabling custom scenario: ${name}`);
+    customScenario = true;
+    customScenarioName = name;
+  }
+  disableCustomScenario() {
+    if (DEBUG)
+      console.log(`Disabling custom scenario: ${customScenarioName}`);
+    customScenario = false;
+    customScenarioName = '';
+  }
 
 
   update_SCE_STANDBY(status) {
@@ -148,7 +169,6 @@ export class Scenarios {
   }
 
   update_SCE_NOCALL(status) {
-    //console.log(status);
     if (DEBUG)
       console.log('NOCALL -> statusChanged');
     if (status.activity == 'normal') {
@@ -1210,6 +1230,11 @@ export class Scenarios {
     if (DEBUG)
       console.log(`SCENARIOS: statusChanged`);
     if (this.systemReady) {
+      if (customScenario) {
+        if (DEBUG)
+          console.log(`SCENARIOS: skipping statusChanged, custom scenario in use: ${customScenarioName}`);
+      }
+      else {
       xapi.Status.Standby.State.get().then(standby => {
         if (standby == 'Standby') {
           this.update_SCE_STANDBY(status);
@@ -1219,16 +1244,11 @@ export class Scenarios {
             this.update_SCE_NOCALL(status);
           }
           else if (status.callStatus.Status == 'Connected' || status.callStatus.Status == 'Connecting') {
-            /*
-            if (RoomConfig.config.room.autoEnablePresenterTrack) {
-              xapi.Command.Cameras.PresenterTrack.Set({
-                Mode: 'Follow'
-              });
-            }*/
             this.update_SCE_INCALL(status);
           }
         }
       });
+      }
     }
     else {
       if (DEBUG)

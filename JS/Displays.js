@@ -2,7 +2,7 @@
 
 Système: Salles comodales 2021
 Script: Displays
-Version: 2
+Version: ->2.0
 Description: Gère le statut, les messages et les états des
              affichages
 
@@ -35,6 +35,9 @@ SOFTWARE.
 
 CHANGELOG
 
+Version 4
+  - Arrangé un bug concernant le power-off de la télé (très rare)
+
 Version 2:
   - Arrangé un bug pour empêcher le module Crestron d'executer 2 fois la commande
     "SCREEN_DN" ou "SCREEN_UP" qui apparemment stop la toile
@@ -47,7 +50,7 @@ Version 1:
 import xapi from 'xapi';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = false;
+const DEBUG = true;
 
 export class TV {
   constructor(controller) {
@@ -83,7 +86,7 @@ export class TV {
     clearTimeout(this.tvOffTimer);
     this.tvOffTimer = setTimeout(function () {
       xapi.Command.Message.Send({
-        Text: `PROJ_POWER_OFF`
+        Text: `TV_POWER_OFF`
       });
     }, delay);
 

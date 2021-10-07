@@ -1,8 +1,8 @@
-/************************************************************
+/************************************************************ OLD
 
 Système: Salles comodales 2021
 Script: RoomConfig
-Version: 1
+Version: ->2.0
 Description: Fichier de configuration pour le système
 
 Auteur: Zacharie Gignac
@@ -36,24 +36,37 @@ SOFTWARE.
     autoDeleteMethod: METHOD_ONDISCONNECT, //Méthode de nettoyage: METHOD_ONDISCONNECT , METHOD_ONSTANDBY
     autoDeleteTimeout: 30000 //Temps de grâce avant le nettoyage (ms)
 
+
+Version 4
+  - Ajout de la section "UI/iconOrder" qui détermine la position des icônes dans l'interface
+  - Ajout des clés "usbmode/pcInput1" et "usbmode/pcInput2" pour le module "USBModeDual"
+
 *************************************************************/
 
 import xapi from 'xapi';
 
 export var config = {
+  ui:{
+    iconOrder:{
+      zoom:1,
+      usbmode:2,
+      settings:3,
+      shutdown:4
+    }
+  },
   room: {
-    name: 'DKN2153',                        //Nom du système, doit être unique
+    name: 'CSL1640',                        //Nom du système, doit être unique
     supportContact: 'Courriel: aide@cstip.ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
     motorizedScreen: true,                  //Active le contrôle de la toile motorisée
     boardBehindScreen: true,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
-    projOffDelay: 200000,                  //Temps avant la fermeture du projecteur (MS)
+    projOffDelay: 20000,                  //Temps avant la fermeture du projecteur (MS)
     loadingDelay: 5000,                     //Délais avant l'initialisation des scripts en ms. Défaut: 200000 (MS) (3 minutes 20 secondes)
     controlSystemPollingInterval: 5000,     //Temps entre chaque vérification du système de contrôle (Crestron)
-    fakeControlSystem: false,                //false = normal, true = developement
-    controlSystemSerial: '2123JBH00341',     //numéro de série du processeur crestron
+    fakeControlSystem: true,                //false = normal, true = developement
+    controlSystemSerial: '2123JBH00044',     //numéro de série du processeur crestron
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
@@ -73,7 +86,9 @@ export var config = {
   },
   usbmode: {
     showRecordingOption: false,              //Affiche l'option "Enregistrement" dans le mode USB <true, false>
-    autoDetectUSBConnection: false           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
+    autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
+    localPcInput1:1,
+    localPcInput2:1
   },
   zoom: {
     askHostKeyWithOBTP: true,                 //Demande le host key dans une boite de dialogue lorsque l'appel est effectué via le OBTP
@@ -92,7 +107,8 @@ export var config = {
   video: {
     remoteMonitorOutputId: 3,                 //Connecteur HDMI du moniteur des sites distants
     projectorOutputId: 1,                     //Connecteur HDMI du projecteur
-    usbOutputId: 2                            //Connecteur HDMI du convertisseur HDMI->USB
+    usbOutputId: 2,                           //Connecteur HDMI du convertisseur HDMI->USB
+    autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
     loud: 6,                                  //Nombre de DB à additionner pour le mode "Fort"
@@ -101,18 +117,6 @@ export var config = {
       {
         name: 'Sans-fil (casque)',        //Nom de l'entrée audio
         connector: 6,                         //Numéro de connecteur
-        normal: 54,                           //Volume normal en DB
-        defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
-      },
-      {
-        name: 'XLR haut (plaque)',        //Nom de l'entrée audio
-        connector: 7,                         //Numéro de connecteur
-        normal: 54,                           //Volume normal en DB
-        defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
-      },
-      {
-        name: 'XLR bas (plaque)',        //Nom de l'entrée audio
-        connector: 8,                         //Numéro de connecteur
         normal: 54,                           //Volume normal en DB
         defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
       }

@@ -2,14 +2,13 @@
 
 Système: Salles comodales 2021
 Script: RoomController
-Version: 1.1
+Version: ->2.0
 Description: Charge les différentes composantes du système
              et gère le comportement général de la salle
 
 Auteur: Zacharie Gignac
 Date: Août 2021
 Organisation: Université Laval
-
 
 MIT License
 
@@ -33,6 +32,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+CHANGELOG
+
+Version 4
+  - Ajout du support pour l'ordre des icônes
+  - Arrangé un bug lorsque l'utilisateur ferme le système avec le mode d'affichage automatique à OFF
+  - Arrangé un bug lorsque l'utilisateur ferme le système avec le mode d'éclairage automatique à OFF
+
+
 *************************************************************/
 
 
@@ -44,7 +51,7 @@ import * as Scenarios from './Scenarios';
 import * as Displays from './Displays';
 import * as Lights from './Lights';
 
-const DEBUG = false;
+const DEBUG = true;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -90,9 +97,6 @@ var lights;
 export class Controller {
   constructor() {
     const that = this;
-    this.disp_tv = undefined;
-    this.disp_proj = undefined;
-    this.disp_screen = undefined;
     this.currentScenario = undefined;
     this.autoDisplay = true;
     this.autoLights = true;
@@ -100,6 +104,8 @@ export class Controller {
     this.disp_proj = new Displays.Projector(this);
     this.disp_screen = new Displays.Screen(this);
     this.lights = new Lights.Lights(this);
+
+    
 
 
     //nouvelle méthode
@@ -137,7 +143,7 @@ export class Controller {
               this.disp_tv.on();
             }
             else {
-              this.disp_tv.off();
+              this.disp_tv.off(true);
             }
             break;
 
@@ -164,12 +170,16 @@ export class Controller {
         }
       }
     });
-
+    
     xapi.Status.Standby.State.on(value => {
       if (value == 'Standby') {
-        this.autoDisplay = true;
+        this.autoDisplay = RoomConfig.config.room.displayControl;
+        this.autoLights = RoomConfig.config.room.lightsControl;
       }
     });
+
+
+
   }
 
   getSystemStatus() {
@@ -250,13 +260,14 @@ export class Controller {
       if (DEBUG) {
         xapi.Command.Video.Graphics.Text.Display({
           text: status,
-          duration: 15
+          duration: 5
         });
       }
-
     });
   }
 }
+
+
 
 function privatemode_enabled() {
   if (DEBUG)
@@ -282,6 +293,46 @@ async function loadingStart() {
 
 }
 
+function createUi() {
+  //Ajoute le bouton "Terminer la session"
+  xapi.command('UserInterface Extensions Panel Save', {
+    PanelId: 'endSession'
+
+  }, `
+  <Extensions>
+  <Version>1.8</Version>
+  <Panel>
+    <Order>${RoomConfig.config.ui.iconOrder.shutdown}</Order>
+    <PanelId>endSession</PanelId>
+    <Type>Home</Type>
+    <Icon>Power</Icon>
+    <Color>#FF0000</Color>
+    <Name>Fermer le système</Name>
+    <ActivityType>Custom</ActivityType>
+  </Panel>
+</Extensions>
+`);
+}
+
+
+function tvOn(force) {
+  controller.disp_tv.on(force);
+}
+function tvOff(force) {
+  controller.disp_tv.off(force);
+}
+function projOn(force) {
+  controller.disp_proj.on(force);
+}
+function projOff(force) {
+  controller.disp_proj.off(force);
+}
+function screenUp(force) {
+  controller.disp_screen.up(force);
+}
+function screenDown(force) {
+  controller.disp_screen.down(force);
+}
 
 function loadingEnd() {
 
@@ -294,29 +345,24 @@ function loadingEnd() {
   enableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_enable');
   disableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_disable');
 
+
+  
+
   //Register callbacks 
   Rkhelper.IMC.registerFunction(ui_InitDone);
   Rkhelper.IMC.registerFunction(privatemode_enabled);
   Rkhelper.IMC.registerFunction(privatemode_disabled);
+  Rkhelper.IMC.registerFunction(tvOn);
+  Rkhelper.IMC.registerFunction(tvOff);
+  Rkhelper.IMC.registerFunction(projOn);
+  Rkhelper.IMC.registerFunction(projOff);
+  Rkhelper.IMC.registerFunction(screenUp);
+  Rkhelper.IMC.registerFunction(screenDown);
+  
 
-  //Ajoute le bouton "Terminer la session"
-  xapi.command('UserInterface Extensions Panel Save', {
-    PanelId: 'endSession'
+  createUi();
 
-  }, `
-  <Extensions>
-  <Version>1.8</Version>
-  <Panel>
-    <Order>20</Order>
-    <PanelId>endSession</PanelId>
-    <Type>Home</Type>
-    <Icon>Power</Icon>
-    <Color>#FF0000</Color>
-    <Name>Fermer le système</Name>
-    <ActivityType>Custom</ActivityType>
-  </Panel>
-</Extensions>
-`);
+
 
   xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
     if (panel.PanelId == 'endSession') {
@@ -442,4 +488,8 @@ xapi.Event.CallDisconnect.on(value => {
 });
 
 
-
+xapi.Status.Standby.State.on(value => {
+  if (value == 'Off') {
+    createUi();
+  }
+});
