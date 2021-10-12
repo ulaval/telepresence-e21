@@ -10,6 +10,7 @@
 - RoomConfig.js: Added the "audio/useCombinedAecReference" for the new AEC reference method (audioconsole)
 - RoomController.js: Added support for icon order
 - Scenarios.js: Added experimental support for custom scenarios (external scenarios)
+- Scenarios.js: Added support for new AEC reference method
 - Settings.js: Added support for icon order
 - USBMode.js: Added support for icon order
 - USBModeDual.js: Added macro
