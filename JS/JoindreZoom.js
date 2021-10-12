@@ -36,10 +36,7 @@ SOFTWARE.
 CHANGELOG
 
 VERSION 4
-      - Correction d'un bug mineur (warning) lors d'un appel non-sip (spark)
-      - Ajout des options avancées
-      - Ajout du support pour l'ordre des icônes
-      - Ajustement de l'envoi des touches DTMF pour inclure une commande de sortie de menu avant une nouvelle commande
+      - CHANGELOG MOVED TO GITHUB
 
 
 VERSION 1.1
@@ -107,7 +104,7 @@ const advancedOptions = [
 
 //CONFIGURATION CI-DESSOUS
 /* POUR UTILISATION AVEC SYSTÈME SSE-COMODALE-E2021 */
-/*
+
 import xapi from 'xapi';
 import * as JoindreZoomUI from './JoindreZoom_UI';
 import * as RoomConfig from './RoomConfig';
@@ -130,10 +127,10 @@ var zoomConfig = {
     iconOrder: RoomConfig.config.ui.iconOrder.zoom
   }
 }
-*/
+
 
 /* POUR UTILISATION EN MODE STANDALONE */
-
+/*
 import xapi from 'xapi';
 import * as JoindreZoomUI from './JoindreZoom_UI';
 import * as Rkhelper from './Rkhelper';
@@ -155,7 +152,7 @@ var zoomConfig = {
     iconOrder: 1
   }
 }
-
+*/
 
 
 
@@ -457,7 +454,7 @@ xapi.Status.Call.on(call => {
   Object.assign(currentCall, call);
   if (currentCall.Status === 'Connected') {
     if (isZoom(currentCall.CallbackNumber)) {
-      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown) {
+      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown && zoomCallConfig.conferenceType == CONFTYPE_HOST) {
         if (DEBUG)
           console.log(zoomConfig);
         hostkeyShown = true;

@@ -34,7 +34,7 @@ SOFTWARE.
 CHANGELOG
 
 Version 4:
-  - Ajout du support pour les "customScenarios"
+  - CHANGELOG MOVED TO GITHUB
 
   
 Version 3:
@@ -95,11 +95,11 @@ export class Scenarios {
     this.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
       this.statusChanged(status);
     });
-    
+
     Rkhelper.IMC.registerFunction(this.enableCustomScenario);
     Rkhelper.IMC.registerFunction(this.disableCustomScenario);
 
-    
+
   }
   tvOn() {
     clearTimeout(this.tvOffTimer);
@@ -152,18 +152,41 @@ export class Scenarios {
     this.screenUp();
 
     //audio routing (defaults)
-    Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-      Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-        xapi.Command.Audio.LocalOutput.Update({
-          Loudspeaker: 'Off',
-          OutputId: roomOutput
-        });
-        xapi.Command.Audio.LocalOutput.Update({
-          Loudspeaker: 'On',
-          OutputId: monitorOutput
+    if (RoomConfig.config.audio.useCombinedAecReference) {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+            xapi.Command.Audio.LocalOutput.Update({
+              Loudspeaker: 'Off',
+              OutputId: roomOutput
+            });
+            xapi.Command.Audio.LocalOutput.Update({
+              Loudspeaker: 'Off',
+              OutputId: monitorOutput
+            });
+            xapi.Command.Audio.LocalOutput.Update({
+              LoudSpeaker: 'On',
+              OutputId: aecOutput
+            });
+          });
         });
       });
-    });
+    }
+    else {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          xapi.Command.Audio.LocalOutput.Update({
+            Loudspeaker: 'Off',
+            OutputId: roomOutput
+          });
+          xapi.Command.Audio.LocalOutput.Update({
+            Loudspeaker: 'On',
+            OutputId: monitorOutput
+          });
+        });
+      });
+    }
+
 
     this.controller.activateLightScene('scene_normal');
   }
@@ -329,31 +352,54 @@ export class Scenarios {
 
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
           this.controller.activateLightScene('scene_normal');
         }
 
@@ -374,30 +420,53 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -419,31 +488,54 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -465,31 +557,54 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -517,30 +632,53 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_normal');
         }
@@ -579,30 +717,53 @@ export class Scenarios {
 
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -640,30 +801,53 @@ export class Scenarios {
           });
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -700,30 +884,53 @@ export class Scenarios {
           });
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_projection');
         }
@@ -792,31 +999,54 @@ export class Scenarios {
             });
           }
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
           this.controller.activateLightScene('scene_board');
         }
 
@@ -843,30 +1073,53 @@ export class Scenarios {
             });
           }
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -894,31 +1147,54 @@ export class Scenarios {
             });
           }
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -947,31 +1223,54 @@ export class Scenarios {
           }
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: roomOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: roomOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -1006,30 +1305,53 @@ export class Scenarios {
           }
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
+                    OutputId: roomOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
-                    OutputId: roomrOutput
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomrOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -1075,30 +1397,53 @@ export class Scenarios {
 
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
+                    OutputId: roomOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
-                    OutputId: roomrOutput
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomrOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -1143,30 +1488,53 @@ export class Scenarios {
           });
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
+                    OutputId: roomOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
-                    OutputId: roomrOutput
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: monitorOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: roomOutput
+            });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomrOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: monitorOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: roomOutput
+                });
               });
             });
-          });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -1194,31 +1562,54 @@ export class Scenarios {
           }
 
           //audio routing
-          Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-            Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-              Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                ri.forEach(i => {
-                  xapi.Command.Audio.LocalOutput.DisconnectInput({
-                    InputId: i,
+          if (RoomConfig.config.audio.useCombinedAecReference) {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
+                    OutputId: roomOutput
+                  });
+                  xapi.Command.Audio.LocalOutput.Update({
+                    Loudspeaker: 'Off',
                     OutputId: monitorOutput
                   });
-                  xapi.Command.Audio.LocalOutput.ConnectInput({
-                    InputId: i,
-                    OutputId: roomrOutput
+                  xapi.Command.Audio.LocalOutput.Update({
+                    LoudSpeaker: 'On',
+                    OutputId: aecOutput
                   });
                 });
               });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'Off',
-                OutputId: roomOutput
-              });
-              xapi.Command.Audio.LocalOutput.Update({
-                Loudspeaker: 'On',
-                OutputId: monitorOutput
-              });
-
             });
-          });
+          }
+          else {
+            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                  ri.forEach(i => {
+                    xapi.Command.Audio.LocalOutput.DisconnectInput({
+                      InputId: i,
+                      OutputId: monitorOutput
+                    });
+                    xapi.Command.Audio.LocalOutput.ConnectInput({
+                      InputId: i,
+                      OutputId: roomrOutput
+                    });
+                  });
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'Off',
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.Update({
+                  Loudspeaker: 'On',
+                  OutputId: monitorOutput
+                });
+
+              });
+            });
+          }
+
 
           this.controller.activateLightScene('scene_board');
         }
@@ -1235,19 +1626,19 @@ export class Scenarios {
           console.log(`SCENARIOS: skipping statusChanged, custom scenario in use: ${customScenarioName}`);
       }
       else {
-      xapi.Status.Standby.State.get().then(standby => {
-        if (standby == 'Standby') {
-          this.update_SCE_STANDBY(status);
-        }
-        else {
-          if (status.callStatus.Status == undefined) {
-            this.update_SCE_NOCALL(status);
+        xapi.Status.Standby.State.get().then(standby => {
+          if (standby == 'Standby') {
+            this.update_SCE_STANDBY(status);
           }
-          else if (status.callStatus.Status == 'Connected' || status.callStatus.Status == 'Connecting') {
-            this.update_SCE_INCALL(status);
+          else {
+            if (status.callStatus.Status == undefined) {
+              this.update_SCE_NOCALL(status);
+            }
+            else if (status.callStatus.Status == 'Connected' || status.callStatus.Status == 'Connecting') {
+              this.update_SCE_INCALL(status);
+            }
           }
-        }
-      });
+        });
       }
     }
     else {

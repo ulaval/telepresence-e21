@@ -35,9 +35,7 @@ SOFTWARE.
 CHANGELOG
 
 Version 4
-  - Ajout du support pour l'ordre des icônes
-  - Arrangé un bug lorsque l'utilisateur ferme le système avec le mode d'affichage automatique à OFF
-  - Arrangé un bug lorsque l'utilisateur ferme le système avec le mode d'éclairage automatique à OFF
+  - CHANGELOG MOVED TO GITHUB
 
 
 *************************************************************/

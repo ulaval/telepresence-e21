@@ -35,10 +35,7 @@ SOFTWARE.
 CHANGELOG
 
 Version 4:
-  - Ajout du support pour l'ordre des icônes
-  - Correction d'un bug de layout des boutons d'activité
-  - Le système enlève maintenant le mute lors de la routine de remise à zéro (mise en veille)
-  - Le système remet automatiquement le volume par défaut (spécifié dans la configuration) lors de la routine de remise à zéro (mise en veille)
+  - CHANGELOG MOVED TO GITHUB
   
 Version 2:
   - Enlevé le bouton "STOP" de la toile en mode manuel

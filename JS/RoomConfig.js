@@ -38,8 +38,7 @@ SOFTWARE.
 
 
 Version 4
-  - Ajout de la section "UI/iconOrder" qui détermine la position des icônes dans l'interface
-  - Ajout des clés "usbmode/pcInput1" et "usbmode/pcInput2" pour le module "USBModeDual"
+  - CHANGELOG MOVED TO GITHUB
 
 *************************************************************/
 
@@ -111,6 +110,7 @@ export var config = {
     autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
+    useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>
     loud: 6,                                  //Nombre de DB à additionner pour le mode "Fort"
     louder: 12,                                //Nombre de DB à additionner pour le mode "Très fort"
     inputs: [

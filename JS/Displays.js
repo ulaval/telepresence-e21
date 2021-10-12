@@ -36,7 +36,7 @@ SOFTWARE.
 CHANGELOG
 
 Version 4
-  - Arrangé un bug concernant le power-off de la télé (très rare)
+  - CHANGELOG MOVED TO GITHUB
 
 Version 2:
   - Arrangé un bug pour empêcher le module Crestron d'executer 2 fois la commande

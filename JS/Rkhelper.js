@@ -46,7 +46,7 @@ Plusieurs composantes sont disponibles, entre autre:
 
 /* CHANGELOG
 Version 4
-
+      - CHANGELOG MOVED TO GITHUB
 
 VERSION 2
       - Remplacé certaines commandes réservées à ES6 par des commandes ES5 car mismatch de version de transpiler entre la page web et le codec (bug rapporté chez CISCO)

@@ -39,8 +39,7 @@ Version 4:
   
 
 Version 2:
-  - Enlevé les commandes ON et OFF, remplacés par "DIM 100" et "DIM 0"
-  - Arrangé un bug qui dans certaines circonstances ne remet pas le niveau de "DIM" au niveau antérieur après une commande "ON" manuelle
+  - CHANGELOG MOVED TO GITHUB
 
 
 *************************************************************/

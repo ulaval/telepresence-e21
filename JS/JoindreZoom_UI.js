@@ -33,9 +33,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Version 4
-  - Ajout du support pour les commandes avancées
-  - Ajout du support pour l'ordre des icônes
-  - Ajustement pour les options avancées
+  - CHANGELOG MOVED TO GITHUB
 
 
 *************************************************************/

@@ -35,7 +35,7 @@ SOFTWARE.
 
 CHANGELOG
 Version 4
-  - Version initiale
+  - CHANGELOG MOVED TO GITHUB
 
 *************************************************************/
 

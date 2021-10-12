@@ -34,8 +34,7 @@ SOFTWARE.
 
 CHANGELOG
 Version 4
-  - Ajout du support pour l'ordre des icônes
-  - Arrangé un bug qui recall le preset "Tableau" au lieu de "Console" lorsque le paramètre "autoEnablePresenterTrack" est à "true"
+  - CHANGELOG MOVED TO GITHUB
 
 
 Version 2
