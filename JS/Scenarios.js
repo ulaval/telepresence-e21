@@ -157,17 +157,18 @@ export class Scenarios {
         Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
           Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
             xapi.Command.Audio.LocalOutput.Update({
+              LoudSpeaker: 'Off',
+              OutputId: aecOutput
+            });
+            xapi.Command.Audio.LocalOutput.Update({
               Loudspeaker: 'Off',
               OutputId: roomOutput
             });
             xapi.Command.Audio.LocalOutput.Update({
-              Loudspeaker: 'Off',
+              Loudspeaker: 'On',
               OutputId: monitorOutput
             });
-            xapi.Command.Audio.LocalOutput.Update({
-              LoudSpeaker: 'On',
-              OutputId: aecOutput
-            });
+
           });
         });
       });
@@ -194,6 +195,42 @@ export class Scenarios {
   update_SCE_NOCALL(status) {
     if (DEBUG)
       console.log('NOCALL -> statusChanged');
+    //audio routing (defaults)
+    if (RoomConfig.config.audio.useCombinedAecReference) {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+            xapi.Command.Audio.LocalOutput.Update({
+              LoudSpeaker: 'Off',
+              OutputId: aecOutput
+            });
+            xapi.Command.Audio.LocalOutput.Update({
+              Loudspeaker: 'Off',
+              OutputId: roomOutput
+            });
+            xapi.Command.Audio.LocalOutput.Update({
+              Loudspeaker: 'On',
+              OutputId: monitorOutput
+            });
+
+          });
+        });
+      });
+    }
+    else {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          xapi.Command.Audio.LocalOutput.Update({
+            Loudspeaker: 'Off',
+            OutputId: roomOutput
+          });
+          xapi.Command.Audio.LocalOutput.Update({
+            Loudspeaker: 'On',
+            OutputId: monitorOutput
+          });
+        });
+      });
+    }
     if (status.activity == 'normal') {
       if (status.presentationStatus.localPresentation) {
 
