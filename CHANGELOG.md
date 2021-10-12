@@ -7,6 +7,7 @@
 - JoindreZoom_UI.js: Added support for "Advanced Options"
 - RoomConfig.js: Added the "UI/iconOrder" section
 - RoomConfig.js: Added the "usbmode/pcInput1" and "usbmode/pcInput2" for the "USBModeDual" macro
+- RoomConfig.js: Added the "audio/useCombinedAecReference" for the new AEC reference method (audioconsole)
 - RoomController.js: Added support for icon order
 - Scenarios.js: Added experimental support for custom scenarios (external scenarios)
 - Settings.js: Added support for icon order
