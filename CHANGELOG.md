@@ -1,4 +1,4 @@
-# [NOT RELEASED]
+# [NOT RELEASED / v4.0]
 ## Added
 - USBModeDual is added. CAN'T BE USE AT THE SAME TIME AS "USBMode"
 - JoindreZoom.js: Added "Advanced Options" (DTMF Options in SIP URI)
