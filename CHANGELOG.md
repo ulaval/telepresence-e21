@@ -27,4 +27,4 @@
 - JoindreZoom.js: DTMF menu is now closed before sending another DTMF command
 - RoomController.js: Corrected a bug that prevents the system from reseting to "AutoDisplay" and "AutoLights" when the system is put to sleep
 - Settings.js: Adjusted the "Activities" buttons layout
-- USBMode.js: Corrected a bug where the system is recalling the "Tableau" preset instead of the "Console" preset when the "authEnablePresenterTrack" setting is "true"
+- USBMode.js: Corrected a bug where the system is recalling the "Tableau" preset instead of the "Console" preset when the "autoEnablePresenterTrack" setting is "true"
