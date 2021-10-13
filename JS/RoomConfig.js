@@ -96,7 +96,7 @@ export var config = {
     callHistoryAutoDeleteTimeout: 30000       //Délais avant l'effacement du call history
   },
   camera: {
-    connector: 6,
+    connector: 1,
     defaultBrightness: 20                    //Brightness par défaut de la caméra
   },
   dnd: {
