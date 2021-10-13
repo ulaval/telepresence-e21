@@ -81,8 +81,8 @@ const SCE_INCALL = 'SCE_INCALL';
 var customScenario = false;
 var customScenarioName = '';
 
-var selfViewStatus = 'Off';
 
+var selfViewStatus = 'Off';
 
 
 export class Scenarios {
@@ -100,8 +100,6 @@ export class Scenarios {
 
     Rkhelper.IMC.registerFunction(this.enableCustomScenario);
     Rkhelper.IMC.registerFunction(this.disableCustomScenario);
-
-
 
 
     xapi.Status.Video.Selfview.Mode.on(mode => {
@@ -208,21 +206,10 @@ export class Scenarios {
     this.controller.activateLightScene('scene_normal');
   }
 
-  update_SCE_NOCALL(status) {
+
+  update_SCE_NOCALL(status, onlymatrix) {
     if (DEBUG)
       console.log('NOCALL -> statusChanged');
-
-    /* Active le speakertrack */
-    if (RoomConfig.config.room.autoEnablePresenterTrack) {
-      xapi.Command.Cameras.PresenterTrack.Set({
-        Mode: 'Follow'
-      });
-    }
-    else {
-      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-      });
-    }
 
 
     //audio routing (defaults)
@@ -314,16 +301,14 @@ export class Scenarios {
           Output: OUT_PROJ,
           RemoteMain: 4
         });
+
         if (selfViewStatus == 'On') {
-          ;
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_MON,
             SourceId: RoomConfig.config.camera.connector
           });
         }
-
-
         this.controller.activateLightScene('scene_normal');
       }
     }
@@ -352,6 +337,13 @@ export class Scenarios {
             RemoteMain: 4
           });
         }
+        if (selfViewStatus == 'On') {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            SourceId: RoomConfig.config.camera.connector
+          });
+        }
         this.controller.activateLightScene('scene_board');
       }
       else {
@@ -376,6 +368,13 @@ export class Scenarios {
           Output: OUT_MON,
           RemoteMain: 4
         });
+        if (selfViewStatus == 'On') {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            SourceId: RoomConfig.config.camera.connector
+          });
+        }
 
         this.controller.activateLightScene('scene_board');
       }
@@ -1713,7 +1712,20 @@ export class Scenarios {
             this.currentScenario = 'SCE_STANDBY';
             this.update_SCE_STANDBY(status);
           }
-          else {
+          else if (standby == 'Off') {
+            setTimeout(function () {
+              /* Active le speakertrack */
+              if (RoomConfig.config.room.autoEnablePresenterTrack) {
+                xapi.Command.Cameras.PresenterTrack.Set({
+                  Mode: 'Follow'
+                });
+              }
+              else {
+                Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+                  xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+                });
+              }
+            }, 8000);
             if (status.callStatus.Status == undefined) {
               this.currentScenario = 'SCE_NOCALL';
               this.update_SCE_NOCALL(status);
@@ -1744,7 +1756,3 @@ export class Scenarios {
   }
 
 }
-
-
-
-
