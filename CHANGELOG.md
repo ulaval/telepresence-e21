@@ -65,3 +65,8 @@ video: {
 ```
 useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>
 ```
+
+### config.zoom
+```
+DELETE -> askHostKeyWithOBTP: true
+```
