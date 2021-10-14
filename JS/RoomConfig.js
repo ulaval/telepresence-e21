@@ -85,7 +85,6 @@ export var config = {
   },
   usbmode: {
     showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
-    autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
     localPcInput1:4,                          //Entrée 1 pc local
     localPcInput2:3                           //Entrée 2 pc local
   },

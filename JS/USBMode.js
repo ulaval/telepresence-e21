@@ -478,33 +478,7 @@ function init() {
     }
   });
 
-  //Auto detect when USB is connected
-  if (RoomConfig.config.usbmode.autoDetectUSBConnection) {
-    xapi.Status.Video.Output.Connector[USBHDMICONNECTOR].Connected.on(value => {
-      xapi.Status.Video.Output.Connector[USBHDMICONNECTOR].ConnectedDevice.Name.get().then(cd => {
-        if (cd != '') {
-          if (DEBUG)
-            console.log('VALUE: ' + value);
-          if (DEBUG)
-            console.log('lastConnectedStatus: ' + lastConnectedStatus);
-          if (value != lastConnectedStatus) {
-            if (value == 'True') {
-              displayEnableUsbMode1()
-            }
-            else {
-              xapi.Command.UserInterface.Message.Prompt.Clear({
-                FeedbackId: 'fbEnableUsbMode1'
-              });
-              xapi.Command.UserInterface.Message.Prompt.Clear({
-                FeedbackId: 'fbEnableUsbMode1w'
-              });
-            }
-            lastConnectedStatus = value;
-          }
-        }
-      });
-    });
-  }
+
 }
 
 
