@@ -86,8 +86,8 @@ export var config = {
   usbmode: {
     showRecordingOption: false,              //Affiche l'option "Enregistrement" dans le mode USB <true, false>
     autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
-    localPcInput1:1,
-    localPcInput2:1
+    localPcInput1:4,
+    localPcInput2:3
   },
   zoom: {
     askHostKeyWithOBTP: true,                 //Demande le host key dans une boite de dialogue lorsque l'appel est effectué via le OBTP

@@ -82,6 +82,7 @@ var customScenario = false;
 var customScenarioName = '';
 
 
+
 var selfViewStatus = 'Off';
 
 
@@ -91,8 +92,6 @@ export class Scenarios {
       console.log(`SCENARIOS: Contructor`);
     this.type = 'Scenarios';
     this.controller = controller;
-    this.currentScenario = undefined;
-    this.customScenario = false;
     this.systemReady = false;
     this.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
       this.statusChanged(status);
@@ -100,11 +99,13 @@ export class Scenarios {
 
     Rkhelper.IMC.registerFunction(this.enableCustomScenario);
     Rkhelper.IMC.registerFunction(this.disableCustomScenario);
+    
 
 
     xapi.Status.Video.Selfview.Mode.on(mode => {
       selfViewStatus = mode;
-      if (this.currentScenario == 'SCE_NOCALL') {
+      if (this.currentScenario == 'SCE_NOCALL' && !customScenario) {
+        console.log('pas normal');
         Rkhelper.Status.getSystemStatus().then(result => {
           this.update_SCE_NOCALL(result);
         });
@@ -1756,3 +1757,7 @@ export class Scenarios {
   }
 
 }
+
+
+
+

@@ -76,6 +76,7 @@ var enablePrivateMode;
 var disablePrivateMode;
 var enableUsbMode;
 var disableUsbMode;
+
 var ready;
 var notready;
 var csConnected = false;
@@ -84,6 +85,7 @@ var loadingPrompt;
 var controlSystemWaiting;
 
 var scenarios;
+var disableCustomScenario;
 
 var statusChanged;
 
@@ -103,7 +105,7 @@ export class Controller {
     this.disp_screen = new Displays.Screen(this);
     this.lights = new Lights.Lights(this);
 
-    
+
 
 
     //nouvelle méthode
@@ -168,7 +170,7 @@ export class Controller {
         }
       }
     });
-    
+
     xapi.Status.Standby.State.on(value => {
       if (value == 'Standby') {
         this.autoDisplay = RoomConfig.config.room.displayControl;
@@ -331,7 +333,41 @@ function screenUp(force) {
 function screenDown(force) {
   controller.disp_screen.down(force);
 }
+function controllerStandbyRequest() {
+  Rkhelper.UI.prompt.display({
+    Duration: 8,
+    Title: `Fermer le système`,
+    Text: `Le système sera éteint et tous les paramètres seront réinitialisés.<br>Voulez-vous continuer ?`,
+    Options: [
+      {
+        id: 'endSessionContinue',
+        label: 'Oui, fermer le système',
+        callback: function () {
+          xapi.Command.Presentation.Stop();
+          xapi.Command.Call.Disconnect();
+          xapi.Command.UserInterface.Message.Prompt.Display(
+            {
+              Duration: 6,
+              FeedbackId: 'standbymessage',
+              Text: 'Aurevoir, à la prochaine!',
+              Title: `Le système s'éteint`
+            });
+          setTimeout(function () {
+            xapi.Command.Standby.Activate();
+          }, 6000);
+        }
+      },
+      {
+        id: 'endSessionCancel',
+        label: 'Non, annuler',
+        callback: function () { }
+      }
+    ]
+  },
+    cancel => {
 
+    });
+}
 function loadingEnd() {
 
 
@@ -342,9 +378,10 @@ function loadingEnd() {
   disablePrivateMode = Rkhelper.IMC.getFunctionCall('privatemode_disable');
   enableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_enable');
   disableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_disable');
+  disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
 
 
-  
+
 
   //Register callbacks 
   Rkhelper.IMC.registerFunction(ui_InitDone);
@@ -356,7 +393,7 @@ function loadingEnd() {
   Rkhelper.IMC.registerFunction(projOff);
   Rkhelper.IMC.registerFunction(screenUp);
   Rkhelper.IMC.registerFunction(screenDown);
-  
+
 
   createUi();
 
@@ -364,30 +401,7 @@ function loadingEnd() {
 
   xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
     if (panel.PanelId == 'endSession') {
-      Rkhelper.UI.prompt.display({
-        Duration: 8,
-        Title: `Fermer le système`,
-        Text: `Le système sera éteint et tous les paramètres seront réinitialisés.<br>Voulez-vous continuer ?`,
-        Options: [
-          {
-            id: 'endSessionContinue',
-            label: 'Oui, fermer le système',
-            callback: function () {
-              xapi.Command.Presentation.Stop();
-              xapi.Command.Call.Disconnect();
-              xapi.Command.Standby.Activate();
-            }
-          },
-          {
-            id: 'endSessionCancel',
-            label: 'Non, annuler',
-            callback: function () { }
-          }
-        ]
-      },
-        cancel => {
-
-        });
+      controllerStandbyRequest();
     }
   });
 
@@ -488,6 +502,13 @@ xapi.Event.CallDisconnect.on(value => {
 
 xapi.Status.Standby.State.on(value => {
   if (value == 'Off') {
+    xapi.Command.UserInterface.Message.Prompt.Display(
+      {
+        Duration: 5,
+        FeedbackId: 'wakemessage',
+        Text: 'Patientez quelques secondes, le système se prépare...',
+        Title: `Bonjour!`
+      });
     createUi();
   }
 });

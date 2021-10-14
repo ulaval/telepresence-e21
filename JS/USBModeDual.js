@@ -69,9 +69,9 @@ var micAudioInputId;
 
 var usbmode_enabled, usbmode_disabled, forceNotifyStatusChange;
 var usbModeDualEnabled = false;
-
+var disableCustomScenario;
 var privateModeActive = false;
-
+var controllerStandbyRequest;
 var wakeupTimer;
 
 
@@ -98,18 +98,34 @@ function disableNormalFunctions() {
   xapi.Config.UserInterface.Features.Call.Start.set('Hidden');
   xapi.Config.UserInterface.Features.Call.JoinWebex.set('Hidden');
   xapi.Config.UserInterface.Features.Share.Start.set('Hidden');
+  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSession', Visibility: 'Hidden' });
+  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Auto' });
   RoomConfig.config.video.autoShareInputs.forEach(input => {
     xapi.Config.Video.Input.Connector[input].PresentationSelection.set('Manual');
+    xapi.Config.Video.Input.Connector[input].Visibility.set('Never');
   });
+  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].Visibility.set('Never');
+  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].Visibility.set('Never');
+
+
+
   xapi.Command.Call.Disconnect();
 }
 function enableNormalFunctions() {
   xapi.Config.UserInterface.Features.Call.Start.set(RoomConfig.config.room.callFeatures);
   xapi.Config.UserInterface.Features.Call.JoinWebex.set('Auto');
   xapi.Config.UserInterface.Features.Share.Start.set('Auto');
+  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSession', Visibility: 'Auto' });
+  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
   RoomConfig.config.video.autoShareInputs.forEach(input => {
     xapi.Config.Video.Input.Connector[input].PresentationSelection.set('AutoShare');
+    xapi.Config.Video.Input.Connector[1].Visibility.set('IfSignal');
   });
+  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].Visibility.set('IfSignal');
+  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].Visibility.set('IfSignal');
+
+
+
 }
 
 /* SLEEP PREVENTION */
@@ -189,7 +205,7 @@ function enableUsbModeDual() {
 
   xapi.Command.UserInterface.Message.Prompt.Display({
     Title: 'Comodal écrans étendus (USB)',
-    Text: `Vous pouvez maintenant utiliser la caméra et les microphones dans l'application de votre choix sur l'ordinateur local.`,
+    Text: `Vous pouvez maintenant utiliser la caméra et les microphones de la salle dans l'application de votre choix sur l'ordinateur local.`,
     FeedbackId: 'fbnull',
     Duration: 0,
     'Option.1': 'Ok',
@@ -198,13 +214,21 @@ function enableUsbModeDual() {
   forceNotifyStatusChange();
 }
 function disableUsbModeDual() {
+
+  xapi.Command.UserInterface.Message.Prompt.Display(
+    {
+      Duration: 10,
+      FeedbackId: 'usbmodedualdisable',
+      Text: 'Désactivation en cours. Un instant s.v.p...',
+      Title: `Comodal écrans étendus`
+    });
   usbModeDualEnabled = false;
 
   disableSleepPrevention();
 
-  Rkhelper.IMC.callFunction('disableCustomScenario');
-
   enableNormalFunctions();
+  disableCustomScenario();
+
   usbmode_disabled();
 
   xapi.Command.UserInterface.Extensions.Panel.Update({
@@ -258,12 +282,37 @@ function screenDown(force) {
 
 /* SCRIPT INIT */
 function init() {
+  /* endSession panel override */
+  xapi.command('UserInterface Extensions Panel Save', {
+    PanelId: 'endSessionUsbModeDual'
+
+  }, `
+  <Extensions>
+  <Version>1.8</Version>
+  <Panel>
+    <Order>${RoomConfig.config.ui.iconOrder.shutdown}</Order>
+    <PanelId>endSession</PanelId>
+    <Type>Home</Type>
+    <Icon>Power</Icon>
+    <Color>#FF0000</Color>
+    <Name>Fermer le système</Name>
+    <ActivityType>Custom</ActivityType>
+  </Panel>
+</Extensions>
+`);
+
+  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
+
   /* INTER-MACRO COMMUNICATION */
   usbmode_enabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
   usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
   forceNotifyStatusChange = Rkhelper.IMC.getFunctionCall('forceNotifyStatusChange');
+  disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
+  controllerStandbyRequest = Rkhelper.IMC.getFunctionCall('controllerStandbyRequest')
+
   Rkhelper.IMC.registerFunction(privatemode_enabled);
   Rkhelper.IMC.registerFunction(privatemode_disabled);
+
 
   Rkhelper.Audio.getLocalInputId('PC').then(input => {
     pcAudioInputId = input;
@@ -285,8 +334,51 @@ function init() {
         setTimeout(enableUsbModeDual, 5000);
       }
     }
+    if (event.PanelId == 'endSessionUsbModeDual') {
+      if (usbModeDualEnabled) {
+        Rkhelper.UI.prompt.display({
+          Duration: 8,
+          Title: `Fermer le système`,
+          Text: `Le système sera éteint et tous les paramètres seront réinitialisés.<br>Voulez-vous continuer ?`,
+          Options: [
+            {
+              id: 'endSessionContinue',
+              label: 'Oui, fermer le système',
+              callback: function () {
+                disableUsbModeDual();
+                setTimeout(function () {
+                  xapi.Command.Presentation.Stop();
+                  xapi.Command.Call.Disconnect();
+                  xapi.Command.UserInterface.Message.Prompt.Display(
+                    {
+                      Duration: 6,
+                      FeedbackId: 'standbymessage',
+                      Text: 'Aurevoir, à la prochaine!',
+                      Title: `Le système s'éteint`
+                    });
+                  setTimeout(function () {
+                    xapi.Command.Standby.Activate();
+                  }, 6000);
+                }, 8000);
+              }
+            },
+            {
+              id: 'endSessionCancel',
+              label: 'Non, annuler',
+              callback: function () { }
+            }
+          ]
+        },
+          cancel => {
+
+          });
+
+      }
+    }
   });
 }
+
+
 
 Rkhelper.Status.addStatusChangeCallback(function (status) {
   if (usbModeDualEnabled) {
@@ -326,19 +418,37 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       projOn(true);
       tvOn(true);
       screenUp(true);
-      if (RoomConfig.config.room.boardBehindScreen) {
-        /* VIDEO ROUTING */
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: MONITORHDMICONNECTOR,
-          SourceId: localPcInput1
-        });
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: PROJECTORHDMICONNECTOR,
-          SourceId: localPcInput2
-        });
+      if (status.presLocation == 'local') {
+        if (RoomConfig.config.room.boardBehindScreen) {
+          /* VIDEO ROUTING */
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: MONITORHDMICONNECTOR,
+            SourceId: localPcInput1
+          });
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: PROJECTORHDMICONNECTOR,
+            RemoteMain: 4
+          });
+        }
       }
+      else if (status.presLocation == 'remote') {
+        if (RoomConfig.config.room.boardBehindScreen) {
+          /* VIDEO ROUTING */
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: MONITORHDMICONNECTOR,
+            SourceId: localPcInput1
+          });
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: PROJECTORHDMICONNECTOR,
+            RemoteMain: 4
+          });
+        }
+      }
+
 
     }
   }
@@ -348,7 +458,7 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
 /* RESPOND TO SLEEP / RESET */
 xapi.Status.Standby.State.on(state => {
   if (state == 'Standby') {
-    disableUsbModeDual();
+    //disableUsbModeDual();
   }
   else if (state == 'Off') {
     createUi();
