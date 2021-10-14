@@ -28,3 +28,41 @@
 - RoomController.js: Corrected a bug that prevents the system from reseting to "AutoDisplay" and "AutoLights" when the system is put to sleep
 - Settings.js: Adjusted the "Activities" buttons layout
 - USBMode.js: Corrected a bug where the system is recalling the "Tableau" preset instead of the "Console" preset when the "autoEnablePresenterTrack" setting is "true"
+
+
+## Config Adjustements for v4.0
+### config.ui
+```
+ui:{
+   iconOrder:{
+     zoom:1,
+     usbmode:2,
+     settings:3,
+     shutdown:4
+   }
+}
+```
+
+### config.usbmode
+```
+usbmode: {
+    showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
+    autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
+    localPcInput1:4,                          //Entrée 1 pc local
+    localPcInput2:3                           //Entrée 2 pc local
+}
+```
+
+### config.video
+```
+video: {
+    remoteMonitorOutputId: 3,                 //Connecteur HDMI du moniteur des sites distants
+    projectorOutputId: 1,                     //Connecteur HDMI du projecteur
+    usbOutputId: 2,                           //Connecteur HDMI du convertisseur HDMI->USB
+    autoShareInputs:[2]                       //Inputs qui sont en autoshare
+}
+```
+### config.audio
+```
+useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>
+```
