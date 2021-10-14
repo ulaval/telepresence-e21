@@ -1,6 +1,6 @@
 # [NOT RELEASED / v4.0]
 ## Added
-- USBModeDual is added. CAN'T BE USE AT THE SAME TIME AS "USBMode"
+- USBModeDual.js is added. CAN'T BE USE AT THE SAME TIME AS "USBMode"
 - JoindreZoom.js: Added "Advanced Options" (DTMF Options in SIP URI)
 - JoindreZoom.js: Added support for icon order
 - JoindreZoom_UI.js: Added support for icon order
@@ -14,7 +14,6 @@
 - Scenarios.js: Added support for new AEC reference method
 - Settings.js: Added support for icon order
 - USBMode.js: Added support for icon order
-- USBModeDual.js: Added macro
 
 ## Changed
 - Settings.js: The system is now unmuting itself on reset (sleep)
