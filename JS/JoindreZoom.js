@@ -116,7 +116,6 @@ var standalone = false;
 var zoomConfig = {
   call: {
     sipDomains: [`zmca.us`, `zoomcrc.com`], //Domaines SIP reconnus. Le premier est celui par défaut pour la composition.,
-    askHostKeyWithOBTP: RoomConfig.config.zoom.askHostKeyWithOBTP
   },
   callHistory: {
     autoDelete: RoomConfig.config.zoom.callHistoryAutoDelete,
@@ -141,7 +140,7 @@ var standalone = true;
 var zoomConfig = {
   call: {
     sipDomains: [`zmca.us`, `zoomcrc.com`], //Domaines SIP reconnus. Le premier est celui par défaut pour la composition.
-    askHostKeyWithOBTP: true //Demande le host key dans une boite de dialogue lorsque l'appel est effectué via le OBTP
+
   },
   callHistory: {
     autoDelete: true, //Nettoyage de l'historique d'appel: true, false
@@ -435,7 +434,7 @@ xapi.Status.Call.on(call => {
   Object.assign(currentCall, call);
   if (currentCall.Status === 'Connected') {
     if (isZoom(currentCall.CallbackNumber)) {
-      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown) {
+      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && !hostkeyShown) {
         if (DEBUG)
           console.log(zoomConfig);
         hostkeyShown = true;
