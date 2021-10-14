@@ -338,25 +338,6 @@ function zoomAskHostKey(callback, cancelcallback) {
   );
 }
 
-function zoomAskHostKeyOBTP(callback, cancelcallback) {
-  Rkhelper.UI.textPrompt.display({
-    Duration: 0,
-    FeedbackId: 'fbZoomHostKeyOBTP',
-    InputType: 'Numeric',
-    SubmitText: 'Confirmer',
-    KeyboardState: 'Open',
-    Placeholder: `Clé de l'animateur`,
-    Title: `Clé de l'animateur`,
-    Text: `Entrez la clé de l'animateur.<br>Appuyez sur "Annuler" si vous n'êtes pas l'animateur.`
-  },
-    response => {
-      callback(response.Text);
-    },
-    cancel => {
-      cancelcallback();
-    }
-  );
-}
 
 var btnLayout = new Rkhelper.UI.Button('zoomChangeLayout');
 btnLayout.onClick(() => {
@@ -454,18 +435,10 @@ xapi.Status.Call.on(call => {
   Object.assign(currentCall, call);
   if (currentCall.Status === 'Connected') {
     if (isZoom(currentCall.CallbackNumber)) {
-      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown && zoomCallConfig.conferenceType == CONFTYPE_HOST) {
+      if (zoomCallConfig.obtp == true && obtpPattern.test(currentCall.CallbackNumber) && zoomConfig.call.askHostKeyWithOBTP && !hostkeyShown) {
         if (DEBUG)
           console.log(zoomConfig);
         hostkeyShown = true;
-        zoomAskHostKeyOBTP(response => {
-          if (response != '') {
-            dtmfSendCode(`${response}#`);
-          }
-        },
-          cancel => {
-
-          });
       }
       showZoomInCallMenu();
       clearTimeout(deleteCallHistoryTimeout);
