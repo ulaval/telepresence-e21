@@ -506,7 +506,7 @@ xapi.Status.Standby.State.on(value => {
       {
         Duration: 5,
         FeedbackId: 'wakemessage',
-        Text: 'Patientez quelques secondes, le système se prépare...',
+        Text: 'Patientez quelques secondes, préparation du système...',
         Title: `Bonjour!`
       });
     createUi();
