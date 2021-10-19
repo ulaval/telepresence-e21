@@ -50,7 +50,7 @@ Version 1:
 import xapi from 'xapi';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = true;
+const DEBUG = false;
 
 export class TV {
   constructor(controller) {

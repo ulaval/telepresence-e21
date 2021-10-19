@@ -44,7 +44,7 @@ import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = true;
+const DEBUG = false;
 
 const PANELID = 'p_usbmodedual';
 const localPcInput1 = RoomConfig.config.usbmode.localPcInput1;
@@ -152,6 +152,7 @@ function enableUsbModeDual() {
   enableSleepPrevention();
 
   xapi.Command.Call.Disconnect();
+  xapi.Command.Presentation.Stop();
 
   Rkhelper.IMC.callFunction('enableCustomScenario', 'USBModeDual');
 
@@ -177,6 +178,10 @@ function enableUsbModeDual() {
     }
   }, 5000);
 
+  /* lights */
+  xapi.Command.Message.Send({
+    Text: `activateLightScene scene_projection`
+  });
 
   /* CONFIGURE HDMI INPUTS */
   xapi.Config.Audio.Input.HDMI[localPcInput1].VideoAssociation.MuteOnInactiveVideo.set('Off');
@@ -386,6 +391,10 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       tvOn(true);
       projOn(true);
       screenDown(true);
+      /* lights */
+      xapi.Command.Message.Send({
+        Text: `activateLightScene scene_projection`
+      });
 
       if (status.presLocation == 'local') {
         /* VIDEO ROUTING */
@@ -418,6 +427,10 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       projOn(true);
       tvOn(true);
       screenUp(true);
+      /* lights */
+      xapi.Command.Message.Send({
+        Text: `activateLightScene scene_board`
+      });
       if (status.presLocation == 'local') {
         if (RoomConfig.config.room.boardBehindScreen) {
           /* VIDEO ROUTING */
@@ -470,6 +483,8 @@ xapi.Status.Standby.State.on(state => {
 
 /* USER INTERFACE */
 function createUi() {
+
+
   xapi.Command.UserInterface.Extensions.Panel.Save({
     PanelId: 'p_usbmodedual'
   },

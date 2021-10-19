@@ -49,7 +49,7 @@ import * as Scenarios from './Scenarios';
 import * as Displays from './Displays';
 import * as Lights from './Lights';
 
-const DEBUG = true;
+const DEBUG = false;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -104,8 +104,6 @@ export class Controller {
     this.disp_proj = new Displays.Projector(this);
     this.disp_screen = new Displays.Screen(this);
     this.lights = new Lights.Lights(this);
-
-
 
 
     //nouvelle méthode
@@ -179,6 +177,14 @@ export class Controller {
     });
 
 
+    xapi.Event.Message.Send.on(message => {
+      message = message.Text;
+      if (message.split(' ')[0] == 'activateLightScene') {
+        this.activateLightScene(message.split(' ')[1]);
+      }
+    });
+
+    
 
   }
 
@@ -429,6 +435,8 @@ function loadingEnd() {
   setTimeout(function () {
     Rkhelper.UI.clearPrompt(l);
   }, RoomConfig.config.room.loadingDelay);
+
+  
 }
 
 
@@ -485,7 +493,6 @@ async function init() {
   scenarios = new Scenarios.Scenarios(controller);
   configureRkhelper();
   loadingStart();
-
 }
 init();
 

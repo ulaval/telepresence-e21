@@ -51,7 +51,7 @@ import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = true;
+const DEBUG = false;
 
 
 export const PRES_NOPRES = 'PRES_NOPRESENTATION';
