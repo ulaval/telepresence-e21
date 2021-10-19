@@ -54,12 +54,12 @@ export var config = {
     }
   },
   room: {
-    name: 'CSL1640',                        //Nom du système, doit être unique
-    supportContact: 'Courriel: aide@cstip.ulaval.ca',     //Email du soutien technique, '' si aucun
+    name: 'CMT****',                        //Nom du système, doit être unique
+    supportContact: 'Courriel: script.aide@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
-    lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
-    motorizedScreen: true,                  //Active le contrôle de la toile motorisée
-    boardBehindScreen: true,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
+    lightsControl: false,                    //Mode automatique de gestion de la salle <true, false>
+    motorizedScreen: false,                  //Active le contrôle de la toile motorisée
+    boardBehindScreen: false,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
     projOffDelay: 20000,                  //Temps avant la fermeture du projecteur (MS)
     loadingDelay: 5000,                     //Délais avant l'initialisation des scripts en ms. Défaut: 200000 (MS) (3 minutes 20 secondes)
