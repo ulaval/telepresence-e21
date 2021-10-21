@@ -408,6 +408,7 @@ function setDefaultValues() {
     WidgetId: 'preslocation',
     Value: RoomConfig.config.room.defaultPresenterLocation
   });
+  presenterLocation = 'local';
 
   if (RoomConfig.config.room.showActivities) {
 
