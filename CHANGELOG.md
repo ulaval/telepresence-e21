@@ -27,6 +27,7 @@
 - RoomController.js: Corrected a bug that prevents the system from reseting to "AutoDisplay" and "AutoLights" when the system is put to sleep
 - Settings.js: Adjusted the "Activities" buttons layout
 - USBMode.js: Corrected a bug where the system is recalling the "Tableau" preset instead of the "Console" preset when the "autoEnablePresenterTrack" setting is "true"
+- Scenarios.js: Corrected a bug with the remote sound destination not set to the right place
 
 
 ## Config Adjustements for v4.0
