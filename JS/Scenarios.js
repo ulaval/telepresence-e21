@@ -99,13 +99,12 @@ export class Scenarios {
 
     Rkhelper.IMC.registerFunction(this.enableCustomScenario);
     Rkhelper.IMC.registerFunction(this.disableCustomScenario);
-    
+
 
 
     xapi.Status.Video.Selfview.Mode.on(mode => {
       selfViewStatus = mode;
       if (this.currentScenario == 'SCE_NOCALL' && !customScenario) {
-        console.log('pas normal');
         Rkhelper.Status.getSystemStatus().then(result => {
           this.update_SCE_NOCALL(result);
         });
@@ -438,6 +437,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -506,6 +517,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -574,6 +597,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -643,6 +678,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -718,6 +765,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -803,6 +862,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -887,6 +958,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -970,6 +1053,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1085,6 +1180,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1159,6 +1266,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1233,6 +1352,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1309,6 +1440,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: roomOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1391,6 +1534,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomrOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1483,6 +1638,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomrOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1574,6 +1741,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomrOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput
@@ -1648,6 +1827,18 @@ export class Scenarios {
             Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
               Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
                 Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+                    ri.forEach(i => {
+                      xapi.Command.Audio.LocalOutput.DisconnectInput({
+                        InputId: i,
+                        OutputId: monitorOutput
+                      });
+                      xapi.Command.Audio.LocalOutput.ConnectInput({
+                        InputId: i,
+                        OutputId: roomrOutput
+                      });
+                    });
+                  });
                   xapi.Command.Audio.LocalOutput.Update({
                     Loudspeaker: 'Off',
                     OutputId: roomOutput

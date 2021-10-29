@@ -54,7 +54,7 @@ export var config = {
     }
   },
   room: {
-    name: 'CMT****',                        //Nom du système, doit être unique
+    name: 'CMT3101',                        //Nom du système, doit être unique
     supportContact: 'Courriel: script.aide@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: false,                    //Mode automatique de gestion de la salle <true, false>
@@ -64,13 +64,13 @@ export var config = {
     projOffDelay: 20000,                  //Temps avant la fermeture du projecteur (MS)
     loadingDelay: 5000,                     //Délais avant l'initialisation des scripts en ms. Défaut: 200000 (MS) (3 minutes 20 secondes)
     controlSystemPollingInterval: 5000,     //Temps entre chaque vérification du système de contrôle (Crestron)
-    fakeControlSystem: true,                //false = normal, true = developement
-    controlSystemSerial: '2123JBH00044',     //numéro de série du processeur crestron
+    fakeControlSystem: false,                //false = normal, true = developement
+    controlSystemSerial: '0000250',     //numéro de série du processeur crestron
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
     autoEnablePresenterTrack: true,          //Active automatiquement le PresenterTrack lorsque possible et utile
-    remotePresenterPIPPosition: 'UpperRight',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
+    remotePresenterPIPPosition: 'UpperLeft',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
     callFeatures: 'Auto',
     activities: [                            //Activités. L'activité "normal" DOIT être présente même si elle n'est pas affichée
       {
@@ -94,7 +94,7 @@ export var config = {
     callHistoryAutoDeleteTimeout: 30000       //Délais avant l'effacement du call history
   },
   camera: {
-    connector: 1,
+    connector: 6,
     defaultBrightness: 20                    //Brightness par défaut de la caméra
   },
   dnd: {
@@ -113,8 +113,8 @@ export var config = {
     louder: 12,                                //Nombre de DB à additionner pour le mode "Très fort"
     inputs: [
       {
-        name: 'Sans-fil (casque)',        //Nom de l'entrée audio
-        connector: 6,                         //Numéro de connecteur
+        name: 'Bâton',        //Nom de l'entrée audio
+        connector: 8,                         //Numéro de connecteur
         normal: 54,                           //Volume normal en DB
         defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
       }

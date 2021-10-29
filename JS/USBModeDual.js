@@ -44,7 +44,7 @@ import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = false;
+const DEBUG = true;
 
 const PANELID = 'p_usbmodedual';
 const localPcInput1 = RoomConfig.config.usbmode.localPcInput1;
@@ -147,6 +147,8 @@ function wakeup() {
 /* ENABLE AND DISABLE USBMODEDUAL */
 
 function enableUsbModeDual() {
+  
+
   usbModeDualEnabled = true;
 
   enableSleepPrevention();
@@ -336,7 +338,13 @@ function init() {
       }
       else {
         Rkhelper.UI.perminfo.display('Comodal écrans étendus', 'Activation en cours, un instant s.v.p...');
-        setTimeout(enableUsbModeDual, 5000);
+        projOn();
+        setTimeout(function() {
+          enableUsbModeDual();
+          setTimeout(function() {
+            forceNotifyStatusChange();
+          },25000)
+        }, 10000);
       }
     }
     if (event.PanelId == 'endSessionUsbModeDual') {
@@ -398,11 +406,13 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
 
       if (status.presLocation == 'local') {
         /* VIDEO ROUTING */
+        xapi.Command.Video.Matrix.Reset({ Output: MONITORHDMICONNECTOR });
         xapi.Command.Video.Matrix.Assign({
           Mode: 'Replace',
           Output: MONITORHDMICONNECTOR,
           SourceId: localPcInput1
         });
+        xapi.Command.Video.Matrix.Reset({ Output: PROJECTORHDMICONNECTOR });
         xapi.Command.Video.Matrix.Assign({
           Mode: 'Replace',
           Output: PROJECTORHDMICONNECTOR,
@@ -411,11 +421,13 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       }
       else if (status.presLocation == 'remote') {
         /* VIDEO ROUTING */
+        xapi.Command.Video.Matrix.Reset({ Output: MONITORHDMICONNECTOR });
         xapi.Command.Video.Matrix.Assign({
           Mode: 'Replace',
           Output: MONITORHDMICONNECTOR,
           SourceId: localPcInput2
         });
+        xapi.Command.Video.Matrix.Reset({ Output: PROJECTORHDMICONNECTOR });
         xapi.Command.Video.Matrix.Assign({
           Mode: 'Replace',
           Output: PROJECTORHDMICONNECTOR,
@@ -434,11 +446,13 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       if (status.presLocation == 'local') {
         if (RoomConfig.config.room.boardBehindScreen) {
           /* VIDEO ROUTING */
+          xapi.Command.Video.Matrix.Reset({ Output: MONITORHDMICONNECTOR });
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: MONITORHDMICONNECTOR,
             SourceId: localPcInput1
           });
+          xapi.Command.Video.Matrix.Reset({ Output: PROJECTORHDMICONNECTOR });
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: PROJECTORHDMICONNECTOR,
@@ -449,11 +463,13 @@ Rkhelper.Status.addStatusChangeCallback(function (status) {
       else if (status.presLocation == 'remote') {
         if (RoomConfig.config.room.boardBehindScreen) {
           /* VIDEO ROUTING */
+          xapi.Command.Video.Matrix.Reset({ Output: MONITORHDMICONNECTOR });
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: MONITORHDMICONNECTOR,
             SourceId: localPcInput1
           });
+          xapi.Command.Video.Matrix.Reset({ Output: PROJECTORHDMICONNECTOR });
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: PROJECTORHDMICONNECTOR,
