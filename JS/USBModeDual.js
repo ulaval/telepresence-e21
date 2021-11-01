@@ -344,7 +344,7 @@ function init() {
           setTimeout(function() {
             forceNotifyStatusChange();
           },25000)
-        }, 10000);
+        }, 15000);
       }
     }
     if (event.PanelId == 'endSessionUsbModeDual') {
