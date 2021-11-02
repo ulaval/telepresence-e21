@@ -290,6 +290,15 @@ function getDisplayControls() {
           </ValueSpace>
         </Widget>
       </Row>
+      ${getManualScreenControls()}
+      `
+  }
+  return xml;
+
+}
+function getManualScreenControls() {
+  if (RoomConfig.config.room.motorizedScreen) {
+      var controls = `
       <Row>
         <Name>Toile de projection</Name>
         <Widget>
@@ -302,11 +311,9 @@ function getDisplayControls() {
           <Type>Button</Type>
           <Options>size=1;icon=arrow_up</Options>
         </Widget>
-      </Row>
-      `
+      </Row>`
+      return controls;
   }
-  return xml;
-
 }
 function getLightsControls() {
   var xml = '';
