@@ -1,3 +1,10 @@
+# [v4.1]
+## Fixed
+- Lights commands are now only sent when room has controlled lights
+- Screen control is now hidden when there is no projection screen in room
+- Added a small delay in USB mode to give the camera time to boot
+- Displays and screen status are initialised on boot
+
 # [v4.0]
 ## Added
 - USBModeDual.js is added. CAN'T BE USE AT THE SAME TIME AS "USBMode"
