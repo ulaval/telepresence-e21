@@ -97,12 +97,14 @@ export class Lights {
 
 
   sendMessage(text) {
-    text = text.toUpperCase();
-    if (DEBUG)
-      console.log(`Lights -> ${text}`)
-    xapi.Command.Message.Send({
-      Text: text
-    });
+    if (RoomConfig.config.room.lightsControl) {
+      text = text.toUpperCase();
+      if (DEBUG)
+        console.log(`Lights -> ${text}`)
+      xapi.Command.Message.Send({
+        Text: text
+      });
+    }
   }
 
   executeScene(sceneId) {
@@ -137,9 +139,6 @@ export class Lights {
     that._lightsConfig.zones.forEach(function (element, index) {
 
       if (element.id == zone.id) {
-
-        that._lightsConfig.zones[index].state = onoff;
-        //that.sendMessage(`${zone.id}_${onoff}`);
 
         that._lightsConfig.zones[index].state = onoff;
         if (onoff == 'on') {
