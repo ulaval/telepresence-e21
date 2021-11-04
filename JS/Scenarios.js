@@ -51,7 +51,7 @@ import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
 
-const DEBUG = false;
+const DEBUG = true;
 
 
 export const PRES_NOPRES = 'PRES_NOPRESENTATION';
@@ -1905,19 +1905,6 @@ export class Scenarios {
             this.update_SCE_STANDBY(status);
           }
           else if (standby == 'Off') {
-            setTimeout(function () {
-              /* Active le speakertrack */
-              if (RoomConfig.config.room.autoEnablePresenterTrack) {
-                xapi.Command.Cameras.PresenterTrack.Set({
-                  Mode: 'Follow'
-                });
-              }
-              else {
-                Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-                  xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-                });
-              }
-            }, 8000);
             if (status.callStatus.Status == undefined) {
               this.currentScenario = 'SCE_NOCALL';
               this.update_SCE_NOCALL(status);
