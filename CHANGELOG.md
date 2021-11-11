@@ -5,6 +5,7 @@
 - Added a small delay in USB mode to give the camera time to boot
 - Displays and screen status are initialised on boot
 - Fixed a bug where the camera is always reseting to Presenter Track when selecting a preset manually
+- Better initialization of devices states
 
 # [v4.0]
 ## Added
