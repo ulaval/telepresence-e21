@@ -130,9 +130,6 @@ export class Controller {
       if (value == 'Standby') {
         this.autoDisplay = RoomConfig.config.room.displayControl;
         this.autoLights = RoomConfig.config.room.lightsControl;
-        this.tvOff();
-        this.projOff();
-        this.screenUp();
       }
     });
 
@@ -144,7 +141,7 @@ export class Controller {
       }
     });
 
-    
+
 
   }
 
@@ -396,7 +393,9 @@ function loadingEnd() {
     Rkhelper.UI.clearPrompt(l);
   }, RoomConfig.config.room.loadingDelay);
 
-  
+  controller.tvOff();
+  controller.projOff();
+  controller.screenUp();
 }
 
 
@@ -476,7 +475,7 @@ xapi.Status.Standby.State.on(value => {
         Text: 'Patientez quelques secondes, préparation du système...',
         Title: `Bonjour!`
       });
-      
+
     createUi();
   }
 });
