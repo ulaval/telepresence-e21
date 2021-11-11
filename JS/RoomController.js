@@ -393,9 +393,9 @@ function loadingEnd() {
     Rkhelper.UI.clearPrompt(l);
   }, RoomConfig.config.room.loadingDelay);
 
-  controller.tvOff();
-  controller.projOff();
-  controller.screenUp();
+  controller.tvOff(true, true);
+  controller.projOff(true, true);
+  controller.screenUp(true, true);
 }
 
 
@@ -450,6 +450,11 @@ function ui_InitDone() {
 async function init() {
   controller = new Controller();
   scenarios = new Scenarios.Scenarios(controller);
+
+  controller.tvOff(true, true);
+  controller.projOff(true, true);
+  controller.screenUp(true, true);
+
   configureRkhelper();
   loadingStart();
 }
