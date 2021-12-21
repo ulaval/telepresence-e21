@@ -33,7 +33,7 @@ var currentUsbMode = MODE_NONE;
 
 var usbmode_enabled, usbmode_disabled;
 
-
+var presLocation = undefined;
 var usbModeEnabled = false;
 var privateModeActive = false;
 var wakeupTimer;
@@ -168,17 +168,29 @@ function disableUsbMode() {
     SourceId: EMPTYCONNECTOR
   });
 }
-function enableUsbModeWebconf() {
-  if (RoomConfig.config.room.autoEnablePresenterTrack) {
-    xapi.Command.Cameras.PresenterTrack.Set({
-      Mode: 'Follow'
-    });
+async function enableUsbModeWebconf() {
+
+  if (presLocation == 'local') {
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      console.log('Enabling camera 1 with presenter track');
+      xapi.Command.Cameras.PresenterTrack.Set({
+        Mode: 'Follow'
+      });
+    }
+    else {
+      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+        console.log('Enabling camera 1 with preset Console');
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      });
+    }
   }
   else {
-    Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+    Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+      console.log('Enabling camera 2 with preset Salle');
       xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
     });
   }
+
 
   /* update le nom du bouton */
   xapi.Command.UserInterface.Extensions.Panel.Update({
@@ -213,11 +225,12 @@ function enableUsbModeWebconf() {
     Output: USBHDMICONNECTOR
   });
 
+  let currentCamConnector = await getCurrentCameraConnector();
   /* Assigne la caméra comme source de la matrice */
   xapi.Command.Video.Matrix.Assign({
     Mode: 'Replace',
     Output: USBHDMICONNECTOR,
-    SourceId: CAMCONNECTOR
+    SourceId: currentCamConnector
   });
 
   /* Déconnecte les appels */
@@ -234,20 +247,26 @@ function enableUsbModeWebconf() {
   /* Démarre la routine qui empêche le sleep */
   enableSleepPrevention();
 
-  /* Affiche les instructions */
-  xapi.Command.UserInterface.Message.Prompt.Display({
-    Title: 'Configuration de votre application',
-    Text: `Choisissez "${VIDEODEVICENAME}" comme caméra et "${AUDIODEVICENAME}" comme microphone dans votre application de webconférence préférée.`,
-    FeedbackId: 'fbnull',
-    Duration: 0,
-    'Option.1': 'J\'ai compris',
-  });
+
 }
 
 function enableUsbModeRecording() {
-  if (RoomConfig.config.room.autoEnablePresenterTrack) {
-    xapi.Command.Cameras.PresenterTrack.Set({
-      Mode: 'Follow'
+
+  if (presLocation == 'local') {
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      xapi.Command.Cameras.PresenterTrack.Set({
+        Mode: 'Follow'
+      });
+    }
+    else {
+      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      });
+    }
+  }
+  else {
+    Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+      xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
     });
   }
 
@@ -412,6 +431,14 @@ function init() {
     }
     else if (event.FeedbackId == CONFIRMWEBCONFERENCE) {
       if (event.OptionId == 1) {
+        /* Affiche les instructions */
+        xapi.Command.UserInterface.Message.Prompt.Display({
+          Title: 'Configuration de votre application',
+          Text: `Choisissez "${VIDEODEVICENAME}" comme caméra et "${AUDIODEVICENAME}" comme microphone dans votre application de webconférence préférée.`,
+          FeedbackId: 'fbnull',
+          Duration: 0,
+          'Option.1': 'J\'ai compris',
+        });
         enableUsbModeWebconf();
       }
     }
@@ -431,8 +458,25 @@ function init() {
   });
 
 
+  /* refresh on status change */
+  Rkhelper.Status.addStatusChangeCallback(function (status) {
+    presLocation = status.presLocation;
+    if (usbModeEnabled) {
+      if (currentUsbMode == MODE_WEBCONF) {
+        enableUsbModeWebconf();
+      }
+      else if (currentUsbMode == MODE_RECORDING) {
+        enableUsbModeRecording();
+      }
+    }
+
+  });
+
 }
 
+async function getCurrentCameraConnector() {
+  return await xapi.Status.Video.Input.MainVideoSource.get()
+}
 
 //Write UI
 function createUi() {

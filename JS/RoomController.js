@@ -1,3 +1,46 @@
+/************************************************************
+
+Système: Salles comodales 2021
+Script: RoomController
+Version: ->2.0
+Description: Charge les différentes composantes du système
+             et gère le comportement général de la salle
+
+Auteur: Zacharie Gignac
+Date: Août 2021
+Organisation: Université Laval
+
+MIT License
+
+Copyright (c) 2021 ul-sse
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+CHANGELOG
+
+Version 4
+  - CHANGELOG MOVED TO GITHUB
+
+
+*************************************************************/
+
+
 import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
@@ -130,6 +173,9 @@ export class Controller {
       if (value == 'Standby') {
         this.autoDisplay = RoomConfig.config.room.displayControl;
         this.autoLights = RoomConfig.config.room.lightsControl;
+        this.tvOff();
+        this.projOff();
+        this.screenUp();
       }
     });
 
@@ -141,7 +187,7 @@ export class Controller {
       }
     });
 
-
+    
 
   }
 
@@ -393,9 +439,7 @@ function loadingEnd() {
     Rkhelper.UI.clearPrompt(l);
   }, RoomConfig.config.room.loadingDelay);
 
-  controller.tvOff(true, true);
-  controller.projOff(true, true);
-  controller.screenUp(true, true);
+  
 }
 
 
@@ -450,11 +494,6 @@ function ui_InitDone() {
 async function init() {
   controller = new Controller();
   scenarios = new Scenarios.Scenarios(controller);
-
-  controller.tvOff(true, true);
-  controller.projOff(true, true);
-  controller.screenUp(true, true);
-
   configureRkhelper();
   loadingStart();
 }
@@ -480,7 +519,7 @@ xapi.Status.Standby.State.on(value => {
         Text: 'Patientez quelques secondes, préparation du système...',
         Title: `Bonjour!`
       });
-
+      
     createUi();
   }
 });

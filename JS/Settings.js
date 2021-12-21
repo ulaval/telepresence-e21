@@ -11,6 +11,7 @@ const TGL_CEILINGMICS = 'tgl_ceilingmics';
 
 var controller;
 
+
 var tgl_autoDisplayMode, tgl_autoLightsMode;
 
 var autodisplaymode, autolightsmode;
@@ -19,9 +20,11 @@ var showdisplaycontrols = false, showlightcontrols = false;
 var currentactivity = 'normal';
 
 var presenterLocation = 'local';
+var lastRemotePresentationValue = false;
 
 var ceilingMicsMode = 'on';
-
+var changePresenterLocationLocal;
+var changePresenterLocationRemote;
 
 function drawRoomConfigPanel() {
   xapi.Command.UserInterface.Extensions.Panel.Save({
@@ -249,7 +252,7 @@ function getDisplayControls() {
 }
 function getManualScreenControls() {
   if (RoomConfig.config.room.motorizedScreen) {
-      var controls = `
+    var controls = `
       <Row>
         <Name>Toile de projection</Name>
         <Widget>
@@ -263,7 +266,7 @@ function getManualScreenControls() {
           <Options>size=1;icon=arrow_up</Options>
         </Widget>
       </Row>`
-      return controls;
+    return controls;
   }
 }
 function getLightsControls() {
@@ -378,7 +381,7 @@ function setDefaultValues() {
   }
 
   xapi.Command.Audio.Microphones.Unmute();
-  xapi.Command.Audio.Volume.Set({ Level: RoomConfig.config.audio.defaultVolume});
+  xapi.Command.Audio.Volume.Set({ Level: RoomConfig.config.audio.defaultVolume });
 
   setCeilingMicsMode('on');
 
@@ -584,6 +587,9 @@ xapi.Event.UserInterface.Extensions.Widget.on(event => {
 });
 
 export function init(c) {
+  changePresenterLocationLocal = Rkhelper.IMC.getFunctionCall('changePresenterLocationLocal');
+  changePresenterLocationRemote = Rkhelper.IMC.getFunctionCall('changePresenterLocationRemote');
+
   controller = c;
   drawRoomConfigPanel();
   setDefaultValues();
@@ -601,10 +607,45 @@ export function init(c) {
 
   });
 
+  Rkhelper.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
+    if (status.presentationStatus.remotePresentation && presenterLocation == 'local') {
+      Rkhelper.UI.prompt.display({
+        Duration: 15,
+        FeedbackId: 'switchtoremotepres',
+        Title: `Emplacement du présentateur`,
+        Text: `La présentation semble provenir de l'extérieur.<br><br>Voulez-vous changer le mode d'affichage pour "Présentateur à distance" ?`,
+        Options: [
+          {
+            label: `Non, le présentateur est ici`,
+            callback: function () { }
+          },
+          {
+            label: 'Oui, le présentateur est à distance',
+            callback: function () {
+              xapi.Command.UserInterface.Extensions.Widget.SetValue({
+                WidgetId: 'preslocation',
+                Value: 'remote'
+              });
+              changePresenterLocationRemote();
+              presenterLocation = 'remote';
+            }
+          }
+        ]
+      },
+        cancel => {
+          
+        });
 
 
-
-
+    }
+    else if (status.presentationStatus.localPresentation) {
+      xapi.Command.UserInterface.Extensions.Widget.SetValue({
+        WidgetId: 'preslocation',
+        Value: 'local'
+      });
+      changePresenterLocationLocal();
+      presenterLocation = 'local';
+    }
+  });
 }
-
 

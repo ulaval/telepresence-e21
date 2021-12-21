@@ -1,3 +1,62 @@
+/************************************************************
+
+Système: Salles comodales 2021
+Script: Rkhelper
+Version: ->2.0
+Description: Librairie qui bonifie et simplifie certaines 
+             fonctionnalités des systèmes de téléprésence Cisco Webex.
+
+Auteur: Zacharie Gignac
+Date: Août 2021
+Organisation: Université Laval
+
+
+MIT License
+
+Copyright (c) 2021 ul-sse
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Plusieurs composantes sont disponibles, entre autre:
+- System -> Contrôle des fonctions systèmes comme le "Do Not Disturb"
+- Status -> Statut du système, incluant la provenance de la présentation et l'état d'appel
+- Audio -> Contrôle des entrées, sorties, routage
+- UI -> Contrôles visuels, prompts, boutons, toggles, etc..
+- IMC -> Communication inter-macro
+
+
+*/
+
+/* CHANGELOG
+Version 4
+      - CHANGELOG MOVED TO GITHUB
+
+VERSION 2
+      - Remplacé certaines commandes réservées à ES6 par des commandes ES5 car mismatch de version de transpiler entre la page web et le codec (bug rapporté chez CISCO)
+      
+VERSION 1
+      - Version initiale
+
+
+*************************************************************/
+
 import xapi from 'xapi';
 
 const DEBUG = false;
@@ -21,9 +80,8 @@ export const PRESLOCATION_NONE = 'none';
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
 
-var dndtimer, dndSuspended = false, dndEnableInterval;
+var dndtimer, dndEnableInterval;
 var dndConfig;
-var cb_statusChange = [];
 var lastCallStatus = { Status: CALLSTATUS_NOCALL };
 var prompts = [];
 var handlers = [];
@@ -36,7 +94,7 @@ var currentActivity = 'normal';
 var presLocation = PRESLOCATION_LOCAL;
 var privateModeEnabled = false;
 
-var listeningToPrompts = undefined;
+var listeningToPrompts;
 
 var statusChangeCallbacks = [];
 
@@ -50,7 +108,7 @@ var showDndMessages = false;
 
 export var dndConfig;
 
-export var Audio = {
+export const Audio = {
 
   getLocalOutputId(name) {
     return new Promise((success, failure) => {
@@ -99,7 +157,7 @@ export var Audio = {
 
 
 
-export var System = {
+export const System = {
   Camera: {
     getPresetId(name) {
       return new Promise((success, failure) => {
@@ -127,7 +185,7 @@ export var System = {
       xapi.Command.Conference.DoNotDisturb.Deactivate();
       dndtimer = setTimeout(function () {
         System.DND.enable();
-      }, (dndConfig.offTime * 60) * 1000)
+      }, (dndConfig.offTime * 60) * 1000);
     },
     setDndConfig(config) {
 
@@ -177,7 +235,7 @@ export var System = {
 
 };
 
-export var IMC = {
+export const IMC = {
   addMessageHandler(regex, callback) {
     var temphandler = {};
     temphandler.regex = regex;
@@ -237,14 +295,14 @@ export var IMC = {
   },
 
   getFunctionCall(f) {
-    return function () { IMC.callFunction(f) };
+    return function () { IMC.callFunction(f); };
   }
 };
 
 
 
 
-export var Status = {
+export const Status = {
   async getPresentationStatus() {
     var status = {};
     return new Promise((success) => {
@@ -316,7 +374,7 @@ export var Status = {
           success(callStatus);
         }
         else if (call[0].Status == 'Idle') {
-          callStatus.Status == CALLSTATUS_NOCALL;
+          callStatus.Status = CALLSTATUS_NOCALL;
           lastCallStatus = call[0];
           success(callStatus);
         }
@@ -350,22 +408,13 @@ export var Status = {
   },
   notifyChange() {
     Status.getSystemStatus().then(ss => {
-      statusChangeCallbacks.forEach(cb_statusChange => {
-        if (cb_statusChange != undefined) {
-          cb_statusChange(ss);
+      statusChangeCallbacks.forEach(cbsc => {
+        if (cbsc != undefined) {
+          cbsc(ss);
         }
       });
     });
 
-    /*
-    statusChangeCallbacks.forEach(cb_statusChange => {
-      if (cb_statusChange != undefined) {
-        Status.getSystemStatus().then(ss => {
-          cb_statusChange(ss);
-        });
-      }
-    });
-    */
   },
   async getStandbyStatus() {
     return new Promise(success => {
@@ -378,7 +427,7 @@ export var Status = {
 
 
 
-export var UI = {
+export const UI = {
   widgets: {
     addActionListener: function (listener) {
       widgetActionEventListeners.push(listener);
@@ -388,7 +437,7 @@ export var UI = {
     display: function (promptOptions, cancelcallback) {
       registerPromptsListeners();
       var i = 0;
-      const uniqueId = getUniqueId()
+      const uniqueId = getUniqueId();
       promptOptions.FeedbackId = uniqueId;
       promptOptions.cancelcallback = cancelcallback;
       if (promptOptions.Options != undefined) {
@@ -402,13 +451,12 @@ export var UI = {
       dispargs = Object.assign(dispargs, promptOptions);
       delete dispargs.Options;
       delete dispargs.cancelcallback;
-      xapi.command('UserInterface Message Prompt Display', dispargs)
+      xapi.command('UserInterface Message Prompt Display', dispargs);
     }
   },
   textPrompt: {
     display: function (promptOptions, callback, cancelcallback) {
       registerPromptsListeners();
-      var i = 0;
       const uniqueId = getUniqueId();
       promptOptions.FeedbackId = uniqueId;
       promptOptions.callback = callback;
@@ -488,7 +536,7 @@ export var UI = {
   Button: class {
     constructor(widgetId) {
       this.wid = widgetId;
-    };
+    }
     onClick(listener) {
       UI.widgets.addActionListener(action => {
         if (action.Action != undefined) {
@@ -497,7 +545,7 @@ export var UI = {
           }
         }
       });
-    };
+    }
   },
 
   Toggle: class {
@@ -587,6 +635,14 @@ function forceNotifyStatusChange() {
   Status.notifyChange();
 }
 
+function changePresenterLocationRemote() {
+  presLocation = 'remote';
+  Status.notifyChange();
+}
+function changePresenterLocationLocal() {
+  presLocation = 'local';
+  Status.notifyChange();
+}
 
 function init() {
   currentActivity = 'normal';
@@ -595,6 +651,8 @@ function init() {
   IMC.registerFunction(privatemode_enabled);
   IMC.registerFunction(privatemode_disabled);
   IMC.registerFunction(forceNotifyStatusChange);
+  IMC.registerFunction(changePresenterLocationLocal);
+  IMC.registerFunction(changePresenterLocationRemote);
 
 
   /* notification triggers */
@@ -635,13 +693,13 @@ function init() {
         var fcall = JSON.parse(functioncall);
         IMC.executeFunction(fcall.f, fcall.a);
       }
-      if (msg.substring(0, 5) == '%FCR%') {
-        var functioncall = msg.substring(5);
-        var fcall = JSON.parse(functioncall);
-        fcall.r = executeFunction(fcall.f, fcall.a);
-        sendMessage('%FR%' + JSON.stringify(fcall));
+      else if (msg.substring(0, 5) == '%FCR%') {
+        var funccall = msg.substring(5);
+        var fcall = JSON.parse(funccall);
+        fcall.r = IMC.executeFunction(fcall.f, fcall.a);
+        IMC.sendMessage('%FR%' + JSON.stringify(fcall));
       }
-      if (msg.substring(0, 4) == '%FR%') {
+      else if (msg.substring(0, 4) == '%FR%') {
         var ffound;
         var functionreturn = msg.substring(4);
         var freturn = JSON.parse(functionreturn);
@@ -738,7 +796,7 @@ xapi.Event.UserInterface.Extensions.Widget.on(event => {
       currentActivity = event.Action.Value;
       Status.notifyChange();
     }
-    else if (event.Action.WidgetId == 'preslocation' && event.Action.Type == 'pressed') {
+    else if (event.Action.WidgetId == 'preslocation' && event.Action.Type == 'pressed') {     
       presLocation = event.Action.Value;
       Status.notifyChange();
     }
