@@ -1,43 +1,4 @@
-//Rkhelper.IMC.callFunction('enableCustomScenario', 'meuh');
-/************************************************************
-
-Système: Salles comodales 2021
-Script: USBModeDual
-Version: ->2.0
-Description: Mode USB pour le RKPRO + INOGENI + Ordi local à 2 outputs
-
-Auteur: Zacharie Gignac
-Date: Août 2021
-Organisation: Université Laval
-
-
-MIT License
-
-Copyright (c) 2021 ul-sse
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-CHANGELOG
-Version 4
-  - CHANGELOG MOVED TO GITHUB
-
-*************************************************************/
+//VERSION:4.2
 
 
 import xapi from 'xapi';
@@ -143,6 +104,17 @@ function wakeup() {
   xapi.Command.Standby.Deactivate();
 }
 
+async function setCamVideoMatrix() {
+  setTimeout(async function () {
+    let currentCamConnector = await getCurrentCameraConnector();
+    xapi.Command.Video.Matrix.Assign({
+      Mode: 'Replace',
+      Output: USBHDMICONNECTOR,
+      SourceId: currentCamConnector
+    });
+  }, 2000);
+
+}
 
 /* ENABLE AND DISABLE USBMODEDUAL */
 
@@ -203,11 +175,14 @@ function enableUsbModeDual() {
   /* VIDEO ROUTING */
   xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
   xapi.Command.Video.Matrix.Reset({ Output: USBHDMICONNECTOR });
+  setCamVideoMatrix();
+  /*
   xapi.Command.Video.Matrix.Assign({
     Mode: 'Replace',
     Output: USBHDMICONNECTOR,
     SourceId: CAMCONNECTOR
   });
+  */
 
 
   xapi.Command.UserInterface.Message.Prompt.Display({
@@ -393,7 +368,7 @@ function init() {
 
 
 
-Rkhelper.Status.addStatusChangeCallback(function (status) {
+Rkhelper.Status.addStatusChangeCallback(async function (status) {
   if (usbModeDualEnabled) {
     if (status.activity == 'normal') {
       tvOn(true);

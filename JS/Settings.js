@@ -1,3 +1,5 @@
+//VERSION:4.2
+
 import xapi from 'xapi';
 import * as RoomConfig from './RoomConfig';
 import * as Rkhelper from './Rkhelper';
@@ -637,14 +639,6 @@ export function init(c) {
         });
 
 
-    }
-    else if (status.presentationStatus.localPresentation) {
-      xapi.Command.UserInterface.Extensions.Widget.SetValue({
-        WidgetId: 'preslocation',
-        Value: 'local'
-      });
-      changePresenterLocationLocal();
-      presenterLocation = 'local';
     }
   });
 }

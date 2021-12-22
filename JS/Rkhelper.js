@@ -1,61 +1,4 @@
-/************************************************************
-
-Système: Salles comodales 2021
-Script: Rkhelper
-Version: ->2.0
-Description: Librairie qui bonifie et simplifie certaines 
-             fonctionnalités des systèmes de téléprésence Cisco Webex.
-
-Auteur: Zacharie Gignac
-Date: Août 2021
-Organisation: Université Laval
-
-
-MIT License
-
-Copyright (c) 2021 ul-sse
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-Plusieurs composantes sont disponibles, entre autre:
-- System -> Contrôle des fonctions systèmes comme le "Do Not Disturb"
-- Status -> Statut du système, incluant la provenance de la présentation et l'état d'appel
-- Audio -> Contrôle des entrées, sorties, routage
-- UI -> Contrôles visuels, prompts, boutons, toggles, etc..
-- IMC -> Communication inter-macro
-
-
-*/
-
-/* CHANGELOG
-Version 4
-      - CHANGELOG MOVED TO GITHUB
-
-VERSION 2
-      - Remplacé certaines commandes réservées à ES6 par des commandes ES5 car mismatch de version de transpiler entre la page web et le codec (bug rapporté chez CISCO)
-      
-VERSION 1
-      - Version initiale
-
-
-*************************************************************/
+//VERSION:4.2
 
 import xapi from 'xapi';
 
@@ -168,7 +111,7 @@ export const System = {
             }
           });
           failure();
-        });
+        }).catch(() => failure());
       });
     }
   },
@@ -406,7 +349,8 @@ export const Status = {
   addActivityChangeCallback(callback) {
     activityChangeListeners.push(callback);
   },
-  notifyChange() {
+  notifyChange(src) {
+    //console.log('notify: ' +src);
     Status.getSystemStatus().then(ss => {
       statusChangeCallbacks.forEach(cbsc => {
         if (cbsc != undefined) {
@@ -632,16 +576,16 @@ function privatemode_disabled() {
   privateModeEnabled = false;
 }
 function forceNotifyStatusChange() {
-  Status.notifyChange();
+  Status.notifyChange('forceNotifyStatusChange');
 }
 
 function changePresenterLocationRemote() {
   presLocation = 'remote';
-  Status.notifyChange();
+  Status.notifyChange('changePresenterLocationRemote');
 }
 function changePresenterLocationLocal() {
   presLocation = 'local';
-  Status.notifyChange();
+  Status.notifyChange('changePresenterLocationLocal');
 }
 
 function init() {

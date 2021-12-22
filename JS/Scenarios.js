@@ -1,50 +1,4 @@
-/************************************************************
-
-Système: Salles comodales 2021
-Script: Scenarios
-Description: Gestion des scénarios
-Version: ->2.0
-Auteur: Zacharie Gignac
-Date: Août 2021
-Organisation: Université Laval
-
-
-MIT License
-
-Copyright (c) 2021 ul-sse
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-CHANGELOG
-
-Version 4:
-  - CHANGELOG MOVED TO GITHUB
-
-  
-Version 3:
-  - Arrangé un bug d'affichage lorsque le présentateur est à distance et qu'il n'y a pas de présentation
-  - Arrangé un bug de routage audio lorsque le présentateur est à distance. Le son sera seulement routé dans la salle, pas dans la barre de son
-
-Version 2:
-  - Quand le système tombe en veille, la scène d'éclairage "normal" est maintenant executée correctement
-
-*************************************************************/
+//VERSION:4.2
 
 
 import xapi from 'xapi';
@@ -85,7 +39,14 @@ var customScenarioName = '';
 
 var selfViewStatus = 'Off';
 
-
+function callPreset(name) {
+  
+  Rkhelper.System.Camera.getPresetId(name).then(preset => {
+    xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+  }).catch(err => {
+    //console.log('Preset not found');
+  });
+}
 export class Scenarios {
   constructor(controller) {
     if (DEBUG)
@@ -426,9 +387,7 @@ export class Scenarios {
             });
           }
           else {
-            Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-            });
+            callPreset('Console');
           }
 
           //audio routing
@@ -518,9 +477,7 @@ export class Scenarios {
             });
           }
           else {
-            Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-            });
+            callPreset('Console');
           }
 
           //audio routing
@@ -610,9 +567,7 @@ export class Scenarios {
             });
           }
           else {
-            Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-            });
+            callPreset('Console');
           }
 
           //audio routing
@@ -703,9 +658,7 @@ export class Scenarios {
             });
           }
           else {
-            Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-            });
+            callPreset('Console');
           }
 
           //audio routing
@@ -795,9 +748,7 @@ export class Scenarios {
 
           /* Active le preset Salle */
           console.log('CALLING PRESET CAM 2');
-          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-          });
+          callPreset('Salle');
 
           //audio routing
           if (RoomConfig.config.audio.useCombinedAecReference) {
@@ -882,9 +833,7 @@ export class Scenarios {
 
           /* Active le preset Salle */
           console.log('CALLING PRESET CAM 2');
-          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-          });
+          callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -985,9 +934,7 @@ export class Scenarios {
 
           /* Active le preset Salle */
           console.log('CALLING PRESET CAM 2');
-          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-          });
+          callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -1086,9 +1033,7 @@ export class Scenarios {
 
           /* Active le preset Salle */
           console.log('CALLING PRESET CAM 2');
-          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-          });
+          callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -1204,9 +1149,7 @@ export class Scenarios {
     else if (status.activity == 'writeonboard') {
 
       /* Active le preset tableau */
-      Rkhelper.System.Camera.getPresetId('Tableau').then(preset => {
-        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-      });
+      callPreset('Tableau');
 
       //Présentateur local
       if (status.presLocation == 'local') {
@@ -1971,9 +1914,7 @@ export class Scenarios {
                 });
               }
               else {
-                Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-                  xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-                });
+                callPreset('Console');
               }
             }, 8000);
             if (status.callStatus.Status == undefined) {

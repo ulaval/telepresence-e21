@@ -1,3 +1,5 @@
+//VERSION:4.2
+
 import xapi from 'xapi';
 import * as Rkhelper from './Rkhelper';
 import * as RoomConfig from './RoomConfig';
@@ -169,27 +171,19 @@ function disableUsbMode() {
   });
 }
 async function enableUsbModeWebconf() {
-
-  if (presLocation == 'local') {
-    if (RoomConfig.config.room.autoEnablePresenterTrack) {
-      console.log('Enabling camera 1 with presenter track');
-      xapi.Command.Cameras.PresenterTrack.Set({
-        Mode: 'Follow'
-      });
-    }
-    else {
-      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
-        console.log('Enabling camera 1 with preset Console');
-        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-      });
-    }
-  }
-  else {
-    Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-      console.log('Enabling camera 2 with preset Salle');
-      xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+  if (RoomConfig.config.room.autoEnablePresenterTrack) {
+    console.log('Enabling camera 1 with presenter track');
+    xapi.Command.Cameras.PresenterTrack.Set({
+      Mode: 'Follow'
     });
   }
+  else {
+    console.log('Enabling camera 1 with preset Console');
+    Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+      xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId }).catch(() => { });
+    }).catch(() => { });
+  }
+
 
 
   /* update le nom du bouton */
@@ -226,6 +220,7 @@ async function enableUsbModeWebconf() {
   });
 
   let currentCamConnector = await getCurrentCameraConnector();
+  console.log(currentCamConnector);
   /* Assigne la caméra comme source de la matrice */
   xapi.Command.Video.Matrix.Assign({
     Mode: 'Replace',
@@ -458,19 +453,26 @@ function init() {
   });
 
 
+  //TODO
   /* refresh on status change */
   Rkhelper.Status.addStatusChangeCallback(function (status) {
-    presLocation = status.presLocation;
-    if (usbModeEnabled) {
-      if (currentUsbMode == MODE_WEBCONF) {
-        enableUsbModeWebconf();
-      }
-      else if (currentUsbMode == MODE_RECORDING) {
-        enableUsbModeRecording();
-      }
-    }
-
+    setCamVideoMatrix();
   });
+  /* refresh on cam change */
+  xapi.Status.Video.Input.MainVideoSource.on(value => {
+    setCamVideoMatrix();
+  });
+}
+
+async function setCamVideoMatrix() {
+  setTimeout(async function () {
+    let currentCamConnector = await getCurrentCameraConnector();
+    xapi.Command.Video.Matrix.Assign({
+      Mode: 'Replace',
+      Output: USBHDMICONNECTOR,
+      SourceId: currentCamConnector
+    });
+  }, 2000);
 
 }
 
