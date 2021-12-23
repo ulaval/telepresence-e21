@@ -44,7 +44,8 @@ export var config = {
   usbmode: {
     showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
     localPcInput1:4,                          //Entrée 1 pc local
-    localPcInput2:3                           //Entrée 2 pc local
+    localPcInput2:3,                          //Entrée 2 pc local
+    autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
   },
   zoom: {
     callHistoryAutoDelete: true,              //Effacement automatique du call history

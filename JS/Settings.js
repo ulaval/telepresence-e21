@@ -610,7 +610,8 @@ export function init(c) {
   });
 
   Rkhelper.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
-    if (status.presentationStatus.remotePresentation && presenterLocation == 'local') {
+    console.log(status);
+    if (status.callStatus.Status == 'Connected' && status.presentationStatus.remotePresentation && presenterLocation == 'local') {
       Rkhelper.UI.prompt.display({
         Duration: 15,
         FeedbackId: 'switchtoremotepres',

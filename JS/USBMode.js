@@ -241,7 +241,12 @@ async function enableUsbModeWebconf() {
 
   /* Démarre la routine qui empêche le sleep */
   enableSleepPrevention();
-
+  
+  if (RoomConfig.config.usbmode.autoStartPresentationConnector) {
+    xapi.Command.Presentation.Start({
+      ConnectorId:RoomConfig.config.usbmode.autoStartPresentationConnector
+    });
+  }
 
 }
 
@@ -305,7 +310,11 @@ function enableUsbModeRecording() {
   usbModeEnabled = true;
   currentUsbMode = MODE_RECORDING;
 
-
+  if (RoomConfig.config.usbmode.autoStartPresentationConnector) {
+    xapi.Command.Presentation.Start({
+      ConnectorId:RoomConfig.config.usbmode.autoStartPresentationConnector
+    });
+  }
 
   /* Affiche les instructions */
   xapi.Command.UserInterface.Message.Prompt.Display({
