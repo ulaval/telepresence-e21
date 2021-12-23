@@ -1,9 +1,8 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-
-import xapi from 'xapi';
-import * as RoomConfig from './RoomConfig';
-import * as Rkhelper from './Rkhelper';
+const xapi = require('xapi');
+const RoomConfig = require('./RoomConfig');
+const Rkhelper = require('./Rkhelper');
 
 const DEBUG = false;
 

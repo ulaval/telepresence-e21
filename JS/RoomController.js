@@ -1,13 +1,12 @@
 //VERSION:4.2
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
+const Settings = require('./Settings');
+const Displays = require('./Displays');
+const Lights = require('./Lights');
+const Scenarios = require('./Scenarios');
 
-
-import xapi from 'xapi';
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
-import * as Settings from './Settings';
-import * as Scenarios from './Scenarios';
-import * as Displays from './Displays';
-import * as Lights from './Lights';
 
 const DEBUG = false;
 

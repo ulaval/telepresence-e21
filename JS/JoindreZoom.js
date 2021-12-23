@@ -1,9 +1,10 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-import xapi from 'xapi';
-import * as JoindreZoomUI from './JoindreZoom_UI';
-import * as RoomConfig from './RoomConfig';
-import * as Rkhelper from './Rkhelper';
+const xapi = require('xapi');
+const JoindreZoomUI = require('./JoindreZoom_UI');
+const RoomConfig = require('./RoomConfig');
+const Rkhelper = require('./Rkhelper');
+
 
 const OPT_FORCE_OUT_OF_BAND_DTMF = 200001;
 const OPT_SUPPRESS_AUDIO_PROMPTS = 200006;
