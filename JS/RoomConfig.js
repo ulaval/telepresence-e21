@@ -207,4 +207,4 @@ export var config = {
       }
     ]
   }
-}
+};

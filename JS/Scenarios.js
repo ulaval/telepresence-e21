@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 
@@ -1543,7 +1544,7 @@ export class Scenarios {
                       });
                       xapi.Command.Audio.LocalOutput.ConnectInput({
                         InputId: i,
-                        OutputId: roomrOutput
+                        OutputId: roomOutput
                       });
                     });
                   });
@@ -1574,7 +1575,7 @@ export class Scenarios {
                     });
                     xapi.Command.Audio.LocalOutput.ConnectInput({
                       InputId: i,
-                      OutputId: roomrOutput
+                      OutputId: roomOutput
                     });
                   });
                 });
@@ -1647,7 +1648,7 @@ export class Scenarios {
                       });
                       xapi.Command.Audio.LocalOutput.ConnectInput({
                         InputId: i,
-                        OutputId: roomrOutput
+                        OutputId: roomOutput
                       });
                     });
                   });
@@ -1678,7 +1679,7 @@ export class Scenarios {
                     });
                     xapi.Command.Audio.LocalOutput.ConnectInput({
                       InputId: i,
-                      OutputId: roomrOutput
+                      OutputId: roomOutput
                     });
                   });
                 });
@@ -1750,7 +1751,7 @@ export class Scenarios {
                       });
                       xapi.Command.Audio.LocalOutput.ConnectInput({
                         InputId: i,
-                        OutputId: roomrOutput
+                        OutputId: roomOutput
                       });
                     });
                   });
@@ -1781,7 +1782,7 @@ export class Scenarios {
                     });
                     xapi.Command.Audio.LocalOutput.ConnectInput({
                       InputId: i,
-                      OutputId: roomrOutput
+                      OutputId: roomOutput
                     });
                   });
                 });
@@ -1836,7 +1837,7 @@ export class Scenarios {
                       });
                       xapi.Command.Audio.LocalOutput.ConnectInput({
                         InputId: i,
-                        OutputId: roomrOutput
+                        OutputId: roomOutput
                       });
                     });
                   });
@@ -1867,7 +1868,7 @@ export class Scenarios {
                     });
                     xapi.Command.Audio.LocalOutput.ConnectInput({
                       InputId: i,
-                      OutputId: roomrOutput
+                      OutputId: roomOutput
                     });
                   });
                 });

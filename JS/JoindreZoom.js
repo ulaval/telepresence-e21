@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 import xapi from 'xapi';
 import * as JoindreZoomUI from './JoindreZoom_UI';
@@ -36,7 +37,7 @@ var zoomConfig = {
   ui:{
     iconOrder: RoomConfig.config.ui.iconOrder.zoom
   }
-}
+};
 
 /* NE RIEN TOUCHER EN BAS DE CETTE LIGNE */
 
@@ -193,7 +194,7 @@ function zoomAskConferencePin(callback, cancelcallback) {
     },
     cancel => {
       cancelcallback();
-    })
+    });
 }
 
 function zoomAskHostKey(callback, cancelcallback) {

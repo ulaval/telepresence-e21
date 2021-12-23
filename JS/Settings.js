@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 import xapi from 'xapi';
@@ -127,7 +128,7 @@ function getActivitiesControls() {
   var xml = ``;
 
   if (RoomConfig.config.room.showActivities) {
-    var xml = `
+    xml = `
       <Row>
         <Name>Activité</Name>
         <Widget>
@@ -142,14 +143,14 @@ function getActivitiesControls() {
             <Key>${activity.id}</Key>
             <Name>${activity.name}</Name>
            </Value>
-      `
+      `;
     });
 
     xml += `
      </ValueSpace>
         </Widget>
       </Row>
-    `
+    `;
   }
   return xml;
 }
@@ -200,7 +201,7 @@ function getAudioControls() {
           </ValueSpace>
         </Widget>
       </Row>
-    `
+    `;
   });
   xml += `</Page>`;
   return xml;
@@ -247,7 +248,7 @@ function getDisplayControls() {
         </Widget>
       </Row>
       ${getManualScreenControls()}
-      `
+      `;
   }
   return xml;
 
@@ -267,7 +268,7 @@ function getManualScreenControls() {
           <Type>Button</Type>
           <Options>size=1;icon=arrow_up</Options>
         </Widget>
-      </Row>`
+      </Row>`;
     return controls;
   }
 }
@@ -308,12 +309,12 @@ function getLightsScenes() {
     }
   });
 
-  xml += `</Row>`
+  xml += `</Row>`;
   return xml;
 }
 
 function getZonesControls() {
-  var xml = ``
+  var xml = ``;
 
   RoomConfig.config.lights.zones.forEach(zone => {
     if (zone.show) {
@@ -326,7 +327,7 @@ function getZonesControls() {
           <WidgetId>${zone.id}_dim</WidgetId>
           <Type>Spinner</Type>
           <Options>size=2;style=plusminus</Options>
-        </Widget>`
+        </Widget>`;
 
       }
 
@@ -336,7 +337,7 @@ function getZonesControls() {
           <Type>ToggleButton</Type>
           <Options>size=1</Options>
         </Widget>
-        `
+        `;
       xml += `</Row>`;
     }
   });
@@ -415,7 +416,7 @@ function updateUiElements() {
       WidgetId: TGL_AUTOLIGHTSMODE,
       Value: boolToOnOff(!showlightcontrols)
     }).catch();
-  };
+  }
 
   RoomConfig.config.audio.inputs.forEach(input => {
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
@@ -517,7 +518,7 @@ xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
 });
 
 function getAudioLevelFor(input, action) {
-  var input = RoomConfig.config.audio.inputs[input];
+  input = RoomConfig.config.audio.inputs[input];
   var newLevel;
   switch (action.Value) {
     case 'normal':
@@ -530,6 +531,7 @@ function getAudioLevelFor(input, action) {
       else {
         return newLevel;
       }
+      break;
     case 'louder':
       newLevel = input.normal + RoomConfig.config.audio.louder;
       if (newLevel > 70) {
@@ -538,6 +540,7 @@ function getAudioLevelFor(input, action) {
       else {
         return newLevel;
       }
+      break;
   }
 }
 function muteAudioInput(input) {
@@ -610,7 +613,6 @@ export function init(c) {
   });
 
   Rkhelper.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
-    console.log(status);
     if (status.callStatus.Status == 'Connected' && status.presentationStatus.remotePresentation && presenterLocation == 'local') {
       Rkhelper.UI.prompt.display({
         Duration: 15,

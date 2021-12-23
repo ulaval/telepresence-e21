@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 import xapi from 'xapi';
@@ -55,7 +56,7 @@ export class Lights {
     if (RoomConfig.config.room.lightsControl) {
       text = text.toUpperCase();
       if (DEBUG)
-        console.log(`Lights -> ${text}`)
+        console.log(`Lights -> ${text}`);
       xapi.Command.Message.Send({
         Text: text
       });
@@ -65,7 +66,7 @@ export class Lights {
   executeScene(sceneId) {
     var delaycount = 0;
     const that = this;
-    var zone = undefined;
+    var zone;
     if (this.lastScene != sceneId) {
       this.lastScene = sceneId;
       if (DEBUG)
@@ -74,7 +75,7 @@ export class Lights {
       this._lightsConfig.scenes.forEach(s => {
         if (s.id == sceneId) {
           s.presets.forEach(p => {
-            let tempzone = {}
+            let tempzone = {};
             tempzone.id = p.zone;
             setTimeout(function () {
               that.zoneOnOff(tempzone, p.state,true);
@@ -158,11 +159,11 @@ export class Lights {
 
 
   ready() {
-    ready = true;
+    this.ready = true;
   }
 
   notReady() {
-    ready = false;
+    this.ready = false;
   }
 }
 

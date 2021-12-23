@@ -16,7 +16,7 @@ const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
 const STATUS_AWAKE = 'Off';
 const TVPOWER = 'tvpower';
 const PROJPOWER = 'projpower';
-const SCREENSTOP = 'screen_stop'
+const SCREENSTOP = 'screen_stop';
 const SCREENUP = 'screen_up';
 const SCREENDOWN = 'screen_down';
 
@@ -77,7 +77,7 @@ export class Controller {
       else {
         this.autoDisplay = true;
       }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt) }, 3000);
+      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
     });
 
     var autolightsmodetoggle = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE);
@@ -90,7 +90,7 @@ export class Controller {
       else {
         this.autoLights = true;
       }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt) }, 3000);
+      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
     });
 
     xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
@@ -408,7 +408,7 @@ async function checkControlSystem() {
   await xapi.Status.Peripherals.ConnectedDevice.get().then(p => {
     p.forEach(peripheral => {
       if (peripheral.SerialNumber == RoomConfig.config.room.controlSystemSerial && peripheral.Status == 'Connected') {
-        found = true
+        found = true;
       }
     });
   });

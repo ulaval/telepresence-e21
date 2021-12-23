@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 
@@ -14,7 +15,7 @@ const MODE_RECORDING = 'MODE_RECORDING';
 const MODE_WEBCONF = 'MODE_WEBCONF';
 const MODE_NONE = 'MODE_NONE';
 const ROLE_RECORDER = 'Recorder';
-const ROLE_MATRIX = 'Auto'
+const ROLE_MATRIX = 'Auto';
 const USBHDMICONNECTOR = RoomConfig.config.video.usbOutputId;
 const MONITORHDMICONNECTOR = RoomConfig.config.video.remoteMonitorOutputId;
 const PROJECTORHDMICONNECTOR = RoomConfig.config.video.projectorOutputId;
@@ -290,7 +291,7 @@ function init() {
   usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
   forceNotifyStatusChange = Rkhelper.IMC.getFunctionCall('forceNotifyStatusChange');
   disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
-  controllerStandbyRequest = Rkhelper.IMC.getFunctionCall('controllerStandbyRequest')
+  controllerStandbyRequest = Rkhelper.IMC.getFunctionCall('controllerStandbyRequest');
 
   Rkhelper.IMC.registerFunction(privatemode_enabled);
   Rkhelper.IMC.registerFunction(privatemode_disabled);
@@ -318,7 +319,7 @@ function init() {
           enableUsbModeDual();
           setTimeout(function() {
             forceNotifyStatusChange();
-          },25000)
+          },25000);
         }, 15000);
       }
     }
@@ -502,6 +503,9 @@ function createUi() {
 `);
 }
 
+async function getCurrentCameraConnector() {
+  return await xapi.Status.Video.Input.MainVideoSource.get();
+}
 
 
 createUi();

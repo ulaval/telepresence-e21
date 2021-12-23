@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 import xapi from 'xapi';

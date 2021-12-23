@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 //VERSION:4.2
 
 import xapi from 'xapi';
@@ -9,13 +10,13 @@ const DEBUG = false;
 const USBMBUTTONID = 'p_usbmode';
 const PROMPTENABLEUSBMODE1 = 'fbEnableUsbMode1';
 const PROMPTENABLEUSBMODE1W = 'fbEnableUsbMode1w';
-const CONFIRMWEBCONFERENCE = 'fbConfirmWebConference'
+const CONFIRMWEBCONFERENCE = 'fbConfirmWebConference';
 const PROMPTDISABLEUSBMODE = 'fbDisableUsbMode';
 const MODE_RECORDING = 'MODE_RECORDING';
 const MODE_WEBCONF = 'MODE_WEBCONF';
 const MODE_NONE = 'MODE_NONE';
 const ROLE_RECORDER = 'Recorder';
-const ROLE_MATRIX = 'Auto'
+const ROLE_MATRIX = 'Auto';
 
 /* CONFIG */
 const AUTODISABLEONSLEEP = true;
@@ -35,7 +36,7 @@ var currentUsbMode = MODE_NONE;
 
 var usbmode_enabled, usbmode_disabled;
 
-var presLocation = undefined;
+var presLocation;
 var usbModeEnabled = false;
 var privateModeActive = false;
 var wakeupTimer;
@@ -486,7 +487,7 @@ async function setCamVideoMatrix() {
 }
 
 async function getCurrentCameraConnector() {
-  return await xapi.Status.Video.Input.MainVideoSource.get()
+  return await xapi.Status.Video.Input.MainVideoSource.get();
 }
 
 //Write UI
