@@ -590,7 +590,7 @@ xapi.Event.UserInterface.Extensions.Widget.on(event => {
   }
 });
 
-export function init(c) {
+function init(c) {
   changePresenterLocationLocal = Rkhelper.IMC.getFunctionCall('changePresenterLocationLocal');
   changePresenterLocationRemote = Rkhelper.IMC.getFunctionCall('changePresenterLocationRemote');
 
@@ -644,4 +644,5 @@ export function init(c) {
     }
   });
 }
+module.exports.init = init;
 

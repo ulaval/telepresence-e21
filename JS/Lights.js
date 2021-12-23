@@ -5,7 +5,7 @@ const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
-export class Lights {
+module.exports.Lights = class Lights {
   constructor(controller) {
     this.controller = controller;
     this.uiListener = undefined;

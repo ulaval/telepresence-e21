@@ -1,8 +1,6 @@
 //VERSION:4.2
 
-import xapi from 'xapi';
-
-export var config = {
+module.exports.config = {
   ui:{
     iconOrder:{ //Détermine l'ordre des icônes
       zoom:1,

@@ -5,7 +5,7 @@ const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
-export class TV {
+module.exports.TV = class TV {
   constructor(controller) {
     this.controller = controller;
     this.tvOffTimer = undefined;
@@ -59,7 +59,7 @@ export class TV {
 
   }
 }
-export class Projector {
+module.exports.Projector = class Projector {
   constructor(controller) {
     this.controller = controller;
     this.projOffTimer = undefined;
@@ -110,7 +110,7 @@ export class Projector {
 
   }
 }
-export class Screen {
+module.exports.Screen = class Screen {
   constructor(controller) {
     this.controller = controller;
     this.position = 'up';

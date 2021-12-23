@@ -53,7 +53,7 @@ var lights;
 
 
 
-export class Controller {
+class Controller {
   constructor() {
     const that = this;
     this.currentScenario = undefined;
@@ -234,6 +234,7 @@ export class Controller {
     });
   }
 }
+module.exports.Controller = Controller;
 
 
 
