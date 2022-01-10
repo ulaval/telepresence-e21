@@ -118,7 +118,7 @@ async function setCamVideoMatrix() {
 /* ENABLE AND DISABLE USBMODEDUAL */
 
 function enableUsbModeDual() {
-  
+
 
   usbModeDualEnabled = true;
 
@@ -313,11 +313,11 @@ function init() {
       else {
         Rkhelper.UI.perminfo.display('Comodal écrans étendus', 'Activation en cours, un instant s.v.p...');
         projOn();
-        setTimeout(function() {
+        setTimeout(function () {
           enableUsbModeDual();
-          setTimeout(function() {
+          setTimeout(function () {
             forceNotifyStatusChange();
-          },25000);
+          }, 25000);
         }, 15000);
       }
     }
@@ -407,6 +407,9 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
           Output: PROJECTORHDMICONNECTOR,
           SourceId: localPcInput1
         });
+        Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+          xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+        });
       }
     }
     else if (status.activity == 'writeonboard') {
@@ -448,6 +451,9 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
             Mode: 'Replace',
             Output: PROJECTORHDMICONNECTOR,
             RemoteMain: 4
+          });
+          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
           });
         }
       }

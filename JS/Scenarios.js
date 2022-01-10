@@ -751,7 +751,6 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
           callPreset('Salle');
 
           //audio routing

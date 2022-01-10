@@ -62,7 +62,7 @@ module.exports.config = {
     remoteMonitorOutputId: 3,                 //Connecteur HDMI du moniteur des sites distants
     projectorOutputId: 1,                     //Connecteur HDMI du projecteur
     usbOutputId: 2,                           //Connecteur HDMI du convertisseur HDMI->USB
-    autoShareInputs:[]                       //Inputs qui sont en autoshare
+    autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
     useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>
