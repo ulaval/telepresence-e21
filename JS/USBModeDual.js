@@ -407,9 +407,11 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
           Output: PROJECTORHDMICONNECTOR,
           SourceId: localPcInput1
         });
-        Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-          xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-        });
+        if (RoomConfig.config.room.useRoomPreset) {
+          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+          });
+        }
       }
     }
     else if (status.activity == 'writeonboard') {
@@ -452,9 +454,11 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
             Output: PROJECTORHDMICONNECTOR,
             RemoteMain: 4
           });
-          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-          });
+          if (RoomConfig.config.room.useRoomPreset) {
+            Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+            });
+          }
         }
       }
 

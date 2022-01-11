@@ -44,7 +44,7 @@ var customScenarioName = '';
 var selfViewStatus = 'Off';
 
 function callPreset(name) {
-  
+
   Rkhelper.System.Camera.getPresetId(name).then(preset => {
     xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
   }).catch(err => {
@@ -391,6 +391,7 @@ export class Scenarios {
             });
           }
           else {
+            console.log('CALLING PRESET CONSOLE FOR NO REASON');
             callPreset('Console');
           }
 
@@ -751,7 +752,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //audio routing
           if (RoomConfig.config.audio.useCombinedAecReference) {
@@ -835,8 +837,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -936,8 +938,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -1035,8 +1037,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({

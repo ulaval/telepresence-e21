@@ -25,9 +25,10 @@ module.exports.config = {
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
-    autoEnablePresenterTrack: false,          //Active automatiquement le PresenterTrack lorsque possible et utile
+    autoEnablePresenterTrack: true,          //Active automatiquement le PresenterTrack lorsque possible et utile
     remotePresenterPIPPosition: 'UpperRight',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
     callFeatures: 'Auto',
+    useRoomPreset:true,
     activities: [                            //Activités. L'activité "normal" DOIT être présente même si elle n'est pas affichée
       {
         id: 'normal',                        //id de l'activité
