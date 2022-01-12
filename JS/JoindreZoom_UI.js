@@ -1,7 +1,6 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-
-import xapi from 'xapi';
+const xapi = require('xapi');
 
 var advOptions;
 
@@ -28,7 +27,7 @@ function getControls() {
 
   return xml;
 }
-export function createUi(options, io) {
+module.exports.createUi = function createUi(options, io) {
   advOptions = options;
   xapi.command('UserInterface Extensions Panel Save', {
     PanelId: 'joinzoom'

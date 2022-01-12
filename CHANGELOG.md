@@ -1,10 +1,10 @@
 # [v4.2 - NOT RELEASED]
 ## Fixed
-- Black image instead of camera on USBMode when stopping and starting presentation again (Issue #10)
+- Black image instead of camera on USBMode when stopping and starting presentation again (Issue #10).
 ## Added
 - Message to confirm the presentation location when "in call" and the presentation source is "remote" and current presenter location is "local"
 - New parameter in "usbmode" (RoomConfig) named "autoStartPresentationConnector", accepting connector number; starts the presentation on that connector automatically on USBMode activation
-- Support for multiple cameras. The preset "Salle" will be recalled when presenter location is set to "remote"
+- Support for multiple cameras (or a single cam for audience). The preset "Salle" will be recalled when presenter location is set to "remote"
 
 # [v4.1]
 ## Fixed

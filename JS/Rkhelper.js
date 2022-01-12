@@ -1,25 +1,37 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
 
-import xapi from 'xapi';
+const xapi = require('xapi');
 
 const DEBUG = false;
 
 
-export const PRES_NOPRES = 'PRES_NOPRESENTATION';
-export const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
-export const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
-export const PRES_REMOTE = 'PRES_REMOTE';
-export const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+const PRES_NOPRES = 'PRES_NOPRESENTATION';
+const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
+const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
+const PRES_REMOTE = 'PRES_REMOTE';
+const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+const CALLSTATUS_DIALING = 'Dialling';
+const CALLSTATUS_NOCALL = undefined;
+const CALLSTATUS_CONNECTED = 'Connected';
+const CALLSTATUS_CONNECTING = 'Connecting';
+const PRESLOCATION_LOCAL = 'local';
+const PRESLOCATION_REMOTE = 'remote';
+const PRESLOCATION_NONE = 'none';
 
-export const CALLSTATUS_DIALING = 'Dialling';
-export const CALLSTATUS_NOCALL = undefined;
-export const CALLSTATUS_CONNECTED = 'Connected';
-export const CALLSTATUS_CONNECTING = 'Connecting';
+module.exports.PRES_NOPRES = PRES_NOPRES;
+module.exports.PRES_LOCALPREVIEW = PRES_LOCALPREVIEW;
+module.exports.PRES_LOCALSHARE = PRES_LOCALSHARE;
+module.exports.PRES_REMOTE = PRES_REMOTE;
+module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
+module.exports.CALLSTATUS_DIALING = CALLSTATUS_DIALING;
+module.exports.CALLSTATUS_NOCALL = CALLSTATUS_NOCALL;
+module.exports.CALLSTATUS_CONNECTED = CALLSTATUS_CONNECTED;
+module.exports.CALLSTATUS_CONNECTING = CALLSTATUS_CONNECTING;
+module.exports.PRESLOCATION_LOCAL = PRESLOCATION_LOCAL;
+module.exports.PRESLOCATION_REMOTE = PRESLOCATION_REMOTE;
+module.exports.PRESLOCATION_NONE = PRESLOCATION_NONE;
 
-export const PRESLOCATION_LOCAL = 'local';
-export const PRESLOCATION_REMOTE = 'remote';
-export const PRESLOCATION_NONE = 'none';
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -50,9 +62,10 @@ var showDndMessages = false;
 
 
 
-export var dndConfig;
+var dndConfig;
+module.exports.dndConfig = dndConfig;
 
-export const Audio = {
+const Audio = {
 
   getLocalOutputId(name) {
     return new Promise((success, failure) => {
@@ -97,11 +110,11 @@ export const Audio = {
   }
 };
 
+module.exports.Audio = Audio;
 
 
 
-
-export const System = {
+const System = {
   Camera: {
     getPresetId(name) {
       return new Promise((success, failure) => {
@@ -178,8 +191,9 @@ export const System = {
   }
 
 };
+module.exports.System = System;
 
-export const IMC = {
+const IMC = {
   addMessageHandler(regex, callback) {
     var temphandler = {};
     temphandler.regex = regex;
@@ -242,11 +256,11 @@ export const IMC = {
     return function () { IMC.callFunction(f); };
   }
 };
+module.exports.IMC = IMC;
 
 
 
-
-export const Status = {
+const Status = {
   async getPresentationStatus() {
     var status = {};
     return new Promise((success) => {
@@ -369,10 +383,11 @@ export const Status = {
     });
   }
 };
+module.exports.Status = Status;
 
 
 
-export const UI = {
+const UI = {
   widgets: {
     addActionListener: function (listener) {
       widgetActionEventListeners.push(listener);
@@ -557,18 +572,21 @@ export const UI = {
     }
   }
 };
+module.exports.UI = UI;
+
 
 export async function getSystemName() {
   return await xapi.Status.UserInterface.ContactInfo.Name.get();
 }
+module.exports.getSystemName = getSystemName;
 
 
 
 
 export function getUniqueId() {
   return (Date.now() + Math.floor(Math.random() * 100000));
-
 }
+module.exports.getUniqueId = getUniqueId;
 
 function privatemode_enabled() {
   privateModeEnabled = true;

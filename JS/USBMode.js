@@ -1,9 +1,8 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-
-import xapi from 'xapi';
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
@@ -23,8 +22,8 @@ const AUTODISABLEONSLEEP = true;
 const USBHDMICONNECTOR = RoomConfig.config.video.usbOutputId;
 const CAMCONNECTOR = RoomConfig.config.camera.connector;
 const EMPTYCONNECTOR = 5;
-const VIDEODEVICENAME = 'Cisco USB';
-const AUDIODEVICENAME = 'Cisco USB';
+const VIDEODEVICENAME = 'Cisco USB ou INOGENI';
+const AUDIODEVICENAME = 'Cisco USB ou INOGENI';
 var pcAudioInputId;
 var usbAudioOutputId;
 var ceilingMicAudioInputId;
@@ -171,7 +170,9 @@ function disableUsbMode() {
     SourceId: EMPTYCONNECTOR
   });
 }
-async function enableUsbModeWebconf() {
+async function enableUsbModeWebconf() 
+{
+  /*
   if (RoomConfig.config.room.autoEnablePresenterTrack) {
     console.log('Enabling camera 1 with presenter track');
     xapi.Command.Cameras.PresenterTrack.Set({
@@ -184,7 +185,28 @@ async function enableUsbModeWebconf() {
       xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId }).catch(() => { });
     }).catch(() => { });
   }
+  */
 
+
+  if (presLocation == 'local') {
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      xapi.Command.Cameras.PresenterTrack.Set({
+        Mode: 'Follow'
+      });
+    }
+    else {
+      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId }).catch(() => { });
+      });
+    }
+  }
+  else {
+    if (RoomConfig.config.room.useRoomPreset) {
+      Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId }).catch(() => { });
+      });
+    }
+  }
 
 
   /* update le nom du bouton */
@@ -221,7 +243,7 @@ async function enableUsbModeWebconf() {
   });
 
   let currentCamConnector = await getCurrentCameraConnector();
-  console.log(currentCamConnector);
+  
   /* Assigne la caméra comme source de la matrice */
   xapi.Command.Video.Matrix.Assign({
     Mode: 'Replace',
@@ -242,10 +264,10 @@ async function enableUsbModeWebconf() {
 
   /* Démarre la routine qui empêche le sleep */
   enableSleepPrevention();
-  
+
   if (RoomConfig.config.usbmode.autoStartPresentationConnector) {
     xapi.Command.Presentation.Start({
-      ConnectorId:RoomConfig.config.usbmode.autoStartPresentationConnector
+      ConnectorId: RoomConfig.config.usbmode.autoStartPresentationConnector
     });
   }
 
@@ -266,9 +288,11 @@ function enableUsbModeRecording() {
     }
   }
   else {
-    Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
-      xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
-    });
+    if (RoomConfig.config.room.useRoomPreset) {
+      Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      });
+    }
   }
 
   usbModeEnabled = true;
@@ -313,7 +337,7 @@ function enableUsbModeRecording() {
 
   if (RoomConfig.config.usbmode.autoStartPresentationConnector) {
     xapi.Command.Presentation.Start({
-      ConnectorId:RoomConfig.config.usbmode.autoStartPresentationConnector
+      ConnectorId: RoomConfig.config.usbmode.autoStartPresentationConnector
     });
   }
 
@@ -466,15 +490,37 @@ function init() {
   //TODO
   /* refresh on status change */
   Rkhelper.Status.addStatusChangeCallback(function (status) {
-    setCamVideoMatrix();
+    if (usbModeEnabled)
+      setCamVideoMatrix();
   });
   /* refresh on cam change */
   xapi.Status.Video.Input.MainVideoSource.on(value => {
-    setCamVideoMatrix();
+    if (usbModeEnabled)
+      setCamVideoMatrix();
   });
 }
 
 async function setCamVideoMatrix() {
+    if (presLocation == 'local') {
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      xapi.Command.Cameras.PresenterTrack.Set({
+        Mode: 'Follow'
+      });
+    }
+    else {
+      Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      });
+    }
+  }
+  else {
+    if (RoomConfig.config.room.useRoomPreset) {
+      Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+        xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      });
+    }
+  }
+
   setTimeout(async function () {
     let currentCamConnector = await getCurrentCameraConnector();
     xapi.Command.Video.Matrix.Assign({

@@ -1,12 +1,10 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
 
-
-import xapi from 'xapi';
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
-
-const DEBUG = true;
+const DEBUG = false;
 
 const PANELID = 'p_usbmodedual';
 const localPcInput1 = RoomConfig.config.usbmode.localPcInput1;
@@ -120,7 +118,7 @@ async function setCamVideoMatrix() {
 /* ENABLE AND DISABLE USBMODEDUAL */
 
 function enableUsbModeDual() {
-  
+
 
   usbModeDualEnabled = true;
 
@@ -315,11 +313,11 @@ function init() {
       else {
         Rkhelper.UI.perminfo.display('Comodal écrans étendus', 'Activation en cours, un instant s.v.p...');
         projOn();
-        setTimeout(function() {
+        setTimeout(function () {
           enableUsbModeDual();
-          setTimeout(function() {
+          setTimeout(function () {
             forceNotifyStatusChange();
-          },25000);
+          }, 25000);
         }, 15000);
       }
     }
@@ -409,6 +407,11 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
           Output: PROJECTORHDMICONNECTOR,
           SourceId: localPcInput1
         });
+        if (RoomConfig.config.room.useRoomPreset) {
+          Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+          });
+        }
       }
     }
     else if (status.activity == 'writeonboard') {
@@ -451,6 +454,11 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
             Output: PROJECTORHDMICONNECTOR,
             RemoteMain: 4
           });
+          if (RoomConfig.config.room.useRoomPreset) {
+            Rkhelper.System.Camera.getPresetId('Salle').then(preset => {
+              xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+            });
+          }
         }
       }
 

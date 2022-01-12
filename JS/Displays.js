@@ -1,12 +1,11 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-
-import xapi from 'xapi';
-import * as RoomConfig from './RoomConfig';
+const xapi = require('xapi');
+const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
-export class TV {
+module.exports.TV = class TV {
   constructor(controller) {
     this.controller = controller;
     this.tvOffTimer = undefined;
@@ -60,7 +59,7 @@ export class TV {
 
   }
 }
-export class Projector {
+module.exports.Projector = class Projector {
   constructor(controller) {
     this.controller = controller;
     this.projOffTimer = undefined;
@@ -111,7 +110,7 @@ export class Projector {
 
   }
 }
-export class Screen {
+module.exports.Screen = class Screen {
   constructor(controller) {
     this.controller = controller;
     this.position = 'up';

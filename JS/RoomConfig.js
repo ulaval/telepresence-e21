@@ -1,8 +1,6 @@
 //VERSION:4.2
 
-import xapi from 'xapi';
-
-export var config = {
+module.exports.config = {
   ui:{
     iconOrder:{ //Détermine l'ordre des icônes
       zoom:1,
@@ -27,9 +25,10 @@ export var config = {
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
-    autoEnablePresenterTrack: false,          //Active automatiquement le PresenterTrack lorsque possible et utile
+    autoEnablePresenterTrack: true,          //Active automatiquement le PresenterTrack lorsque possible et utile
     remotePresenterPIPPosition: 'UpperRight',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
     callFeatures: 'Auto',
+    useRoomPreset:true,
     activities: [                            //Activités. L'activité "normal" DOIT être présente même si elle n'est pas affichée
       {
         id: 'normal',                        //id de l'activité
@@ -64,7 +63,7 @@ export var config = {
     remoteMonitorOutputId: 3,                 //Connecteur HDMI du moniteur des sites distants
     projectorOutputId: 1,                     //Connecteur HDMI du projecteur
     usbOutputId: 2,                           //Connecteur HDMI du convertisseur HDMI->USB
-    autoShareInputs:[]                       //Inputs qui sont en autoshare
+    autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
     useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>

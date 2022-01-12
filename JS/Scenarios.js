@@ -1,20 +1,23 @@
 /*jshint esversion: 6 */
 //VERSION:4.2
-
-
-import xapi from 'xapi';
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
 
-export const PRES_NOPRES = 'PRES_NOPRESENTATION';
-export const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
-export const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
-export const PRES_REMOTE = 'PRES_REMOTE';
-export const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+const PRES_NOPRES = 'PRES_NOPRESENTATION';
+const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
+const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
+const PRES_REMOTE = 'PRES_REMOTE';
+const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
 
+module.exports.PRES_NOPRES = PRES_NOPRES;
+module.exports.PRES_LOCALPREVIEW = PRES_LOCALPREVIEW;
+module.exports.PRES_LOCALSHARE = PRES_LOCALSHARE;
+module.exports.PRES_REMOTE = PRES_REMOTE;
+module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
 
 const OUT_MON = RoomConfig.config.video.remoteMonitorOutputId;
 const OUT_PROJ = RoomConfig.config.video.projectorOutputId;
@@ -41,7 +44,7 @@ var customScenarioName = '';
 var selfViewStatus = 'Off';
 
 function callPreset(name) {
-  
+
   Rkhelper.System.Camera.getPresetId(name).then(preset => {
     xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
   }).catch(err => {
@@ -388,6 +391,7 @@ export class Scenarios {
             });
           }
           else {
+            console.log('CALLING PRESET CONSOLE FOR NO REASON');
             callPreset('Console');
           }
 
@@ -748,8 +752,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //audio routing
           if (RoomConfig.config.audio.useCombinedAecReference) {
@@ -833,8 +837,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -934,8 +938,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -1033,8 +1037,8 @@ export class Scenarios {
           xapi.Command.Video.Matrix.Reset();
 
           /* Active le preset Salle */
-          console.log('CALLING PRESET CAM 2');
-          callPreset('Salle');
+          if (RoomConfig.config.room.useRoomPreset)
+            callPreset('Salle');
 
           //Layouts
           xapi.Command.Video.Layout.LayoutFamily.Set({
