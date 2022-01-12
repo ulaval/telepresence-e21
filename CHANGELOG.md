@@ -5,6 +5,13 @@
 - Message to confirm the presentation location when "in call" and the presentation source is "remote" and current presenter location is "local"
 - New parameter in "usbmode" (RoomConfig) named "autoStartPresentationConnector", accepting connector number; starts the presentation on that connector automatically on USBMode activation
 - Support for multiple cameras (or a single cam for audience). The preset "Salle" will be recalled when presenter location is set to "remote"
+## Config adjustements for v4.2
+```JS
+config.room.useRoomPreset:true //Use audience-facing preset "Salle"
+```
+```JS
+config.usbmode.autoStartPresentationConnector:2 //Automatically start the sharing of this input on usbmode activation
+```
 
 # [v4.1]
 ## Fixed
