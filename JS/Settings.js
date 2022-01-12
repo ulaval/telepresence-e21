@@ -637,12 +637,57 @@ function init(c) {
         ]
       },
         cancel => {
-          
+
         });
 
 
     }
   });
+
+  xapi.Status.Call.on(e => {
+    switch (e.RemoteNumber) {
+      case '.help':
+        msgbox('help', '.help .unlock .lock .restart .info');
+        clearCallHistory();
+        break;
+
+      case '.unlock':
+        xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
+        clearCallHistory();
+        msgbox('Configuration', 'UNLOCKED');
+        break;
+
+      case '.lock':
+        xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
+        clearCallHistory();
+        msgbox('Configuration', 'LOCKED');
+        break;
+
+      case '.restart':
+        clearCallHistory();
+        msgbox('restart','Macro runtime restarting...');
+        xapi.Command.Macros.Runtime.Restart();
+        break;
+
+      case '.info':
+        msgbox('info', `System Name: ${RoomConfig.config.room.name}<br>Version ${RoomConfig.config.version}`);
+        clearCallHistory();
+        break;
+
+    }
+  });
+
+
 }
+function clearCallHistory() {
+  setTimeout(() => {
+    xapi.Command.CallHistory.DeleteAll();
+  }, 5000);
+}
+function msgbox(title, text) {
+  xapi.Command.UserInterface.Message.Prompt.Display(
+    { Duration: 0, "Option.1": 'OK', Text: text, Title: title });
+}
+
 module.exports.init = init;
 
