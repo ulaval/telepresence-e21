@@ -18,8 +18,8 @@ const USBHDMICONNECTOR = RoomConfig.config.video.usbOutputId;
 const MONITORHDMICONNECTOR = RoomConfig.config.video.remoteMonitorOutputId;
 const PROJECTORHDMICONNECTOR = RoomConfig.config.video.projectorOutputId;
 const CAMCONNECTOR = RoomConfig.config.camera.connector;
-const VIDEODEVICENAME = 'Cisco USB';
-const AUDIODEVICENAME = 'Cisco USB';
+const VIDEODEVICENAME = 'Cisco USB ou INOGENI';
+const AUDIODEVICENAME = 'Cisco USB ou INOGENI';
 
 
 
@@ -392,6 +392,16 @@ Rkhelper.Status.addStatusChangeCallback(async function (status) {
           Output: PROJECTORHDMICONNECTOR,
           SourceId: localPcInput2
         });
+        if (RoomConfig.config.room.autoEnablePresenterTrack) {
+          xapi.Command.Cameras.PresenterTrack.Set({
+            Mode: 'Follow'
+          });
+        }
+        else {
+          Rkhelper.System.Camera.getPresetId('Console').then(preset => {
+            xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+          });
+        }
       }
       else if (status.presLocation == 'remote') {
         /* VIDEO ROUTING */
