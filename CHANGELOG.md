@@ -12,6 +12,9 @@ config.room.useRoomPreset:true //Use audience-facing preset "Salle"
 ```JS
 config.usbmode.autoStartPresentationConnector:2 //Automatically start the sharing of this input on usbmode activation
 ```
+```JS
+config.version:'v4.2'
+```
 
 # [v4.1]
 ## Fixed
