@@ -187,7 +187,6 @@ async function enableUsbModeWebconf()
   }
   */
 
-
   if (presLocation == 'local') {
     if (RoomConfig.config.room.autoEnablePresenterTrack) {
       xapi.Command.Cameras.PresenterTrack.Set({
@@ -490,6 +489,7 @@ function init() {
   //TODO
   /* refresh on status change */
   Rkhelper.Status.addStatusChangeCallback(function (status) {
+    presLocation = status.presLocation;
     if (usbModeEnabled)
       setCamVideoMatrix();
   });

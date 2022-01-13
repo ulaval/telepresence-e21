@@ -1911,8 +1911,9 @@ export class Scenarios {
             this.update_SCE_STANDBY(status);
           }
           else if (standby == 'Off') {
+            /*
             setTimeout(function () {
-              /* Active le speakertrack */
+              // Active le speakertrack
               if (RoomConfig.config.room.autoEnablePresenterTrack) {
                 xapi.Command.Cameras.PresenterTrack.Set({
                   Mode: 'Follow'
@@ -1922,6 +1923,7 @@ export class Scenarios {
                 callPreset('Console');
               }
             }, 8000);
+            */
             if (status.callStatus.Status == undefined) {
               this.currentScenario = 'SCE_NOCALL';
               this.update_SCE_NOCALL(status);
