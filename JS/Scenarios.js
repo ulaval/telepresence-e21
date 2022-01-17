@@ -817,7 +817,7 @@ export class Scenarios {
 
 
 
-          this.controller.activateLightScene('scene_normal');
+          this.controller.activateLightScene('scene_projection');
         }
 
 
