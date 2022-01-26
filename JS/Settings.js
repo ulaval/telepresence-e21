@@ -372,6 +372,7 @@ function setDefaultValues() {
     Value: RoomConfig.config.room.defaultPresenterLocation
   });
   presenterLocation = 'local';
+  changePresenterLocationLocal();
 
   if (RoomConfig.config.room.showActivities) {
 
