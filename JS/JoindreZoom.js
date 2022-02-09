@@ -34,8 +34,8 @@ var zoomConfig = {
     autoDelete: RoomConfig.config.zoom.callHistoryAutoDelete,
     autoDeleteMethod: RoomConfig.config.zoom.callHistoryAutoDeleteMethod,
     autoDeleteTimeout: RoomConfig.config.zoom.callHistoryAutoDeleteTimeout
-  },  
-  ui:{
+  },
+  ui: {
     iconOrder: RoomConfig.config.ui.iconOrder.zoom
   }
 };
@@ -277,13 +277,13 @@ function sleep(ms) {
 function deleteCallHistory() {
   if (zoomConfig.callHistory.autoDelete) {
     xapi.Command.CallHistory.Get().then(calls => {
-      calls.Entry.forEach(e => {
+      for (var e of calls.Entry) {
         if (isZoom(e.CallbackNumber)) {
           xapi.Command.CallHistory.DeleteEntry({
             CallHistoryId: e.CallHistoryId
           });
         }
-      });
+      };
     });
   }
 }
@@ -294,19 +294,21 @@ function dtmfSend(string) {
   });
 }
 function dtmfSendCode(string) {
-    xapi.Command.Call.dtmfSend({
+  xapi.Command.Call.dtmfSend({
     DTMFString: `${string}`
   });
 }
 
 function isZoom(cbn) {
   var is = false;
-  zoomConfig.call.sipDomains.forEach(sd => {
-    let t = new RegExp(sd);
-    if (t.test(cbn)) {
-      is = true;
-    }
-  });
+  if (zoomConfig.call.sipDomains) {
+    for (var sd of zoomConfig.call.sipDomains) {
+      let t = new RegExp(sd);
+      if (t.test(cbn)) {
+        is = true;
+      }
+    };
+  }
   return is;
 }
 
