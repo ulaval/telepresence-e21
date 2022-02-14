@@ -10,7 +10,7 @@ module.exports.config = {
     }
   },
   room: {
-    name: 'ZAC-HOME',                        //Nom du système, doit être unique
+    name: 'PVE1115',                        //Nom du système, doit être unique
     supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: false,                    //Mode automatique de gestion de la salle <true, false>
@@ -21,7 +21,7 @@ module.exports.config = {
     loadingDelay: 5000,                     //Délais avant l'initialisation des scripts en ms. Défaut: 200000 (MS) (3 minutes 20 secondes)
     controlSystemPollingInterval: 5000,     //Temps entre chaque vérification du système de contrôle (Crestron)
     fakeControlSystem: true,                //false = normal, true = developement
-    controlSystemSerial: '2123JBH00044',     //numéro de série du processeur crestron
+    controlSystemSerial: '1234567890',     //numéro de série du processeur crestron
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)

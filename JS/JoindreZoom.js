@@ -23,9 +23,9 @@ const advancedOptions = [
 /* POUR UTILISATION AVEC SYSTÈME SSE-COMODALE-E2021 */
 
 
-const DEBUG = false;
+const DEBUG = true;
 
-var standalone = false;
+
 var zoomConfig = {
   call: {
     sipDomains: [`zmca.us`, `zoomcrc.com`], //Domaines SIP reconnus. Le premier est celui par défaut pour la composition.,
@@ -397,17 +397,26 @@ function usbmode_enabled() {
 function usbmode_disabled() {
   showCallZoomButton();
 }
-
-function init() {
-  hideZoomInCallMenu();
-  Rkhelper.IMC.registerFunction(privatemode_enabled);
-  Rkhelper.IMC.registerFunction(privatemode_disabled);
-  Rkhelper.IMC.registerFunction(usbmode_enabled);
-  Rkhelper.IMC.registerFunction(usbmode_disabled);
-
+async function getBootTime() {
+  const uptime = await xapi.Status.SystemUnit.Uptime.get();
+  return uptime;
+}
+async function init() {
+  var bootTime = await getBootTime();
+  if (bootTime > 290) {
+    if (DEBUG)
+      console.log(`JoindreZoom: init()`);
+    JoindreZoomUI.createUi(advancedOptions, zoomConfig.ui.iconOrder);
+    hideZoomInCallMenu();
+    Rkhelper.IMC.registerFunction(privatemode_enabled);
+    Rkhelper.IMC.registerFunction(privatemode_disabled);
+    Rkhelper.IMC.registerFunction(usbmode_enabled);
+    Rkhelper.IMC.registerFunction(usbmode_disabled);
+  }
 }
 
+/* INIT WITH DELAY 10s */
+setTimeout(() => {
+  init();
 
-
-JoindreZoomUI.createUi(advancedOptions, zoomConfig.ui.iconOrder);
-init();
+}, 10000);

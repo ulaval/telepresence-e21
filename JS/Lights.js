@@ -3,13 +3,12 @@
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = false;
+const DEBUG = true;
 
 module.exports.Lights = class Lights {
   constructor(controller) {
     this.controller = controller;
     this.uiListener = undefined;
-    this.ready = false;
     this._lightsConfig = RoomConfig.config.lights;
     this.lastScene = undefined;
     const that = this;
@@ -154,15 +153,6 @@ module.exports.Lights = class Lights {
 
   activateLightScene(id) {
     this.executeScene(id);
-  }
-
-
-  ready() {
-    this.ready = true;
-  }
-
-  notReady() {
-    this.ready = false;
   }
 }
 

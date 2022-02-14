@@ -41,6 +41,10 @@ var privateModeActive = false;
 var wakeupTimer;
 var lastConnectedStatus = 'False';
 
+async function getBootTime() {
+  const uptime = await xapi.Status.SystemUnit.Uptime.get();
+  return uptime;
+}
 
 function UsbModeButtonClicked() {
   if (usbModeEnabled) {
@@ -170,8 +174,7 @@ function disableUsbMode() {
     SourceId: EMPTYCONNECTOR
   });
 }
-async function enableUsbModeWebconf() 
-{
+async function enableUsbModeWebconf() {
   /*
   if (RoomConfig.config.room.autoEnablePresenterTrack) {
     console.log('Enabling camera 1 with presenter track');
@@ -242,7 +245,7 @@ async function enableUsbModeWebconf()
   });
 
   let currentCamConnector = await getCurrentCameraConnector();
-  
+
   /* Assigne la caméra comme source de la matrice */
   xapi.Command.Video.Matrix.Assign({
     Mode: 'Replace',
@@ -369,139 +372,147 @@ function privatemode_disabled() {
 }
 
 
-function init() {
-  createUi();
-
-  /* register remote calls */
-  usbmode_enabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
-  usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
-
-  Rkhelper.IMC.registerFunction(privatemode_enabled);
-  Rkhelper.IMC.registerFunction(privatemode_disabled);
-  Rkhelper.IMC.registerFunction(disableUsbMode);
+async function init() {
 
 
-  /* get audio in/out ids */
-  Rkhelper.Audio.getLocalInputId('PC').then(input => {
-    pcAudioInputId = input;
-    Rkhelper.Audio.getLocalInputId('Microphone').then(input => {
-      ceilingMicAudioInputId = input;
-      Rkhelper.Audio.getLocalOutputId('USB').then(output => {
-        usbAudioOutputId = output;
+  var bootTime = await getBootTime();
+  if (bootTime > 290) {
+      if (DEBUG)
+    console.log(`USBMode: init()`);
+    
+    createUi();
 
-        disableUsbMode();
+    /* register remote calls */
+    usbmode_enabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
+    usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
 
+    Rkhelper.IMC.registerFunction(privatemode_enabled);
+    Rkhelper.IMC.registerFunction(privatemode_disabled);
+    Rkhelper.IMC.registerFunction(disableUsbMode);
+
+
+    /* get audio in/out ids */
+    Rkhelper.Audio.getLocalInputId('PC').then(input => {
+      pcAudioInputId = input;
+      Rkhelper.Audio.getLocalInputId('Microphone').then(input => {
+        ceilingMicAudioInputId = input;
+        Rkhelper.Audio.getLocalOutputId('USB').then(output => {
+          usbAudioOutputId = output;
+
+          disableUsbMode();
+
+        });
       });
     });
-  });
 
 
 
-  /* Register feedback listeners */
-  xapi.Event.UserInterface.Extensions.Panel.Clicked.on(event => {
-    if (event.PanelId == USBMBUTTONID) {
-      if (privateModeActive) {
-        xapi.Command.UserInterface.Message.Prompt.Display({
-          Title: 'Mode privé',
-          Text: 'Vous ne pouvez pas activer le mode USB car le mode privé est activé.',
-          FeedbackId: 'fbnull',
-          Duration: 0,
-          'Option.1': 'OK'
-        });
+    /* Register feedback listeners */
+    xapi.Event.UserInterface.Extensions.Panel.Clicked.on(event => {
+      if (event.PanelId == USBMBUTTONID) {
+        if (privateModeActive) {
+          xapi.Command.UserInterface.Message.Prompt.Display({
+            Title: 'Mode privé',
+            Text: 'Vous ne pouvez pas activer le mode USB car le mode privé est activé.',
+            FeedbackId: 'fbnull',
+            Duration: 0,
+            'Option.1': 'OK'
+          });
+        }
+        else {
+          UsbModeButtonClicked();
+        }
       }
-      else {
-        UsbModeButtonClicked();
-      }
-    }
-  });
+    });
 
-  xapi.Event.UserInterface.Message.Prompt.Response.on(event => {
-    if (DEBUG)
-      console.log(event);
-    if (event.FeedbackId == PROMPTDISABLEUSBMODE) {
-      if (event.OptionId == 1) {
+    xapi.Event.UserInterface.Message.Prompt.Response.on(event => {
+      if (DEBUG)
+        console.log(event);
+      if (event.FeedbackId == PROMPTDISABLEUSBMODE) {
+        if (event.OptionId == 1) {
+          disableUsbMode();
+        }
+      }
+      else if (event.FeedbackId == PROMPTENABLEUSBMODE1) {
+        if (event.OptionId == 1) {
+          xapi.Command.UserInterface.Message.Prompt.Display({
+            Title: 'Webconférence',
+            Text: `L'activation du mode webconférence désactivera les fonctionnalités d'appel' et déconnectera tous les appels.`,
+            FeedbackId: CONFIRMWEBCONFERENCE,
+            Duration: 0,
+            'Option.1': 'Continuer',
+            'Option.2': 'Ne pas activer',
+          });
+        }
+        if (event.OptionId == 2) {
+          enableUsbModeRecording();
+        }
+      }
+      else if (event.FeedbackId == PROMPTENABLEUSBMODE1W) {
+        if (DEBUG)
+          console.log('OK');
+        if (event.OptionId == 1) {
+          xapi.Command.UserInterface.Message.Prompt.Display({
+            Title: 'Webconférence',
+            Text: `L'activation du mode webconférence désactivera les fonctionnalités d'appel' et déconnectera tous les appels.`,
+            FeedbackId: CONFIRMWEBCONFERENCE,
+            Duration: 0,
+            'Option.1': 'Continuer',
+            'Option.2': 'Ne pas activer',
+          });
+        }
+      }
+      else if (event.FeedbackId == PROMPTDISABLEUSBMODE) {
+        if (event.OptionId == 1) {
+          //TODO: ????????????? 
+        }
+      }
+      else if (event.FeedbackId == CONFIRMWEBCONFERENCE) {
+        if (event.OptionId == 1) {
+          /* Affiche les instructions */
+          xapi.Command.UserInterface.Message.Prompt.Display({
+            Title: 'Configuration de votre application',
+            Text: `Choisissez "${VIDEODEVICENAME}" comme caméra et "${AUDIODEVICENAME}" comme microphone dans votre application de webconférence préférée.`,
+            FeedbackId: 'fbnull',
+            Duration: 0,
+            'Option.1': 'J\'ai compris',
+          });
+          enableUsbModeWebconf();
+        }
+      }
+    });
+
+
+    xapi.Status.Standby.State.on(state => {
+      if (state == 'Standby') {
         disableUsbMode();
       }
-    }
-    else if (event.FeedbackId == PROMPTENABLEUSBMODE1) {
-      if (event.OptionId == 1) {
-        xapi.Command.UserInterface.Message.Prompt.Display({
-          Title: 'Webconférence',
-          Text: `L'activation du mode webconférence désactivera les fonctionnalités d'appel' et déconnectera tous les appels.`,
-          FeedbackId: CONFIRMWEBCONFERENCE,
-          Duration: 0,
-          'Option.1': 'Continuer',
-          'Option.2': 'Ne pas activer',
-        });
+      else if (state == 'Off') {
+        createUi();
       }
-      if (event.OptionId == 2) {
-        enableUsbModeRecording();
+      else if (state == 'Halfwake') {
+        //code ici
       }
-    }
-    else if (event.FeedbackId == PROMPTENABLEUSBMODE1W) {
-      if (DEBUG)
-        console.log('OK');
-      if (event.OptionId == 1) {
-        xapi.Command.UserInterface.Message.Prompt.Display({
-          Title: 'Webconférence',
-          Text: `L'activation du mode webconférence désactivera les fonctionnalités d'appel' et déconnectera tous les appels.`,
-          FeedbackId: CONFIRMWEBCONFERENCE,
-          Duration: 0,
-          'Option.1': 'Continuer',
-          'Option.2': 'Ne pas activer',
-        });
-      }
-    }
-    else if (event.FeedbackId == PROMPTDISABLEUSBMODE) {
-      if (event.OptionId == 1) {
-        //TODO: ????????????? 
-      }
-    }
-    else if (event.FeedbackId == CONFIRMWEBCONFERENCE) {
-      if (event.OptionId == 1) {
-        /* Affiche les instructions */
-        xapi.Command.UserInterface.Message.Prompt.Display({
-          Title: 'Configuration de votre application',
-          Text: `Choisissez "${VIDEODEVICENAME}" comme caméra et "${AUDIODEVICENAME}" comme microphone dans votre application de webconférence préférée.`,
-          FeedbackId: 'fbnull',
-          Duration: 0,
-          'Option.1': 'J\'ai compris',
-        });
-        enableUsbModeWebconf();
-      }
-    }
-  });
+    });
 
 
-  xapi.Status.Standby.State.on(state => {
-    if (state == 'Standby') {
-      disableUsbMode();
-    }
-    else if (state == 'Off') {
-      createUi();
-    }
-    else if (state == 'Halfwake') {
-      //code ici
-    }
-  });
-
-
-  //TODO
-  /* refresh on status change */
-  Rkhelper.Status.addStatusChangeCallback(function (status) {
-    presLocation = status.presLocation;
-    if (usbModeEnabled)
-      setCamVideoMatrix();
-  });
-  /* refresh on cam change */
-  xapi.Status.Video.Input.MainVideoSource.on(value => {
-    if (usbModeEnabled)
-      setCamVideoMatrix();
-  });
+    //TODO
+    /* refresh on status change */
+    Rkhelper.Status.addStatusChangeCallback(function (status) {
+      presLocation = status.presLocation;
+      if (usbModeEnabled)
+        setCamVideoMatrix();
+    });
+    /* refresh on cam change */
+    xapi.Status.Video.Input.MainVideoSource.on(value => {
+      if (usbModeEnabled)
+        setCamVideoMatrix();
+    });
+  }
 }
 
 async function setCamVideoMatrix() {
-    if (presLocation == 'local') {
+  if (presLocation == 'local') {
     if (RoomConfig.config.room.autoEnablePresenterTrack) {
       xapi.Command.Cameras.PresenterTrack.Set({
         Mode: 'Follow'
@@ -564,7 +575,5 @@ function createUi() {
 `);
 }
 
-
-
-
-setTimeout(init, 5000);
+/* init delay 10s */
+setTimeout(init, 10000);

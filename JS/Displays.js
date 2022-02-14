@@ -3,7 +3,7 @@
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = false;
+const DEBUG = true;
 
 module.exports.TV = class TV {
   constructor(controller) {
@@ -52,12 +52,6 @@ module.exports.TV = class TV {
   getStatus() {
     return this.status;
   }
-  ready() {
-
-  }
-  notReady() {
-
-  }
 }
 module.exports.Projector = class Projector {
   constructor(controller) {
@@ -103,12 +97,6 @@ module.exports.Projector = class Projector {
   getStatus() {
     return this.status;
   }
-  ready() {
-
-  }
-  notReady() {
-
-  }
 }
 module.exports.Screen = class Screen {
   constructor(controller) {
@@ -137,22 +125,9 @@ module.exports.Screen = class Screen {
 
   }
   stop() {
-    /*
-    if (DEBUG)
-      console.log('[SCREEN] -> STOP');
-    xapi.Command.Message.Send({
-      Text: `SCREEN_STOP`
-    });
-    this.position = 'stop';
-    */
+
   }
   getStatus() {
     return this.position;
-  }
-  ready() {
-
-  }
-  notReady() {
-
   }
 }

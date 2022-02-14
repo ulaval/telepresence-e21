@@ -769,6 +769,8 @@ xapi.Event.UserInterface.Extensions.Widget.on(event => {
   }
 });
 
+/* Init with delay 8s */
+setTimeout(() => {
+  init();
+},8000);
 
-
-init();

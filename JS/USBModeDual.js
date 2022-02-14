@@ -122,6 +122,8 @@ function enableUsbModeDual() {
 
   usbModeDualEnabled = true;
 
+  screenDown(true);
+
   enableSleepPrevention();
 
   xapi.Command.Call.Disconnect();
@@ -259,15 +261,20 @@ function screenUp(force) {
 function screenDown(force) {
   Rkhelper.IMC.callFunction('screenDown', force);
 }
-
+async function getBootTime() {
+  const uptime = await xapi.Status.SystemUnit.Uptime.get();
+  return uptime;
+}
 
 /* SCRIPT INIT */
-function init() {
-  /* endSession panel override */
-  xapi.command('UserInterface Extensions Panel Save', {
-    PanelId: 'endSessionUsbModeDual'
+async function init() {
+  var bootTime = await getBootTime();
+  if (bootTime > 290) {
+    /* endSession panel override */
+    xapi.command('UserInterface Extensions Panel Save', {
+      PanelId: 'endSessionUsbModeDual'
 
-  }, `
+    }, `
   <Extensions>
   <Version>1.8</Version>
   <Panel>
@@ -282,87 +289,93 @@ function init() {
 </Extensions>
 `);
 
-  xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
+    xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
 
-  /* INTER-MACRO COMMUNICATION */
-  usbmode_enabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
-  usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
-  forceNotifyStatusChange = Rkhelper.IMC.getFunctionCall('forceNotifyStatusChange');
-  disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
-  controllerStandbyRequest = Rkhelper.IMC.getFunctionCall('controllerStandbyRequest');
+    /* INTER-MACRO COMMUNICATION */
+    usbmode_enabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
+    usbmode_disabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
+    forceNotifyStatusChange = Rkhelper.IMC.getFunctionCall('forceNotifyStatusChange');
+    disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
+    controllerStandbyRequest = Rkhelper.IMC.getFunctionCall('controllerStandbyRequest');
 
-  Rkhelper.IMC.registerFunction(privatemode_enabled);
-  Rkhelper.IMC.registerFunction(privatemode_disabled);
+    Rkhelper.IMC.registerFunction(privatemode_enabled);
+    Rkhelper.IMC.registerFunction(privatemode_disabled);
 
 
-  Rkhelper.Audio.getLocalInputId('PC').then(input => {
-    pcAudioInputId = input;
-    Rkhelper.Audio.getLocalInputId('Microphone').then(input => {
-      micAudioInputId = input;
-      Rkhelper.Audio.getLocalOutputId('USB').then(output => {
-        usbAudioOutputId = output;
+    Rkhelper.Audio.getLocalInputId('PC').then(input => {
+      pcAudioInputId = input;
+      Rkhelper.Audio.getLocalInputId('Microphone').then(input => {
+        micAudioInputId = input;
+        Rkhelper.Audio.getLocalOutputId('USB').then(output => {
+          usbAudioOutputId = output;
+        });
       });
     });
-  });
 
-  xapi.Event.UserInterface.Extensions.Panel.Clicked.on(event => {
-    if (event.PanelId == PANELID) {
-      if (usbModeDualEnabled) {
-        disableUsbModeDual();
-      }
-      else {
-        Rkhelper.UI.perminfo.display('Comodal écrans étendus', 'Activation en cours, un instant s.v.p...');
-        projOn();
-        setTimeout(function () {
-          enableUsbModeDual();
-          setTimeout(function () {
-            forceNotifyStatusChange();
-          }, 25000);
-        }, 15000);
-      }
-    }
-    if (event.PanelId == 'endSessionUsbModeDual') {
-      if (usbModeDualEnabled) {
-        Rkhelper.UI.prompt.display({
-          Duration: 8,
-          Title: `Fermer le système`,
-          Text: `Le système sera éteint et tous les paramètres seront réinitialisés.<br>Voulez-vous continuer ?`,
-          Options: [
-            {
-              id: 'endSessionContinue',
-              label: 'Oui, fermer le système',
-              callback: function () {
-                disableUsbModeDual();
-                setTimeout(function () {
-                  xapi.Command.Presentation.Stop();
-                  xapi.Command.Call.Disconnect();
-                  xapi.Command.UserInterface.Message.Prompt.Display(
-                    {
-                      Duration: 6,
-                      FeedbackId: 'standbymessage',
-                      Text: 'Aurevoir, à la prochaine!',
-                      Title: `Le système s'éteint`
-                    });
-                  setTimeout(function () {
-                    xapi.Command.Standby.Activate();
-                  }, 6000);
-                }, 8000);
-              }
-            },
-            {
-              id: 'endSessionCancel',
-              label: 'Non, annuler',
-              callback: function () { }
-            }
-          ]
-        },
-          cancel => {
-
+    xapi.Event.UserInterface.Extensions.Panel.Clicked.on(event => {
+      if (event.PanelId == PANELID) {
+        if (usbModeDualEnabled) {
+          disableUsbModeDual();
+        }
+        else {
+          xapi.Command.UserInterface.Message.Prompt.Display({
+            Duration: 30,
+            FeedbackId: 'enableusbmodedual',
+            Text: 'Activation en cours, un instant s.v.p...',
+            Title: 'Comodal écrans étendus'
           });
-
+          projOn();
+          setTimeout(function () {
+            enableUsbModeDual();
+            setTimeout(function () {
+              forceNotifyStatusChange();
+            }, 25000);
+          }, 15000);
+        }
       }
-    }
-  });
+      if (event.PanelId == 'endSessionUsbModeDual') {
+        if (usbModeDualEnabled) {
+          Rkhelper.UI.prompt.display({
+            Duration: 8,
+            Title: `Fin de session`,
+            Text: `Votre session se terminera et tous les paramètres du système seront réinitialisés.<br>Voulez-vous continuer ?`,
+            Options: [
+              {
+                id: 'endSessionContinue',
+                label: 'Oui, fermer la session',
+                callback: function () {
+                  disableUsbModeDual();
+                  setTimeout(function () {
+                    xapi.Command.Presentation.Stop();
+                    xapi.Command.Call.Disconnect();
+                    xapi.Command.UserInterface.Message.Prompt.Display(
+                      {
+                        Duration: 6,
+                        FeedbackId: 'standbymessage',
+                        Text: 'Aurevoir, à la prochaine!',
+                        Title: `Fermeture de la session...`
+                      });
+                    setTimeout(function () {
+                      xapi.Command.Standby.Activate();
+                    }, 6000);
+                  }, 8000);
+                }
+              },
+              {
+                id: 'endSessionCancel',
+                label: 'Non, annuler',
+                callback: function () { }
+              }
+            ]
+          },
+            cancel => {
+
+            });
+
+        }
+      }
+    });
+  }
 }
 
 
@@ -527,4 +540,4 @@ async function getCurrentCameraConnector() {
 
 
 createUi();
-setTimeout(init, 5000);
+setTimeout(init, 10000);

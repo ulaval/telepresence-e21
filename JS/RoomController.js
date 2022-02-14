@@ -8,7 +8,7 @@ const Lights = require('./Lights');
 const Scenarios = require('./Scenarios');
 
 
-const DEBUG = false;
+const DEBUG = true;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -18,7 +18,6 @@ const PROJPOWER = 'projpower';
 const SCREENSTOP = 'screen_stop';
 const SCREENUP = 'screen_up';
 const SCREENDOWN = 'screen_down';
-
 
 
 /* Fichier de mise en place et de configuration de l'environnement.
@@ -36,8 +35,6 @@ var disablePrivateMode;
 var enableUsbMode;
 var disableUsbMode;
 
-var ready;
-var notready;
 var csConnected = false;
 
 var loadingPrompt;
@@ -51,7 +48,9 @@ var statusChanged;
 var controller;
 var lights;
 
-
+var macroRestartTimeout;
+var alternateUpdateMessage = false;
+var freshBootWarningInterval;
 
 class Controller {
   constructor() {
@@ -146,7 +145,7 @@ class Controller {
       }
     });
 
-    
+
 
   }
 
@@ -199,16 +198,7 @@ class Controller {
       this.displayStatus();
     }
   }
-  ready() {
-    this.disp_tv.ready();
-    this.disp_proj.ready();
-    this.disp_screen.ready();
-  }
-  notReady() {
-    this.disp_tv.notReady();
-    this.disp_proj.notReady();
-    this.disp_screen.notReady();
-  }
+
   activateLightScene(scene) {
     {
       if (this.autoLights && RoomConfig.config.room.lightsControl) {
@@ -249,18 +239,7 @@ function privatemode_disabled() {
 
 
 
-async function loadingStart() {
-  ready = Rkhelper.IMC.getFunctionCall('ready');
-  notready = Rkhelper.IMC.getFunctionCall('notready');
 
-
-
-  const systemName = await Rkhelper.getSystemName();
-  loadingPrompt = Rkhelper.UI.perminfo.display(`Un instant s.v.p.`, `Initialisation du système.`);
-  setTimeout(loadingEnd, RoomConfig.config.room.loadingDelay);
-
-
-}
 
 function createUi() {
   //Ajoute le bouton "Terminer la session"
@@ -305,12 +284,12 @@ function screenDown(force) {
 function controllerStandbyRequest() {
   Rkhelper.UI.prompt.display({
     Duration: 8,
-    Title: `Fermer le système`,
-    Text: `Le système sera éteint et tous les paramètres seront réinitialisés.<br>Voulez-vous continuer ?`,
+    Title: `Fin de session`,
+    Text: `Votre session se terminera et tous les paramètres du système seront réinitialisés.<br>Voulez-vous continuer ?`,
     Options: [
       {
         id: 'endSessionContinue',
-        label: 'Oui, fermer le système',
+        label: 'Oui, fermer la session',
         callback: function () {
           xapi.Command.Presentation.Stop();
           xapi.Command.Call.Disconnect();
@@ -319,7 +298,7 @@ function controllerStandbyRequest() {
               Duration: 6,
               FeedbackId: 'standbymessage',
               Text: 'Aurevoir, à la prochaine!',
-              Title: `Le système s'éteint`
+              Title: `Fermeture de la session...`
             });
           setTimeout(function () {
             xapi.Command.Standby.Activate();
@@ -337,6 +316,17 @@ function controllerStandbyRequest() {
 
     });
 }
+
+async function loadingStart() {
+  xapi.Command.UserInterface.Message.Prompt.Display({
+    Duration: 10,
+    FeedbackId: 'loadingstart',
+    Text: `Démarrage de l'application en cours...`,
+    Title: `Un instant s.v.p.`
+  });
+  setTimeout(loadingEnd, RoomConfig.config.room.loadingDelay);
+}
+
 function loadingEnd() {
 
 
@@ -348,9 +338,6 @@ function loadingEnd() {
   enableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_enable');
   disableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_disable');
   disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
-
-
-
 
   //Register callbacks 
   Rkhelper.IMC.registerFunction(ui_InitDone);
@@ -384,59 +371,28 @@ function loadingEnd() {
   if (!RoomConfig.config.room.fakeControlSystem) {
     setInterval(checkControlSystem, RoomConfig.config.room.controlSystemPollingInterval);
   }
-  else {
-    setTimeout(ready, RoomConfig.config.room.controlSystemPollingInterval);
-    setTimeout(function () {
-      scenarios.ready();
-      xapi.Command.Standby.Activate();
-      Rkhelper.UI.clearPrompt(loadingPrompt);
-    }, RoomConfig.config.room.controlSystemPollingInterval);
 
-  }
-
-  let l = Rkhelper.UI.perminfo.display(`Encore quelques secondes...`, `C'est presque prêt!`);
-  setTimeout(function () {
-    Rkhelper.UI.clearPrompt(l);
-  }, RoomConfig.config.room.loadingDelay);
-
-  
+  xapi.Command.Standby.Activate();
 }
 
 
 async function checkControlSystem() {
   var found = false;
-  await xapi.Status.Peripherals.ConnectedDevice.get().then(p => {
-    p.forEach(peripheral => {
+  xapi.Status.Peripherals.ConnectedDevice.get().then(p => {
+    for (var peripheral of p) {
       if (peripheral.SerialNumber == RoomConfig.config.room.controlSystemSerial && peripheral.Status == 'Connected') {
         found = true;
       }
-    });
+    }
+    if (!found) {
+      xapi.Command.UserInterface.Message.Prompt.Display({
+        Duration: 10,
+        FeedbackId: 'checkcontrolsystem',
+        Text: 'Le processeur Crestron ne réponds pas. Avisez le SSE, si ça presse, débranchez-rebranchez le Crestron',
+        Title: 'SYSTÈME NON PRÊT'
+      });
+    }
   });
-  if (found != csConnected) {
-    if (found) {
-      csConnected = true;
-      Rkhelper.UI.clearPrompt(loadingPrompt);
-      ready();
-      controller.ready();
-      scenarios.ready();
-
-
-    }
-    else {
-      csConnected = false;
-      loadingPrompt = Rkhelper.UI.perminfo.display(`Système non prêt`, `Si le problème persiste après 2 minutes:<br>${RoomConfig.config.room.supportContact}`);
-      notready();
-      controller.notReady();
-      scenarios.notReady();
-    }
-  }
-  if (!found && !csConnected) {
-    csConnected = false;
-    loadingPrompt = Rkhelper.UI.perminfo.display(`Système non prêt`, `Si le problème persiste après 2 minutes:<br>${RoomConfig.config.room.supportContact}`);
-    notready();
-    controller.notReady();
-    scenarios.notReady();
-  }
 }
 
 
@@ -452,14 +408,24 @@ function ui_InitDone() {
 
 
 async function init() {
-  controller = new Controller();
-  scenarios = new Scenarios.Scenarios(controller);
-  configureRkhelper();
-  loadingStart();
+  var bootTime = await getBootTime();
+  if (bootTime > 290) {
+
+    if (DEBUG)
+      console.log(`RoomConfig: init()`);
+
+    controller = new Controller();
+    scenarios = new Scenarios.Scenarios(controller);
+    configureRkhelper();
+    loadingStart();
+  }
 }
-init();
 
 
+async function getBootTime() {
+  const uptime = await xapi.Status.SystemUnit.Uptime.get();
+  return uptime;
+}
 
 
 //Stop sharing on disconnect
@@ -470,16 +436,57 @@ xapi.Event.CallDisconnect.on(value => {
 });
 
 
-xapi.Status.Standby.State.on(value => {
-  if (value == 'Off') {
-    xapi.Command.UserInterface.Message.Prompt.Display(
-      {
-        Duration: 5,
-        FeedbackId: 'wakemessage',
-        Text: 'Patientez quelques secondes, préparation du système...',
-        Title: `Bonjour!`
-      });
-      
-    createUi();
+xapi.Status.Standby.State.on(async value => {
+  var bootTime = await getBootTime();
+  if (bootTime > 290) {
+    if (value == 'Off') {
+
+      setTimeout(() => {
+        xapi.Command.UserInterface.Message.Prompt.Display(
+          {
+            Duration: 5,
+            FeedbackId: 'wakemessage',
+            Text: 'Préparation du système, un instant s.v.p!',
+            Title: `Nouvelle session`
+          });
+
+        createUi();
+      }, 2000);
+    }
+  }
+  else {
+    if (freshBootWarningInterval == undefined) {
+      freshBootWarningInterval = setInterval(() => {
+        displayFreshBootWarning();
+        if (macroRestartTimeout == undefined) {
+          clearTimeout(macroRestartTimeout);
+          macroRestartTimeout = setTimeout(() => {
+            xapi.Command.Macros.Runtime.Restart();
+          }, 300000);
+        }
+      }, 5000);
+    }
   }
 });
+
+function displayFreshBootWarning() {
+  var msg;
+  alternateUpdateMessage = !alternateUpdateMessage;
+  if (alternateUpdateMessage) {
+    msg = `Nous installons la dernière version du système.<br><br>Temps d'installation total: 5 minutes`
+  }
+  else {
+    msg = `Le système sera prêt bientôt, merci de patienter.<br><br>Temps d'installation total: 5 minutes`
+  }
+  xapi.Command.UserInterface.Message.Prompt.Display(
+    {
+      Duration: 0,
+      FeedbackId: 'freshboot',
+      Text: msg,
+      Title: `⚠ Installation des mises à jour ⚠`
+    });
+}
+
+
+
+setTimeout(init, 11000);

@@ -57,7 +57,6 @@ export class Scenarios {
       console.log(`SCENARIOS: Contructor`);
     this.type = 'Scenarios';
     this.controller = controller;
-    this.systemReady = false;
     this.statusChangeCallback = Rkhelper.Status.addStatusChangeCallback(status => {
       this.statusChanged(status);
     });
@@ -1899,60 +1898,43 @@ export class Scenarios {
   statusChanged(status) {
     if (DEBUG)
       console.log(`SCENARIOS: statusChanged`);
-    if (this.systemReady) {
-      if (customScenario) {
-        if (DEBUG)
-          console.log(`SCENARIOS: skipping statusChanged, custom scenario in use: ${customScenarioName}`);
-      }
-      else {
-        xapi.Status.Standby.State.get().then(standby => {
-          if (standby == 'Standby') {
-            this.currentScenario = 'SCE_STANDBY';
-            this.update_SCE_STANDBY(status);
-          }
-          else if (standby == 'Off') {
-            /*
-            setTimeout(function () {
-              // Active le speakertrack
-              if (RoomConfig.config.room.autoEnablePresenterTrack) {
-                xapi.Command.Cameras.PresenterTrack.Set({
-                  Mode: 'Follow'
-                });
-              }
-              else {
-                callPreset('Console');
-              }
-            }, 8000);
-            */
-            if (status.callStatus.Status == undefined) {
-              this.currentScenario = 'SCE_NOCALL';
-              this.update_SCE_NOCALL(status);
-            }
-            else if (status.callStatus.Status == 'Connected' || status.callStatus.Status == 'Connecting') {
-              this.currentScenario = 'SCE_INCALL';
-              this.update_SCE_INCALL(status);
-            }
-          }
-        });
-      }
+
+    if (customScenario) {
+      if (DEBUG)
+        console.log(`SCENARIOS: skipping statusChanged, custom scenario in use: ${customScenarioName}`);
     }
     else {
-      if (DEBUG)
-        console.log('statusChanged, but system not ready.');
+      xapi.Status.Standby.State.get().then(standby => {
+        if (standby == 'Standby') {
+          this.currentScenario = 'SCE_STANDBY';
+          this.update_SCE_STANDBY(status);
+        }
+        else if (standby == 'Off') {
+          /*
+          setTimeout(function () {
+            // Active le speakertrack
+            if (RoomConfig.config.room.autoEnablePresenterTrack) {
+              xapi.Command.Cameras.PresenterTrack.Set({
+                Mode: 'Follow'
+              });
+            }
+            else {
+              callPreset('Console');
+            }
+          }, 8000);
+          */
+          if (status.callStatus.Status == undefined) {
+            this.currentScenario = 'SCE_NOCALL';
+            this.update_SCE_NOCALL(status);
+          }
+          else if (status.callStatus.Status == 'Connected' || status.callStatus.Status == 'Connecting') {
+            this.currentScenario = 'SCE_INCALL';
+            this.update_SCE_INCALL(status);
+          }
+        }
+      });
     }
   }
-
-
-
-  ready() {
-    this.systemReady = true;
-  }
-
-
-  notReady() {
-    this.systemReady = false;
-  }
-
 }
 
 
