@@ -1,4 +1,18 @@
-# [v4.2 - NOT RELEASED]
+# [v4.3 - DEV]
+## Fixed
+- Screen is now coming down as soon as USBModeDual is enabled
+
+## Added
+- Fresh boot detection: Macro runtime is now restarted 5 minutes after fresh boot to accomodate codec updates
+
+## Changed
+- New init procedure #21, #15
+- New systemready checks #17
+- New delays for new session
+- New messages for new session / end session
+
+
+# [v4.2]
 ## Fixed
 - Black image instead of camera on USBMode when stopping and starting presentation again (Issue #10).
 ## Added
