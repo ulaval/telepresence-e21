@@ -87,41 +87,8 @@ function drawRoomConfigPanel() {
   </Panel>
 </Extensions>
 `);
-  /*
-      <Page>
-        <Name>Administrateur</Name>
-        <Row>
-          <Name>Dévérouiller les paramêtres</Name>
-          <Widget>
-            <WidgetId>btn_adminmode</WidgetId>
-            <Name>Accéder</Name>
-            <Type>Button</Type>
-            <Options>size=4</Options>
-          </Widget>
-        </Row>
-        <Row>
-          <Name>Thème</Name>
-          <Widget>
-            <WidgetId>btn_theme</WidgetId>
-            <Name>Changer</Name>
-            <Type>Button</Type>
-            <Options>size=4</Options>
-          </Widget>
-        </Row>
-        <Options/>
-      </Page>
-  */
 }
 
-/*
-
-
-            <Value>
-              <Key>writeonboard</Key>
-              <Name>Écrire au tableau</Name>
-            </Value>
-         
-      */
 
 function getActivitiesControls() {
   var xml = ``;
@@ -135,15 +102,14 @@ function getActivitiesControls() {
           <Type>GroupButton</Type>
           <Options>size=4;columns=2</Options>
           <ValueSpace>`;
-
-    RoomConfig.config.room.activities.forEach(activity => {
+    for (const activity of RoomConfig.config.room.activities) {
       xml += `
           <Value>
             <Key>${activity.id}</Key>
             <Name>${activity.name}</Name>
            </Value>
       `;
-    });
+    }
 
     xml += `
      </ValueSpace>
@@ -171,8 +137,7 @@ function getAudioControls() {
       
       `;
 
-
-  RoomConfig.config.audio.inputs.forEach(input => {
+  for (const input of RoomConfig.config.audio.inputs) {
     xml += `
           <Row>
         <Name>${input.name}</Name>
@@ -201,7 +166,7 @@ function getAudioControls() {
         </Widget>
       </Row>
     `;
-  });
+  }
   xml += `</Page>`;
   return xml;
 }
@@ -294,8 +259,7 @@ function getLightsControls() {
 function getLightsScenes() {
   var xml = `<Row>
         <Name>Scènes</Name>`;
-
-  RoomConfig.config.lights.scenes.forEach(scene => {
+  for (const scene of RoomConfig.config.lights.scenes) {
     if (scene.show) {
       xml += `
         <Widget>
@@ -306,16 +270,14 @@ function getLightsScenes() {
         </Widget>
       `;
     }
-  });
-
+  }
   xml += `</Row>`;
   return xml;
 }
 
 function getZonesControls() {
   var xml = ``;
-
-  RoomConfig.config.lights.zones.forEach(zone => {
+  for (const zone of RoomConfig.config.lights.zones) {
     if (zone.show) {
       xml += `<Row>
         <Name>${zone.name}</Name>
@@ -339,15 +301,14 @@ function getZonesControls() {
         `;
       xml += `</Row>`;
     }
-  });
+  }
   return xml;
 }
 
 function setDefaultValues() {
 
   currentactivity = RoomConfig.config.room.defaultActivity;
-
-  RoomConfig.config.audio.inputs.forEach(input => {
+  for (const input of RoomConfig.config.audio.inputs) {
 
     if (input.defaultMode == 'mute') {
       muteAudioInput(input.connector);
@@ -357,8 +318,7 @@ function setDefaultValues() {
     }
     setAudioInputLevel(input.connector, input.normal);
 
-  });
-
+  }
 
 
   tgl_autoDisplayMode = new Rkhelper.UI.Toggle(TGL_AUTODISPLAYMODE, 'on');
@@ -396,13 +356,13 @@ function setDefaultValues() {
 
 function getActivity(id) {
   var act;
-  RoomConfig.config.room.activities.forEach(activity => {
+  for (const activity of RoomConfig.config.room.activities) {
     if (activity.id == id) {
       if (DEBUG)
         console.log('Found activity: ' + activity.name);
       act = activity;
     }
-  });
+  }
   return act;
 }
 
@@ -417,13 +377,12 @@ function updateUiElements() {
       Value: boolToOnOff(!showlightcontrols)
     }).catch();
   }
-
-  RoomConfig.config.audio.inputs.forEach(input => {
+  for (const input of RoomConfig.config.audio.inputs) {
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
       WidgetId: `audioinput_${input.connector}`,
       Value: input.defaultMode
     });
-  });
+  }
 
   if (showdisplaycontrols) {
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
@@ -666,7 +625,7 @@ function init(c) {
 
       case '.restart':
         clearCallHistory();
-        msgbox('restart','Macro runtime restarting...');
+        msgbox('restart', 'Macro runtime restarting...');
         xapi.Command.Macros.Runtime.Restart();
         break;
 

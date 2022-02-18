@@ -117,143 +117,229 @@ export class Scenarios {
     customScenarioName = '';
   }
 
-
-  update_SCE_STANDBY(status) {
+  update_SCE_INCALL(status) {
     if (DEBUG)
-      console.log('STANDBY -> statusChanged');
-    xapi.Command.Video.Matrix.Reset();
-    this.tvOffNow();
-    this.projOffNow();
-    this.screenUp();
+      console.log('INCALL -> statusChanged');
 
-    //audio routing (defaults)
-    if (RoomConfig.config.audio.useCombinedAecReference) {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-            xapi.Command.Audio.LocalOutput.Update({
-              LoudSpeaker: 'Off',
-              OutputId: aecOutput
-            });
-            xapi.Command.Audio.LocalOutput.Update({
-              Loudspeaker: 'Off',
-              OutputId: roomOutput
-            });
-            xapi.Command.Audio.LocalOutput.Update({
-              Loudspeaker: 'On',
-              OutputId: monitorOutput
-            });
+    /* TV */
+    this.tvOn();
 
-          });
-        });
-      });
+    /* PROJECTOR */
+    if (status.presentationStatus == PRES_NOPRES) {
+      this.projOff();
     }
     else {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          xapi.Command.Audio.LocalOutput.Update({
-            Loudspeaker: 'Off',
-            OutputId: roomOutput
-          });
-          xapi.Command.Audio.LocalOutput.Update({
-            Loudspeaker: 'On',
-            OutputId: monitorOutput
-          });
-        });
-      });
+      this.projOn();
     }
 
-    xapi.Command.Video.Selfview.Set({ mode: 'Off' });
-
-
-
-    this.controller.activateLightScene('scene_normal');
-  }
-
-
-  update_SCE_NOCALL(status, onlymatrix) {
-    if (DEBUG)
-      console.log('NOCALL -> statusChanged');
-
-
-    //audio routing (defaults)
-    if (RoomConfig.config.audio.useCombinedAecReference) {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-            xapi.Command.Audio.LocalOutput.Update({
-              LoudSpeaker: 'Off',
-              OutputId: aecOutput
-            });
-            xapi.Command.Audio.LocalOutput.Update({
-              Loudspeaker: 'Off',
-              OutputId: roomOutput
-            });
-            xapi.Command.Audio.LocalOutput.Update({
-              Loudspeaker: 'On',
-              OutputId: monitorOutput
-            });
-
-          });
-        });
-      });
-    }
-    else {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          xapi.Command.Audio.LocalOutput.Update({
-            Loudspeaker: 'Off',
-            OutputId: roomOutput
-          });
-          xapi.Command.Audio.LocalOutput.Update({
-            Loudspeaker: 'On',
-            OutputId: monitorOutput
-          });
-        });
-      });
-    }
+    /* SCREEN */
     if (status.activity == 'normal') {
-      if (status.presentationStatus.localPresentation) {
-
-
-        /***************************/
-        // NO CALL
-        // Activité: Normal
-        // Présentation: OUI
-        // NNP
-        /************************* */
-        this.tvOn();
-        this.projOn();
+      if (status.presentationStatus == PRES_NOPRES) {
+        this.screenUp();
+      }
+      else {
         this.screenDown();
+      }
+    }
+    else if (status.activity == 'writeonboard') {
+      this.screenUp();
+    }
+
+
+    /* MONITOR ROLES */
+    if (status.activity == 'normal') {
+      if (status.presLocation == 'local') {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Command.Video.Matrix.Reset({
-          Output: OUT_PROJ
-        });
-        xapi.Command.Video.Matrix.Reset({
-          Output: OUT_MON
-        });
-        if (selfViewStatus == 'On') {
+        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        xapi.Command.Video.Matrix.Reset();
+        if (status.presentationStatus.presentationType == PRES_NOPRES) {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_PROJ,
+            RemoteMain: 4
+          });
+        }
+      }
+      else if (status.presLocation == 'remote') {
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
+        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        if (status.presentationStatus.presentationType == PRES_NOPRES) {
+          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+          xapi.Command.Video.Matrix.Reset();
+        }
+        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
+          xapi.Config.Video.Monitors.set(MON_SINGLE);
+          xapi.Command.Video.Matrix.Reset();
+          xapi.Command.Video.Layout.LayoutFamily.Set({
+            LayoutFamily: 'Overlay',
+            Target: 'Local'
+          });
+
+          xapi.Command.Video.ActiveSpeakerPIP.Set({
+            Position: RoomConfig.config.room.remotePresenterPIPPosition
+          });
+
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
+            RemoteMain: 1,
           });
         }
-        this.controller.activateLightScene('scene_projection');
+        else if (presentationStatus.presentationType == PRES_REMOTE) {
+          xapi.Config.Video.Monitors.set(MON_SINGLE);
+          xapi.Command.Video.Matrix.Reset();
+          xapi.Command.Video.Layout.LayoutFamily.Set({
+            LayoutFamily: 'Overlay',
+            Target: 'Local'
+          });
+
+          xapi.Command.Video.ActiveSpeakerPIP.Set({
+            Position: RoomConfig.config.room.remotePresenterPIPPosition
+          });
+
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            RemoteMain: 1,
+          });
+        }
+        else if (presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+          xapi.Config.Video.Monitors.set(MON_SINGLE);
+          xapi.Command.Video.Matrix.Reset();
+          xapi.Command.Video.Layout.LayoutFamily.Set({
+            LayoutFamily: 'Overlay',
+            Target: 'Local'
+          });
+
+          xapi.Command.Video.ActiveSpeakerPIP.Set({
+            Position: RoomConfig.config.room.remotePresenterPIPPosition
+          });
+
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            RemoteMain: 1,
+          });
+        }
+      }
+
+    }
+    else if (status.activity == 'writeonboard') {
+      if (RoomConfig.config.room.boardBehindScreen) {
+        xapi.Command.Video.Matrix.Assign({
+          Mode: 'Replace',
+          Output: OUT_PROJ,
+          RemoteMain: 4
+        });
+      }
+      if (status.presLocation == 'local') {
+        xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        xapi.Command.Video.Matrix.Reset();
+
+      }
+      else if (status.presLocation == 'remote') {
+        if (RoomConfig.config.room.boardBehindScreen) {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_PROJ,
+            RemoteMain: 4
+          });
+        }
+        if (status.presentationStatus.presentationType == PRES_NOPRES) {
+          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
+          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        }
+        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
+          xapi.Config.Video.Monitors.set(MON_SINGLE);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
+          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        }
+        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
+          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        }
+        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        }
+        xapi.Command.Video.Matrix.Reset();
+      }
+    }
+
+
+    /* CAMERA */
+    if (status.presLocation == 'local') {
+      if (RoomConfig.config.room.autoEnablePresenterTrack) {
+        xapi.Command.Cameras.PresenterTrack.Set({
+          Mode: 'Follow'
+        });
       }
       else {
+        callPreset('Console');
+      }
+    }
+    else if (status.presLocation == 'remote') {
+      if (RoomConfig.config.room.useRoomPreset)
+        callPreset('Salle');
+    }
 
 
-        /***************************/
-        // NO CALL
-        // Activité: Normal
-        // Présentation: NON
-        // NNN
-        /************************* */
-        this.tvOn();
-        this.projOff();
+    /* LIGHTS */
+    if (status.activity == 'normal') {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
+        this.controller.activateLightScene('scene_normal');
+      }
+      else {
+        this.controller.activateLightScene('scene_projection');
+      }
+    }
+    else if (status.activity == 'writeonboard') {
+      this.controller.activateLightScene('scene_board');
+    }
+  }
+
+
+
+  update_SCE_NOCALL(status) {
+    if (DEBUG)
+      console.log('NOCALL -> statusChanged');
+
+    /* TV */
+    this.tvOn();
+
+
+    /* PROJECTOR */
+    if (status.presentationStatus.presentationType == PRES_NOPRES) {
+      this.projOff();
+    }
+    else {
+      this.projOn();
+    }
+
+    /* SCREEN */
+    if (status.activity == 'normal') {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
+        this.screenUp();
+      }
+      else {
+        this.screenDown();
+      }
+    }
+    else if (status.activity == 'writeonboard') {
+      this.screenUp();
+    }
+
+
+
+    /* VIDEO ROUTING */
+    if (status.activity == 'normal') {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
         xapi.Command.Video.Matrix.Reset();
         xapi.Command.Video.Matrix.Assign({
           Mode: 'Replace',
@@ -273,23 +359,48 @@ export class Scenarios {
             SourceId: RoomConfig.config.camera.connector
           });
         }
-        this.controller.activateLightScene('scene_normal');
+      }
+      else {
+        xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
+        xapi.Command.Video.Matrix.Reset({
+          Output: OUT_PROJ
+        });
+        xapi.Command.Video.Matrix.Reset({
+          Output: OUT_MON
+        });
+        if (selfViewStatus == 'On') {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            SourceId: RoomConfig.config.camera.connector
+          });
+        }
       }
     }
-    /* Écrire au tableau */
     else if (status.activity == 'writeonboard') {
-      if (status.presentationStatus.localPresentation) {
-
-
-        /***************************/
-        // NO CALL
-        // Activité: Écrire au tableau
-        // Présentation: OUI
-        /************************* */
-        this.tvOn();
-        this.projOn();
-        this.screenUp();
-
+      if (status.presentationStatus == PRES_NOPRES) {
+        xapi.Command.Video.Matrix.Reset();
+        xapi.Command.Video.Matrix.Assign({
+          Mode: 'Replace',
+          Output: OUT_PROJ,
+          RemoteMain: 4
+        });
+        xapi.Command.Video.Matrix.Assign({
+          Mode: 'Replace',
+          Output: OUT_MON,
+          RemoteMain: 4
+        });
+        if (selfViewStatus == 'On') {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            SourceId: RoomConfig.config.camera.connector
+          });
+        }
+      }
+      else {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
@@ -308,1591 +419,32 @@ export class Scenarios {
             SourceId: RoomConfig.config.camera.connector
           });
         }
-        this.controller.activateLightScene('scene_board');
+      }
+    }
+
+    /* LIGHTS */
+    if (status.activity == 'normal') {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
+        this.controller.activateLightScene('scene_normal');
       }
       else {
-
-
-        /***************************/
-        // NO CALL
-        // Activité: Écrire au tableau
-        // Présentation: NON
-        /************************* */
-        this.tvOn();
-        this.projOffNow();
-        this.screenUp();
-        xapi.Command.Video.Matrix.Reset();
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_PROJ,
-          RemoteMain: 4
-        });
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_MON,
-          RemoteMain: 4
-        });
-        if (selfViewStatus == 'On') {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
-          });
-        }
-
-        this.controller.activateLightScene('scene_board');
+        this.controller.activateLightScene('scene_projection');
       }
+    }
+    else if (status.activity == 'writeonboard') {
+      this.controller.activateLightScene('scene_board');
     }
   }
 
-
-  update_SCE_INCALL(status) {
-    //console.log(status);
+update_SCE_STANDBY(status) {
     if (DEBUG)
-      console.log('INCALL -> statusChanged');
-    if (status.activity == 'normal') {
-
-      //  NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL 
-      // NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL 
-      //NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL NORMAL 
-      //Présentateur local
-
-
-
-      if (status.presLocation == 'local') {
-
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: LOCAL
-        // Présentation: NON
-        /************************* */
-        if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          this.tvOn();
-          this.projOff();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
-          });
-
-
-          /* Active le speakertrack */
-          if (RoomConfig.config.room.autoEnablePresenterTrack) {
-            xapi.Command.Cameras.PresenterTrack.Set({
-              Mode: 'Follow'
-            });
-          }
-          else {
-            console.log('CALLING PRESET CONSOLE FOR NO REASON');
-            callPreset('Console');
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-          this.controller.activateLightScene('scene_normal');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: LOCAL
-        // Présentation: LOCALE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le speakertrack */
-          if (RoomConfig.config.room.autoEnablePresenterTrack) {
-            xapi.Command.Cameras.PresenterTrack.Set({
-              Mode: 'Follow'
-            });
-          }
-          else {
-            callPreset('Console');
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: LOCAL
-        // Présentation: DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le speakertrack */
-          if (RoomConfig.config.room.autoEnablePresenterTrack) {
-            xapi.Command.Cameras.PresenterTrack.Set({
-              Mode: 'Follow'
-            });
-          }
-          else {
-            callPreset('Console');
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: LOCAL
-        // Présentation: LOCALE + DISTANTE
-        // TODO
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le speakertrack */
-          if (RoomConfig.config.room.autoEnablePresenterTrack) {
-            xapi.Command.Cameras.PresenterTrack.Set({
-              Mode: 'Follow'
-            });
-          }
-          else {
-            callPreset('Console');
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-      }
-
-
-      //Présentateur distant
-      else {
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: DISTANT
-        // Présentation: NON
-        /************************* */
-        if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le preset Salle */
-          if (RoomConfig.config.room.useRoomPreset)
-            callPreset('Salle');
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: DISTANT
-        // Présentation: LOCALE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le preset Salle */
-          if (RoomConfig.config.room.useRoomPreset)
-            callPreset('Salle');
-
-          //Layouts
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
-
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
-
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: DISTANT
-        // Présentation: DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le preset Salle */
-          if (RoomConfig.config.room.useRoomPreset)
-            callPreset('Salle');
-
-          //Layouts
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
-
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-
-        /***************************/
-        // IN CALL
-        // Activité: Normal
-        // Présentateur: DISTANT
-        // Présentation: LOCALE + DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          this.tvOn();
-          this.projOn();
-          this.screenDown();
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-
-          /* Active le preset Salle */
-          if (RoomConfig.config.room.useRoomPreset)
-            callPreset('Salle');
-
-          //Layouts
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
-
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_projection');
-        }
-      }
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //  WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD 
-    // WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD 
-    //WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD WRITE ON BOARD 
-
-
-
-    /* Écrire au tableau */
-    else if (status.activity == 'writeonboard') {
-
-      /* Active le preset tableau */
-      callPreset('Tableau');
-
-      //Présentateur local
-      if (status.presLocation == 'local') {
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: LOCAL
-        // Présentation: NON
-        /************************* */
-        if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          this.tvOn();
-          this.projOff();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: LOCAL
-        // Présentation: LOCALE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: LOCAL
-        // Présentation: DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: LOCAL
-        // Présentation: LOCALE + DISTANTE
-        // TODO
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-      }
-
-
-      //Présentateur distant
-      else {
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: DISTANT
-        // Présentation: NON
-        /************************* */
-        if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          this.tvOn();
-          this.projOff();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: DISTANT
-        // Présentation: LOCALE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-
-          //Layouts
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
-
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
-
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: DISTANT
-        // Présentation: DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-
-          //Layouts
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
-
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: monitorOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: roomOutput
-                });
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-
-        /***************************/
-        // IN CALL
-        // Activité: BOARD
-        // Présentateur: DISTANT
-        // Présentation: LOCALE + DISTANTE
-        /************************* */
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          this.tvOn();
-          this.projOn();
-          this.screenUp();
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-          xapi.Command.Video.Matrix.Reset();
-          if (RoomConfig.config.room.boardBehindScreen) {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_PROJ,
-              RemoteMain: 4
-            });
-          }
-
-          //audio routing
-          if (RoomConfig.config.audio.useCombinedAecReference) {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-                  Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                    ri.forEach(i => {
-                      xapi.Command.Audio.LocalOutput.DisconnectInput({
-                        InputId: i,
-                        OutputId: monitorOutput
-                      });
-                      xapi.Command.Audio.LocalOutput.ConnectInput({
-                        InputId: i,
-                        OutputId: roomOutput
-                      });
-                    });
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: roomOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    Loudspeaker: 'Off',
-                    OutputId: monitorOutput
-                  });
-                  xapi.Command.Audio.LocalOutput.Update({
-                    LoudSpeaker: 'On',
-                    OutputId: aecOutput
-                  });
-                });
-              });
-            });
-          }
-          else {
-            Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-              Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-                Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-                  ri.forEach(i => {
-                    xapi.Command.Audio.LocalOutput.DisconnectInput({
-                      InputId: i,
-                      OutputId: monitorOutput
-                    });
-                    xapi.Command.Audio.LocalOutput.ConnectInput({
-                      InputId: i,
-                      OutputId: roomOutput
-                    });
-                  });
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'Off',
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.Update({
-                  Loudspeaker: 'On',
-                  OutputId: monitorOutput
-                });
-
-              });
-            });
-          }
-
-
-          this.controller.activateLightScene('scene_board');
-        }
-      }
-    }
+      console.log('STANDBY -> statusChanged');
+    xapi.Command.Video.Matrix.Reset();
+    this.tvOffNow();
+    this.projOffNow();
+    this.screenUp();
+    xapi.Command.Video.Selfview.Set({ mode: 'Off' });
+    this.controller.activateLightScene('scene_normal');
   }
 
   statusChanged(status) {
@@ -1910,19 +462,7 @@ export class Scenarios {
           this.update_SCE_STANDBY(status);
         }
         else if (standby == 'Off') {
-          /*
-          setTimeout(function () {
-            // Active le speakertrack
-            if (RoomConfig.config.room.autoEnablePresenterTrack) {
-              xapi.Command.Cameras.PresenterTrack.Set({
-                Mode: 'Follow'
-              });
-            }
-            else {
-              callPreset('Console');
-            }
-          }, 8000);
-          */
+
           if (status.callStatus.Status == undefined) {
             this.currentScenario = 'SCE_NOCALL';
             this.update_SCE_NOCALL(status);
