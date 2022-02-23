@@ -125,16 +125,22 @@ export class Scenarios {
     this.tvOn();
 
     /* PROJECTOR */
-    if (status.presentationStatus == PRES_NOPRES) {
-      this.projOff();
+    if (status.presLocation == 'local') {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
+        this.projOff();
+      }
+      else {
+        this.projOn();
+      }
     }
     else {
       this.projOn();
     }
 
+
     /* SCREEN */
     if (status.activity == 'normal') {
-      if (status.presentationStatus == PRES_NOPRES) {
+      if (status.presentationStatus.presentationType == PRES_NOPRES) {
         this.screenUp();
       }
       else {
@@ -436,7 +442,7 @@ export class Scenarios {
     }
   }
 
-update_SCE_STANDBY(status) {
+  update_SCE_STANDBY(status) {
     if (DEBUG)
       console.log('STANDBY -> statusChanged');
     xapi.Command.Video.Matrix.Reset();
