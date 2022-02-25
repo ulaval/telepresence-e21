@@ -12,6 +12,7 @@
 - New systemready checks #17
 - New delays for new session
 - New messages for new session / end session
+- The combined AEC eeference is now the only method for audio processing. The setting audio/useCombinedAecReference is now ignored
 
 
 # [v4.2]
