@@ -1,4 +1,4 @@
-//VERSION:4.2
+//VERSION:5.0
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
@@ -8,7 +8,7 @@ const Lights = require('./Lights');
 const Scenarios = require('./Scenarios');
 
 
-const DEBUG = true;
+const DEBUG = false;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';

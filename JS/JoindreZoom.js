@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-//VERSION:4.2
+//VERSION:5.0
 const xapi = require('xapi');
 const JoindreZoomUI = require('./JoindreZoom_UI');
 const RoomConfig = require('./RoomConfig');
@@ -23,7 +23,7 @@ const advancedOptions = [
 /* POUR UTILISATION AVEC SYSTÈME SSE-COMODALE-E2021 */
 
 
-const DEBUG = true;
+const DEBUG = false;
 
 
 var zoomConfig = {
@@ -284,7 +284,7 @@ function deleteCallHistory() {
           });
         }
       };
-    });
+    }).catch(err);
   }
 }
 

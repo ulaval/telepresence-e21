@@ -1,4 +1,4 @@
-//VERSION:4.2
+//VERSION:5.0
 
 module.exports.config = {
   ui:{
@@ -13,7 +13,7 @@ module.exports.config = {
     name: 'PVE1115',                        //Nom du système, doit être unique
     supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
-    lightsControl: false,                    //Mode automatique de gestion de la salle <true, false>
+    lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
     motorizedScreen: false,                  //Active le contrôle de la toile motorisée
     boardBehindScreen: false,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
