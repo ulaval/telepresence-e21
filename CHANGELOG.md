@@ -1,6 +1,8 @@
-# [v4.3 - DEV]
+# [v5.0-pre]
 ## Fixed
 - Screen is now coming down as soon as USBModeDual is enabled
+- Better error handling in JoindreZoom
+- Much smaller and faster code for scenarios (4000 lines -> 1000 lines)
 
 ## Added
 - Fresh boot detection: Macro runtime is now restarted 5 minutes after fresh boot to accomodate codec updates
