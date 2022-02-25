@@ -1,9 +1,9 @@
 /*jshint esversion: 6 */
-//VERSION:4.2
+//VERSION:5.0
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = true;
+const DEBUG = false;
 
 module.exports.Lights = class Lights {
   constructor(controller) {
