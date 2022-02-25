@@ -141,7 +141,10 @@ export class Scenarios {
     /* SCREEN */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        this.screenUp();
+        //this.screenUp();
+        if (status.presLocation == 'remote') {
+          this.screenDown();
+        }
       }
       else {
         this.screenDown();
@@ -151,6 +154,47 @@ export class Scenarios {
       this.screenUp();
     }
 
+    /* AUDIO ROUTING */
+    if (status.presLocation == 'local') {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+            Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+              ri.forEach(i => {
+                xapi.Command.Audio.LocalOutput.DisconnectInput({
+                  InputId: i,
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.ConnectInput({
+                  InputId: i,
+                  OutputId: monitorOutput
+                });
+              });
+            });
+          });
+        });
+      });
+    }
+    else {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
+            Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+              ri.forEach(i => {
+                xapi.Command.Audio.LocalOutput.ConnectInput({
+                  InputId: i,
+                  OutputId: roomOutput
+                });
+                xapi.Command.Audio.LocalOutput.DisconnectInput({
+                  InputId: i,
+                  OutputId: monitorOutput
+                });
+              });
+            });
+          });
+        });
+      });
+    }
 
     /* MONITOR ROLES */
     if (status.activity == 'normal') {
@@ -192,7 +236,7 @@ export class Scenarios {
             RemoteMain: 1,
           });
         }
-        else if (presentationStatus.presentationType == PRES_REMOTE) {
+        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -210,7 +254,7 @@ export class Scenarios {
             RemoteMain: 1,
           });
         }
-        else if (presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -299,7 +343,12 @@ export class Scenarios {
     /* LIGHTS */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        this.controller.activateLightScene('scene_normal');
+        if (status.presLocation == 'local') {
+          this.controller.activateLightScene('scene_normal');
+        }
+        else {
+          this.controller.activateLightScene('scene_projection');
+        }
       }
       else {
         this.controller.activateLightScene('scene_projection');
@@ -331,7 +380,7 @@ export class Scenarios {
     /* SCREEN */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        this.screenUp();
+        //this.screenUp();
       }
       else {
         this.screenDown();

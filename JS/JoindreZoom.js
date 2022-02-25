@@ -284,7 +284,7 @@ function deleteCallHistory() {
           });
         }
       };
-    });
+    }).catch(err);
   }
 }
 
