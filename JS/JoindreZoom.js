@@ -284,7 +284,7 @@ function deleteCallHistory() {
           });
         }
       };
-    }).catch(err);
+    }).catch(err => { console.log(err) });
   }
 }
 
