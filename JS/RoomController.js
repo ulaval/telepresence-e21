@@ -1,4 +1,4 @@
-//VERSION:5.0
+//VERSION:4.2
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
@@ -8,7 +8,7 @@ const Lights = require('./Lights');
 const Scenarios = require('./Scenarios');
 
 
-const DEBUG = false;
+const DEBUG = true;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -388,7 +388,7 @@ async function checkControlSystem() {
       xapi.Command.UserInterface.Message.Prompt.Display({
         Duration: 10,
         FeedbackId: 'checkcontrolsystem',
-        Text: 'Le processeur Crestron ne réponds pas. Avisez le SSE, si ça presse, débranchez-rebranchez le Crestron',
+        Text: 'Le processeur de contrôle ne réponds pas. contactez votre centre de service.',
         Title: 'SYSTÈME NON PRÊT'
       });
     }

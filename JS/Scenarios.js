@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-//VERSION:5.0
+//VERSION:5.1
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
@@ -141,10 +141,7 @@ export class Scenarios {
     /* SCREEN */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        //this.screenUp();
-        if (status.presLocation == 'remote') {
-          this.screenDown();
-        }
+        this.screenUp();
       }
       else {
         this.screenDown();
@@ -154,47 +151,6 @@ export class Scenarios {
       this.screenUp();
     }
 
-    /* AUDIO ROUTING */
-    if (status.presLocation == 'local') {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-            Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-              ri.forEach(i => {
-                xapi.Command.Audio.LocalOutput.DisconnectInput({
-                  InputId: i,
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.ConnectInput({
-                  InputId: i,
-                  OutputId: monitorOutput
-                });
-              });
-            });
-          });
-        });
-      });
-    }
-    else {
-      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
-        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
-          Rkhelper.Audio.getLocalOutputId('AEC').then(aecOutput => {
-            Rkhelper.Audio.getRemoteInputsIds().then(ri => {
-              ri.forEach(i => {
-                xapi.Command.Audio.LocalOutput.ConnectInput({
-                  InputId: i,
-                  OutputId: roomOutput
-                });
-                xapi.Command.Audio.LocalOutput.DisconnectInput({
-                  InputId: i,
-                  OutputId: monitorOutput
-                });
-              });
-            });
-          });
-        });
-      });
-    }
 
     /* MONITOR ROLES */
     if (status.activity == 'normal') {
@@ -204,11 +160,13 @@ export class Scenarios {
         xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
         xapi.Command.Video.Matrix.Reset();
         if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
-          });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_PROJ,
+              RemoteMain: 4
+            });
+          }, 1000);
         }
       }
       else if (status.presLocation == 'remote') {
@@ -229,14 +187,16 @@ export class Scenarios {
           xapi.Command.Video.ActiveSpeakerPIP.Set({
             Position: RoomConfig.config.room.remotePresenterPIPPosition
           });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              RemoteMain: 1,
+            });
+          }, 1000);
 
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
         }
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
+        else if (presentationStatus.presentationType == PRES_REMOTE) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -247,14 +207,16 @@ export class Scenarios {
           xapi.Command.Video.ActiveSpeakerPIP.Set({
             Position: RoomConfig.config.room.remotePresenterPIPPosition
           });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              RemoteMain: 1,
+            });
+          }, 1000);
 
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
         }
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+        else if (presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -265,23 +227,28 @@ export class Scenarios {
           xapi.Command.Video.ActiveSpeakerPIP.Set({
             Position: RoomConfig.config.room.remotePresenterPIPPosition
           });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              RemoteMain: 1,
+            });
+          }, 1000);
 
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 1,
-          });
         }
       }
 
     }
     else if (status.activity == 'writeonboard') {
       if (RoomConfig.config.room.boardBehindScreen) {
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_PROJ,
-          RemoteMain: 4
-        });
+        setTimeout(() => {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_PROJ,
+            RemoteMain: 4
+          });
+        }, 1000);
+
       }
       if (status.presLocation == 'local') {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
@@ -292,11 +259,14 @@ export class Scenarios {
       }
       else if (status.presLocation == 'remote') {
         if (RoomConfig.config.room.boardBehindScreen) {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
-          });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_PROJ,
+              RemoteMain: 4
+            });
+          }, 1000);
+
         }
         if (status.presentationStatus.presentationType == PRES_NOPRES) {
           xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
@@ -343,12 +313,7 @@ export class Scenarios {
     /* LIGHTS */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        if (status.presLocation == 'local') {
-          this.controller.activateLightScene('scene_normal');
-        }
-        else {
-          this.controller.activateLightScene('scene_projection');
-        }
+        this.controller.activateLightScene('scene_normal');
       }
       else {
         this.controller.activateLightScene('scene_projection');
@@ -380,7 +345,7 @@ export class Scenarios {
     /* SCREEN */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        //this.screenUp();
+        this.screenUp();
       }
       else {
         this.screenDown();
@@ -396,23 +361,30 @@ export class Scenarios {
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
         xapi.Command.Video.Matrix.Reset();
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_MON,
-          RemoteMain: 4
-        });
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_PROJ,
-          RemoteMain: 4
-        });
-
-        if (selfViewStatus == 'On') {
+        setTimeout(() => {
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
+            RemoteMain: 4
           });
+
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_PROJ,
+            RemoteMain: 4
+          });
+        }, 1000);
+
+
+        if (selfViewStatus == 'On') {
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              SourceId: RoomConfig.config.camera.connector
+            });
+          }, 1000);
+
         }
       }
       else {
@@ -426,33 +398,42 @@ export class Scenarios {
           Output: OUT_MON
         });
         if (selfViewStatus == 'On') {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
-          });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              SourceId: RoomConfig.config.camera.connector
+            });
+          }, 1000);
+
         }
       }
     }
     else if (status.activity == 'writeonboard') {
       if (status.presentationStatus == PRES_NOPRES) {
         xapi.Command.Video.Matrix.Reset();
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_PROJ,
-          RemoteMain: 4
-        });
-        xapi.Command.Video.Matrix.Assign({
-          Mode: 'Replace',
-          Output: OUT_MON,
-          RemoteMain: 4
-        });
-        if (selfViewStatus == 'On') {
+        setTimeout(() => {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_PROJ,
+            RemoteMain: 4
+          });
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
+            RemoteMain: 4
           });
+        }, 1000);
+
+        if (selfViewStatus == 'On') {
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              SourceId: RoomConfig.config.camera.connector
+            });
+          }, 1000);
+
         }
       }
       else {
@@ -461,18 +442,24 @@ export class Scenarios {
         xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
         xapi.Command.Video.Matrix.Reset();
         if (RoomConfig.config.room.boardBehindScreen) {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
-          });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_PROJ,
+              RemoteMain: 4
+            });
+          }, 1000);
+
         }
         if (selfViewStatus == 'On') {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            SourceId: RoomConfig.config.camera.connector
-          });
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_MON,
+              SourceId: RoomConfig.config.camera.connector
+            });
+          }, 1000);
+
         }
       }
     }

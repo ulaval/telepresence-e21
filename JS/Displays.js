@@ -1,9 +1,10 @@
 /*jshint esversion: 6 */
-//VERSION:5.0
+//VERSION:4.2
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = false;
+const DEBUG = true;
+
 
 module.exports.TV = class TV {
   constructor(controller) {
@@ -61,6 +62,7 @@ module.exports.Projector = class Projector {
   on() {
     if (DEBUG)
       console.log('[PROJ] -> ON');
+    
     xapi.Command.Message.Send({
       Text: `PROJ_POWER_ON`
     });
@@ -75,6 +77,7 @@ module.exports.Projector = class Projector {
     var delay;
     if (DEBUG)
       console.log('[PROJ] -> OFF');
+    
     if (nodelay) {
       delay = 1;
     }
