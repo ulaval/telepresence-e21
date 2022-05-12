@@ -1,3 +1,6 @@
+/*jshint esversion: 6 */
+//VERSION:5.1[dev]
+
 import xapi from 'xapi';
 
 const rebootTime = '4:00';

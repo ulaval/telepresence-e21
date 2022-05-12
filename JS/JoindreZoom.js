@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
-//VERSION:4.2
+//VERSION:5.1[dev]
+
 const xapi = require('xapi');
 const JoindreZoomUI = require('./JoindreZoom_UI');
 const RoomConfig = require('./RoomConfig');

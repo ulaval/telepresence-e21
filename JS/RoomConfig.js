@@ -1,4 +1,5 @@
-//VERSION:4.2
+/*jshint esversion: 6 */
+//VERSION:5.1[dev]
 
 module.exports.config = {
   ui:{

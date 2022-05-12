@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-//VERSION:5.0
+//VERSION:5.1[dev]
 
 
 import xapi from 'xapi';

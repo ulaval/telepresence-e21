@@ -1,4 +1,6 @@
-//VERSION:4.2
+/*jshint esversion: 6 */
+//VERSION:5.1[dev]
+
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
