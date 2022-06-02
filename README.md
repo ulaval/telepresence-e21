@@ -21,6 +21,7 @@ Projet servant a partager les scripts d'automatisation des appareils de Cisco We
   * RoomController
   * Telemetry
   * USBMode **OU** USBModeDual
+  * AutoReboot (AU BESOIN)
   * ExtraSauce (AU BESOIN). Si ExtraSauce est utilisé, une nouvelle section doit être ajoutée à RoomConfig.js. Un modèle de cette section se trouve dans le fichier ExtraSauce.js
 ```JS
 extrasauce:{}
