@@ -33,3 +33,9 @@ extrasauce:{}
 Si des erreurs d'execution du script ce-audio-config surviennent
 * Essayer de remplacer le CONTENU du script par celui que vous avez pris en backup, sinon
 * Supprimer toute la configuration de audio-console et réapliquer le script que vous avez pris en backup
+
+# Ménage
+Dans RoomConfig.js, enlever:
+```JS
+module.exports.config.scenarios
+```
