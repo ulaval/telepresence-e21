@@ -27,7 +27,7 @@ Projet servant a partager les scripts d'automatisation des appareils de Cisco We
 extrasauce:{}
 ```
 * Sauvegarder n'importe quel script (ctrl+s) une dernière fois
-* Configurer "ExtraSauce" au besoin. Si Ex
+* Rebooter le système quand tout est OK
 
 # Erreurs ce-audio-config
 Si des erreurs d'execution du script ce-audio-config surviennent
