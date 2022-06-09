@@ -1,20 +1,24 @@
 /*jshint esversion: 6 */
-//VERSION:5.1[dev]
+//VERSION:6.0
 
 
 import xapi from 'xapi';
+import roomconfig from './RoomConfig';
 
 const ENABLE_SAUCE = true; //Mettre à 'false' pour la calibration
-const LIVE_CALIBRATION = false; //Une autre bonne solution pour la calibration
+const LIVE_CALIBRATION = true; //Une autre bonne solution pour la calibration
 const SHOW_BOOST_MODE = true; //Montre le mode actuel dans la console (désactiver avant de mettre en prod!)
-const SHOW_PROCESSING_TIME = false; //Montre le nombre de temps en MS pour le processing du DSP (le plus bas possible semble 198ms)
+const SHOW_PROCESSING_TIME = true; //Montre le nombre de temps en MS pour le processing du DSP (le plus bas possible semble 198ms)
 const SAMPLE_INTERVAL = 50; //Je ne recommande pas <50ms. Entre 50 et 100 semble un bon choix
 const NUMBER_OF_SAMPLES = 2; //Nombre de lecture de VU fait. Une moyenne en est tirée. NUMBER_OF_SAMPLES * SAMPLE_INTERVAL
 
 
 const CALIBRATION_SAMPLES = 20; //Nombre de lectures pour la calibration: CALIBRATION_SAMPLES * SAMPLE_INTERVAL * NUMBER_OF_SAMPLES
 
-var config = {
+var config = roomconfig.config.extrasauce;
+
+/*
+extrasauce:{
   presenterMics: [
     {
       connector: 6,
@@ -67,7 +71,8 @@ var config = {
     }
   ],
   roomMicsBoost: 10
-}
+};
+*/
 
 
 var sampleCount = 0;
@@ -78,7 +83,6 @@ var calAverage;
 var calSamples = 0;
 var vuMeterSink;
 var silentStatus = [];
-var consSamples = 0;
 var boostMode;
 
 async function startSampling() {
@@ -211,7 +215,7 @@ async function calibrateInput(connector, mode) {
             vuMeterSink = undefined;
           }
         }
-      }
+      };
     });
 
   });

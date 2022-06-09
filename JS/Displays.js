@@ -1,11 +1,10 @@
 /*jshint esversion: 6 */
-//VERSION:5.1[dev]
+//VERSION:6.0
 
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = true;
-
+const DEBUG = false;
 
 module.exports.TV = class TV {
   constructor(controller) {
@@ -44,7 +43,6 @@ module.exports.TV = class TV {
         Text: `TV_POWER_OFF`
       });
     }, delay);
-
     this.status = 'off';
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
       WidgetId: 'tvpower',
@@ -63,7 +61,7 @@ module.exports.Projector = class Projector {
   on() {
     if (DEBUG)
       console.log('[PROJ] -> ON');
-    
+
     xapi.Command.Message.Send({
       Text: `PROJ_POWER_ON`
     });
@@ -78,7 +76,7 @@ module.exports.Projector = class Projector {
     var delay;
     if (DEBUG)
       console.log('[PROJ] -> OFF');
-    
+
     if (nodelay) {
       delay = 1;
     }

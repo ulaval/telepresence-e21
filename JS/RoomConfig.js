@@ -1,7 +1,66 @@
 /*jshint esversion: 6 */
-//VERSION:5.1[dev]
+//VERSION:6.0
 
 module.exports.config = {
+  telemetry:{
+    url:'http://10.1.48.100:8081',
+    basepath:'systems/testvisio1',
+    username:'1f87d7a681bd2',
+    password:'MzA1MDkzMzg1MTAxNzA4Mzc4MTU5ODg3ODMxNjA1NTc1NjI'
+  },
+  extrasauce:{
+    presenterMics: [
+      {
+        connector: 6,
+        gains: [
+          {
+            gain: 64,
+            silence: 20
+          },
+          {
+            gain: 70,
+            silence: 25
+          },
+          {
+            gain: 'default',
+            silence: 20
+          }
+        ]
+      },
+      {
+        connector: 8,
+        gains: [
+          {
+            gain: 56,
+            silence: 15
+          },
+          {
+            gain: 70,
+            silence: 25
+          },
+          {
+            gain: 'default',
+            silence: 15
+          }
+        ]
+      }
+    ],
+    roomMics: [
+      {
+        connector: 1,
+        gain: 51
+      },
+      {
+        connector: 2,
+        gain: 51
+      },
+      {
+        connector: 3,
+        gain: 51
+      }
+    ],
+    roomMicsBoost: 10
+  },
   ui:{
     iconOrder:{ //Détermine l'ordre des icônes
       zoom:1,
@@ -15,7 +74,7 @@ module.exports.config = {
     supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
-    motorizedScreen: false,                  //Active le contrôle de la toile motorisée
+    motorizedScreen: true,                  //Active le contrôle de la toile motorisée
     boardBehindScreen: true,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
     projOffDelay: 20000,                  //Temps avant la fermeture du projecteur (MS)
@@ -67,7 +126,6 @@ module.exports.config = {
     autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
-    useCombinedAecReference:true,             //Utilise la nouvelle méthode de AEC (référence non connectée) <true, false>
     loud: 6,                                  //Nombre de DB à additionner pour le mode "Fort"
     louder: 12,                                //Nombre de DB à additionner pour le mode "Très fort"
     inputs: [
@@ -81,10 +139,7 @@ module.exports.config = {
     maxVolume: 100,                            //Volume maximal du système <0 - 100>
     defaultVolume: 60                          //Volume par défaut <0 - 100>
   },
-  scenarios: {
-    autoScenarioChange: true,                  //TODO: ENLEVER
-    displayPanel: false,                       //TODO: Affiche un panel de sélection de scénario. <true, false>. Défaut: false
-  },
+
   lights: {                                    //Configuration de l'éclairage
     zones: [
       {

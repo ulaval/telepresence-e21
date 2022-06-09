@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-//VERSION:5.1[dev]
+//VERSION:6.0
 
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
@@ -197,7 +197,7 @@ export class Scenarios {
           }, 1000);
 
         }
-        else if (presentationStatus.presentationType == PRES_REMOTE) {
+        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -217,7 +217,7 @@ export class Scenarios {
           }, 1000);
 
         }
-        else if (presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
           xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
           xapi.Command.Video.Layout.LayoutFamily.Set({
@@ -314,7 +314,12 @@ export class Scenarios {
     /* LIGHTS */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        this.controller.activateLightScene('scene_normal');
+        if (status.presLocation == 'local') {
+          this.controller.activateLightScene('scene_normal');
+        }
+        else {
+          this.controller.activateLightScene('scene_projection');
+        }
       }
       else {
         this.controller.activateLightScene('scene_projection');
@@ -346,7 +351,7 @@ export class Scenarios {
     /* SCREEN */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        this.screenUp();
+        //this.screenUp(); ne remonte pas la toile pour rien
       }
       else {
         this.screenDown();

@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-//VERSION:5.1[dev]
+//VERSION:6.0
 
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
@@ -10,7 +10,7 @@ const Lights = require('./Lights');
 const Scenarios = require('./Scenarios');
 
 
-const DEBUG = true;
+const DEBUG = false;
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
@@ -390,7 +390,7 @@ async function checkControlSystem() {
       xapi.Command.UserInterface.Message.Prompt.Display({
         Duration: 10,
         FeedbackId: 'checkcontrolsystem',
-        Text: 'Le processeur de contrôle ne réponds pas. contactez votre centre de service.',
+        Text: 'Le processeur de contrôle de la salle ne réponds pas.<br>Avisez votre centre de service.',
         Title: 'SYSTÈME NON PRÊT'
       });
     }
@@ -411,7 +411,7 @@ function ui_InitDone() {
 
 async function init() {
   var bootTime = await getBootTime();
-  if (bootTime > 290) {
+  if (bootTime > 100) {
 
     if (DEBUG)
       console.log(`RoomConfig: init()`);
@@ -440,7 +440,7 @@ xapi.Event.CallDisconnect.on(value => {
 
 xapi.Status.Standby.State.on(async value => {
   var bootTime = await getBootTime();
-  if (bootTime > 290) {
+  if (bootTime > 100) {
     if (value == 'Off') {
 
       setTimeout(() => {
@@ -464,7 +464,7 @@ xapi.Status.Standby.State.on(async value => {
           clearTimeout(macroRestartTimeout);
           macroRestartTimeout = setTimeout(() => {
             xapi.Command.Macros.Runtime.Restart();
-          }, 300000);
+          }, 120000);
         }
       }, 5000);
     }
@@ -475,17 +475,17 @@ function displayFreshBootWarning() {
   var msg;
   alternateUpdateMessage = !alternateUpdateMessage;
   if (alternateUpdateMessage) {
-    msg = `Nous installons la dernière version du système.<br><br>Temps d'installation total: 5 minutes`
+    msg = `Le système démarre. Ceci ne prendra que deux minutes...`
   }
   else {
-    msg = `Le système sera prêt bientôt, merci de patienter.<br><br>Temps d'installation total: 5 minutes`
+    msg = `Le système sera prêt dans quelques instants...`
   }
   xapi.Command.UserInterface.Message.Prompt.Display(
     {
       Duration: 0,
       FeedbackId: 'freshboot',
       Text: msg,
-      Title: `⚠ Installation des mises à jour ⚠`
+      Title: `⚠ Démarrage du système ⚠`
     });
 }
 
