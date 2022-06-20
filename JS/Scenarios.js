@@ -295,19 +295,24 @@ export class Scenarios {
 
 
     /* CAMERA */
-    if (status.presLocation == 'local') {
-      if (RoomConfig.config.room.autoEnablePresenterTrack) {
-        xapi.Command.Cameras.PresenterTrack.Set({
-          Mode: 'Follow'
-        });
+    if (status.activity == 'normal') {
+      if (status.presLocation == 'local') {
+        if (RoomConfig.config.room.autoEnablePresenterTrack) {
+          xapi.Command.Cameras.PresenterTrack.Set({
+            Mode: 'Follow'
+          });
+        }
+        else {
+          callPreset('Console');
+        }
       }
-      else {
-        callPreset('Console');
+      else if (status.presLocation == 'remote') {
+        if (RoomConfig.config.room.useRoomPreset)
+          callPreset('Salle');
       }
     }
-    else if (status.presLocation == 'remote') {
-      if (RoomConfig.config.room.useRoomPreset)
-        callPreset('Salle');
+    else if (status.activity == 'writeonboard') {
+      callPreset('Tableau');
     }
 
 
