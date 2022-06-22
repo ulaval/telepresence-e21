@@ -315,7 +315,43 @@ export class Scenarios {
       callPreset('Tableau');
     }
 
-
+    /* AUDIO ROUTING */
+    if (status.presLocation == 'local') {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+            ri.forEach(i => {
+              xapi.Command.Audio.LocalOutput.DisconnectInput({
+                InputId: i,
+                OutputId: roomOutput
+              });
+              xapi.Command.Audio.LocalOutput.ConnectInput({
+                InputId: i,
+                OutputId: monitorOutput
+              });
+            });
+          });
+        });
+      });
+    }
+    else {
+      Rkhelper.Audio.getLocalOutputId('Room').then(roomOutput => {
+        Rkhelper.Audio.getLocalOutputId('Monitor').then(monitorOutput => {
+          Rkhelper.Audio.getRemoteInputsIds().then(ri => {
+            ri.forEach(i => {
+              xapi.Command.Audio.LocalOutput.ConnectInput({
+                InputId: i,
+                OutputId: roomOutput
+              });
+              xapi.Command.Audio.LocalOutput.DisconnectInput({
+                InputId: i,
+                OutputId: monitorOutput
+              });
+            });
+          });
+        });
+      });
+    }
     /* LIGHTS */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
