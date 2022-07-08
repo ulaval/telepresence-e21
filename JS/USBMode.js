@@ -377,7 +377,7 @@ async function init() {
 
 
   var bootTime = await getBootTime();
-  if (bootTime > 290) {
+  if (bootTime > 99) {
       if (DEBUG)
     console.log(`USBMode: init()`);
     

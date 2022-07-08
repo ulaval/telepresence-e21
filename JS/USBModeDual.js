@@ -270,7 +270,7 @@ async function getBootTime() {
 /* SCRIPT INIT */
 async function init() {
   var bootTime = await getBootTime();
-  if (bootTime > 290) {
+  if (bootTime > 99) {
     /* endSession panel override */
     xapi.command('UserInterface Extensions Panel Save', {
       PanelId: 'endSessionUsbModeDual'
