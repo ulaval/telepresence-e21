@@ -3,7 +3,7 @@
 
 
 import xapi from 'xapi';
-import roomconfig from './RoomConfig';
+const roomconfig = require('./RoomConfig');
 
 const ENABLE_SAUCE = true; //Mettre à 'false' pour la calibration
 const LIVE_CALIBRATION = true; //Une autre bonne solution pour la calibration
