@@ -141,10 +141,7 @@ export class Scenarios {
 
     /* SCREEN */
     if (status.activity == 'normal') {
-      if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        //this.screenUp(); //ne remonte pas la toile pour rien
-      }
-      else {
+      if (status.presentationStatus.presentationType != PRES_NOPRES || status.presentationStatus.presentationType == PRES_REMOTE) {
         this.screenDown();
       }
     }
