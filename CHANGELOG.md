@@ -1,3 +1,6 @@
+# [v10.0.0]
+- Support pour RoomOS11
+
 # [v5.0-pre]
 ## Fixed
 - Screen is now coming down as soon as USBModeDual is enabled
