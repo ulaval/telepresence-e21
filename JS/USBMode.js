@@ -160,7 +160,7 @@ function disableUsbMode() {
 
   /* Configure le rôle du moniteur à MATRIX */
 
-  xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
+  //xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
 
   /* Reset la matrice */
   xapi.Command.Video.Matrix.Reset({
@@ -238,7 +238,7 @@ async function enableUsbModeWebconf() {
 
 
   /* Change le rôle du moniteur à "AUTO" */
-  xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
+  //xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
 
   /* Reset le video matrix */
   xapi.Command.Video.Matrix.Reset({
@@ -328,7 +328,7 @@ function enableUsbModeRecording() {
 
 
   /* Change le rôle du moniteur à "RECORDER" */
-  xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_RECORDER);
+  //xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_RECORDER);
 
   /* Reset le video matrix */
   xapi.Command.Video.Matrix.Reset({
