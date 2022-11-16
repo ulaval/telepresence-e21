@@ -10,18 +10,10 @@ const DEBUG = false;
 const PANELID = 'p_usbmodedual';
 const localPcInput1 = RoomConfig.config.usbmode.localPcInput1;
 const localPcInput2 = RoomConfig.config.usbmode.localPcInput2;
-const MODE_RECORDING = 'MODE_RECORDING';
-const MODE_WEBCONF = 'MODE_WEBCONF';
-const MODE_NONE = 'MODE_NONE';
-const ROLE_RECORDER = 'Recorder';
-const ROLE_MATRIX = 'Auto';
 const USBHDMICONNECTOR = RoomConfig.config.video.usbOutputId;
 const MONITORHDMICONNECTOR = RoomConfig.config.video.remoteMonitorOutputId;
 const PROJECTORHDMICONNECTOR = RoomConfig.config.video.projectorOutputId;
 const CAMCONNECTOR = RoomConfig.config.camera.connector;
-const VIDEODEVICENAME = 'Cisco USB ou INOGENI';
-const AUDIODEVICENAME = 'Cisco USB ou INOGENI';
-
 
 
 var pcAudioInputId;
@@ -31,7 +23,6 @@ var micAudioInputId;
 var usbmode_enabled, usbmode_disabled, forceNotifyStatusChange;
 var usbModeDualEnabled = false;
 var disableCustomScenario;
-var privateModeActive = false;
 var controllerStandbyRequest;
 var wakeupTimer;
 
@@ -39,14 +30,12 @@ var wakeupTimer;
 
 /* PRIVATE MODE HANDLING */
 function privatemode_enabled() {
-  privateModeActive = true;
   xapi.Command.UserInterface.Extensions.Panel.Update({
     PanelId: 'p_usbmodedual',
     Visibility: 'Hidden'
   });
 }
 function privatemode_disabled() {
-  privateModeActive = false;
   xapi.Command.UserInterface.Extensions.Panel.Update({
     PanelId: 'p_usbmodedual',
     Visibility: 'Auto'
@@ -175,17 +164,8 @@ function enableUsbModeDual() {
   });
 
   /* VIDEO ROUTING */
-  xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
   xapi.Command.Video.Matrix.Reset({ Output: USBHDMICONNECTOR });
   setCamVideoMatrix();
-  /*
-  xapi.Command.Video.Matrix.Assign({
-    Mode: 'Replace',
-    Output: USBHDMICONNECTOR,
-    SourceId: CAMCONNECTOR
-  });
-  */
-
 
   xapi.Command.UserInterface.Message.Prompt.Display({
     Title: 'Comodal écrans étendus (USB)',
@@ -203,7 +183,7 @@ function disableUsbModeDual() {
     {
       Duration: 10,
       FeedbackId: 'usbmodedualdisable',
-      Text: 'Désactivation en cours. Un instant s.v.p...',
+      Text: 'Reconfiguration du système. Un instant s.v.p...',
       Title: `Comodal écrans étendus`
     });
   usbModeDualEnabled = false;
@@ -234,7 +214,6 @@ function disableUsbModeDual() {
   });
 
   /* VIDEO ROUTING */
-  xapi.Config.Video.Output.Connector[USBHDMICONNECTOR].MonitorRole.set(ROLE_MATRIX);
   xapi.Command.Video.Matrix.Reset();
 
 
@@ -322,7 +301,7 @@ async function init() {
           xapi.Command.UserInterface.Message.Prompt.Display({
             Duration: 30,
             FeedbackId: 'enableusbmodedual',
-            Text: 'Activation en cours, un instant s.v.p...',
+            Text: 'Reconfiguration du système, un instant s.v.p...',
             Title: 'Comodal écrans étendus'
           });
           projOn();
