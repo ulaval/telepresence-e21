@@ -70,7 +70,7 @@ module.exports.config = {
     }
   },
   room: {
-    name: 'PVE1115',                        //Nom du système, doit être unique
+    name: 'CSL1420',                        //Nom du système, doit être unique
     supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
@@ -104,7 +104,7 @@ module.exports.config = {
     showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
     localPcInput1:4,                          //Entrée 1 pc local
     localPcInput2:3,                          //Entrée 2 pc local
-    autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
+    //autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
   },
   zoom: {
     callHistoryAutoDelete: true,              //Effacement automatique du call history
