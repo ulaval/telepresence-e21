@@ -18,7 +18,7 @@ var controller;
 var tgl_autoDisplayMode, tgl_autoLightsMode;
 
 var autodisplaymode, autolightsmode;
-var showdisplaycontrols = false, showlightcontrols = false;
+var showdisplaycontrols = false;
 
 var currentactivity = 'normal';
 
@@ -43,7 +43,7 @@ function drawRoomConfigPanel() {
     <Type>Statusbar</Type>
     <Icon>Sliders</Icon>
     <Color>#c22987</Color>
-    <Name>Accéder aux paramètres</Name>
+    <Name>Paramètres</Name>
     <ActivityType>Custom</ActivityType>
       <Page>
       <Name>Salle</Name>
@@ -67,22 +67,10 @@ function drawRoomConfigPanel() {
       </Row>
 
     ${getActivitiesControls()}
+    ${getManualScreenControls()}
     </Page>
     ${getAudioControls()}
-    <Page>
-      <Name>Avancé</Name>
-      <Row>
-        <Name>Affichages automatiques</Name>
-        <Widget>
-          <WidgetId>tgl_autodisplaymode</WidgetId>
-          <Type>ToggleButton</Type>
-          <Options>size=1</Options>
-        </Widget>
-      </Row>
-      ${getDisplayControls()}
-      ${getLightsControls()}
-      <Options/>
-    </Page>
+    ${getLightsPage()}
     
 
   </Panel>
@@ -122,9 +110,9 @@ function getActivitiesControls() {
 }
 function getAudioControls() {
   var xml = `<Page>
-      <Name>Microphones</Name>
+      <Name>Son</Name>
       <Row>
-        <Name>Microphones salle (étudiants)</Name>
+        <Name>Microphones auditoire</Name>
         <Widget>
           <WidgetId>tgl_ceilingmics</WidgetId>
           <Type>ToggleButton</Type>
@@ -212,7 +200,6 @@ function getDisplayControls() {
           </ValueSpace>
         </Widget>
       </Row>
-      ${getManualScreenControls()}
       `;
   }
   return xml;
@@ -237,10 +224,23 @@ function getManualScreenControls() {
     return controls;
   }
 }
+function getLightsPage() {
+  if (RoomConfig.config.room.lightsControl) {
+    var xml = `
+    <Page>
+      <Name>Éclairage</Name>
+
+      ${getLightsControls()}
+      <Options/>
+    </Page>
+    `;
+    return xml;
+  }
+}
 function getLightsControls() {
   var xml = '';
-  if (RoomConfig.config.room.lightsControl) {
-    xml += `<Row>
+
+  xml += `<Row>
         <Name>Éclairage automatique</Name>
         <Widget>
           <WidgetId>tgl_autolightsmode</WidgetId>
@@ -249,13 +249,13 @@ function getLightsControls() {
         </Widget>
       </Row>
     `;
-  }
-  if (showlightcontrols) {
-    xml += getLightsScenes();
     xml += getZonesControls();
-  }
+    xml += getLightsScenes();
+
+
   return xml;
 }
+
 
 function getLightsScenes() {
   var xml = `<Row>
@@ -321,11 +321,14 @@ function setDefaultValues() {
 
   }
 
-
+  /*
   tgl_autoDisplayMode = new Rkhelper.UI.Toggle(TGL_AUTODISPLAYMODE, 'on');
+  */
+
   if (RoomConfig.config.room.lightsControl) {
     tgl_autoLightsMode = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE, 'on');
   }
+  
 
 
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
@@ -350,7 +353,6 @@ function setDefaultValues() {
   setCeilingMicsMode('on');
 
   showdisplaycontrols = false;
-  showlightcontrols = false;
   updateUiElements();
 
 }
@@ -368,16 +370,12 @@ function getActivity(id) {
 }
 
 function updateUiElements() {
+  /*
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
     WidgetId: TGL_AUTODISPLAYMODE,
     Value: boolToOnOff(!showdisplaycontrols)
   }).catch();
-  if (RoomConfig.config.room.lightsControl) {
-    xapi.Command.UserInterface.Extensions.Widget.SetValue({
-      WidgetId: TGL_AUTOLIGHTSMODE,
-      Value: boolToOnOff(!showlightcontrols)
-    }).catch();
-  }
+  */
   for (const input of RoomConfig.config.audio.inputs) {
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
       WidgetId: `audioinput_${input.connector}`,
@@ -419,16 +417,14 @@ function updateUiElements() {
 
 
 xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
+  /*
   if (action.WidgetId == TGL_AUTODISPLAYMODE) {
     showdisplaycontrols = !onOffToBool(action.Value);
     drawRoomConfigPanel();
     updateUiElements();
-
-
-
   }
-  else if (action.WidgetId == TGL_AUTOLIGHTSMODE) {
-    showlightcontrols = !onOffToBool(action.Value);
+  */
+  if (action.WidgetId == TGL_AUTOLIGHTSMODE) {
     drawRoomConfigPanel();
     updateUiElements();
   }
@@ -440,6 +436,7 @@ xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
       if ('audioinput_' + element.connector == action.WidgetId) {
         RoomConfig.config.audio.inputs[index].mode = action.Value;
         if (action.Value == 'mute') {
+
           muteAudioInput(element.connector);
         }
         else {
