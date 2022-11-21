@@ -4,7 +4,7 @@
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = false;
+const DEBUG = true;
 
 module.exports.Lights = class Lights {
   constructor(controller) {
@@ -13,18 +13,25 @@ module.exports.Lights = class Lights {
     this._lightsConfig = RoomConfig.config.lights;
     this.lastScene = undefined;
     const that = this;
+    this.autolights = true;
 
     if (that.uiListener != undefined) {
       that.uiListener();
     }
     that.uiListener = xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
       if (action.WidgetId == 'tgl_autolightsmode' && action.Type == 'changed' && action.Value == 'off') {
+        console.log('DISABLING AUTO LIGHTS!');
+        that.updateZoneWidgets();
+      }
+      if (action.WidgetId == 'tgl_autolightsmode' && action.Type == 'changed' && action.Value == 'on') {
+        console.log('ENABLING AUTO LIGHTS!');
+        that.executeScene(this.lastScene, true);
         that.updateZoneWidgets();
       }
 
       that._lightsConfig.scenes.forEach(scene => {
         if (action.WidgetId == scene.id && action.Type == 'clicked') {
-          that.executeScene(scene.id);
+          that.executeScene(scene.id, true);
         }
       });
 
@@ -62,11 +69,11 @@ module.exports.Lights = class Lights {
     }
   }
 
-  executeScene(sceneId) {
+  executeScene(sceneId, manual = false) {
     var delaycount = 0;
     const that = this;
     var zone;
-    if (this.lastScene != sceneId) {
+    if (this.lastScene != sceneId || manual) {
       this.lastScene = sceneId;
       if (DEBUG)
         console.log('Execute lights scene: ' + sceneId);
@@ -77,15 +84,16 @@ module.exports.Lights = class Lights {
             let tempzone = {};
             tempzone.id = p.zone;
             setTimeout(function () {
-              that.zoneOnOff(tempzone, p.state,true);
+              that.zoneOnOff(tempzone, p.state, true);
               setTimeout(function () {
                 that.zoneDim(tempzone, p.level);
               }, delaycount);
             }, delaycount);
-            delaycount += 1000;
+            delaycount += 500;
           });
         }
       });
+
     }
   }
 

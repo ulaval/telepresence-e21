@@ -12,7 +12,6 @@ const Scenarios = require('./Scenarios');
 
 const DEBUG = false;
 
-const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
 const STATUS_AWAKE = 'Off';
 const TVPOWER = 'tvpower';
@@ -66,31 +65,15 @@ class Controller {
     this.lights = new Lights.Lights(this);
 
 
-    //nouvelle méthode
-    var autodisplaymodetoggle = new Rkhelper.UI.Toggle(TGL_AUTODISPLAYMODE);
-    autodisplaymodetoggle.onChange(value => {
-      let loadingPrompt;
-      loadingPrompt = Rkhelper.UI.perminfo.display(`Un instant s.v.p.`, `Changement de mode`);
-      if (value == 'off') {
-        this.autoDisplay = false;
-      }
-      else {
-        this.autoDisplay = true;
-      }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
-    });
-
     var autolightsmodetoggle = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE);
     autolightsmodetoggle.onChange(value => {
-      let loadingPrompt;
-      loadingPrompt = Rkhelper.UI.perminfo.display(`Un instant s.v.p.`, `Changement de mode`);
       if (value == 'off') {
         this.autoLights = false;
       }
       else {
         this.autoLights = true;
+        Rkhelper.Status.notifyChange();
       }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
     });
 
     xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
@@ -202,11 +185,9 @@ class Controller {
   }
 
   activateLightScene(scene) {
-    {
       if (this.autoLights && RoomConfig.config.room.lightsControl) {
         this.lights.activateLightScene(scene);
       }
-    }
   }
   setCurrentScenario(name) {
     this.currentScenario = name;
