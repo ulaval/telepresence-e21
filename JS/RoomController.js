@@ -437,6 +437,9 @@ xapi.Status.Standby.State.on(async value => {
         createUi();
       }, 2000);
     }
+    else if (value == 'Standby') {
+      controller.lights.activateLightScene('scene_normal',true);
+    }
   }
   else {
     if (freshBootWarningInterval == undefined) {
