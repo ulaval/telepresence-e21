@@ -423,7 +423,7 @@ xapi.Status.Standby.State.on(async value => {
   var bootTime = await getBootTime();
   if (bootTime > 100) {
     if (value == 'Off') {
-
+      controller.lights.activateLightScene('scene_normal',true);
       setTimeout(() => {
         xapi.Command.UserInterface.Message.Prompt.Display(
           {

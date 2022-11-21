@@ -54,7 +54,6 @@ module.exports.Lights = class Lights {
         }
       });
     });
-
   }
 
 
@@ -160,8 +159,8 @@ module.exports.Lights = class Lights {
   }
 
 
-  activateLightScene(id) {
-    this.executeScene(id);
+  activateLightScene(id,manual = false) {
+    this.executeScene(id,manual);
   }
 }
 
