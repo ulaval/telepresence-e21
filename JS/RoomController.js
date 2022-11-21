@@ -276,6 +276,7 @@ function controllerStandbyRequest() {
         callback: function () {
           xapi.Command.Presentation.Stop();
           xapi.Command.Call.Disconnect();
+          controller.lights.activateLightScene('scene_normal',true);
           xapi.Command.UserInterface.Message.Prompt.Display(
             {
               Duration: 6,
