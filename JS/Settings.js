@@ -77,6 +77,26 @@ function drawRoomConfigPanel() {
   </Panel>
 </Extensions>
 `);
+  if (RoomConfig.config.room.showLightsIcon) {
+    xapi.Command.UserInterface.Extensions.Panel.Save({
+      PanelId: 'lighting'
+    },
+      `
+  <Extensions>
+  <Version>1.9</Version>
+  <Panel>
+    <Order>2</Order>
+    <PanelId>lighting</PanelId>
+    <Origin>local</Origin>
+    <Location>HomeScreenAndCallControls</Location>
+    <Icon>Lightbulb</Icon>
+    <Color>#CF7900</Color>
+    <Name>Éclairage</Name>
+    <ActivityType>Custom</ActivityType>
+  </Panel>
+</Extensions>
+  `)
+  }
 }
 
 
@@ -227,6 +247,7 @@ function getLightsPage() {
   if (RoomConfig.config.room.lightsControl) {
     var xml = `
     <Page>
+      <PageId>lights</PageId>
       <Name>Éclairage</Name>
 
       ${getLightsControls()}
@@ -471,7 +492,15 @@ xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
   if (panel.PanelId == 'roomconfig') {
     updateUiElements();
   }
+  if (panel.PanelId == 'lighting') {
+    xapi.Command.UserInterface.Extensions.Panel.Open({
+      PageId: 'lights',
+      PanelId: 'roomconfig'
+    });
+  }
 });
+
+
 
 function getAudioLevelFor(input, action) {
   input = RoomConfig.config.audio.inputs[input];
@@ -627,10 +656,10 @@ function init(c) {
 
         case 'restart control':
           xapi.Command.Message.Send({
-            text:'SYSTEM_CRESTRON_REBOOT'
+            text: 'SYSTEM_CRESTRON_REBOOT'
           });
           xapi.Command.Message.Send({
-            text:'HW_RESTART'
+            text: 'HW_RESTART'
           });
           lastCommandResponse = 'Restarting control system';
           break;
