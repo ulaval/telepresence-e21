@@ -185,9 +185,9 @@ class Controller {
   }
 
   activateLightScene(scene) {
-      if (this.autoLights && RoomConfig.config.room.lightsControl) {
-        this.lights.activateLightScene(scene);
-      }
+    if (this.autoLights && RoomConfig.config.room.lightsControl) {
+      this.lights.activateLightScene(scene);
+    }
   }
   setCurrentScenario(name) {
     this.currentScenario = name;
@@ -276,7 +276,7 @@ function controllerStandbyRequest() {
         callback: function () {
           xapi.Command.Presentation.Stop();
           xapi.Command.Call.Disconnect();
-          controller.lights.activateLightScene('scene_normal',true);
+          controller.lights.activateLightScene('scene_normal', true);
           xapi.Command.UserInterface.Message.Prompt.Display(
             {
               Duration: 6,
@@ -392,6 +392,13 @@ function ui_InitDone() {
 
 
 async function init() {
+  if (RoomConfig.config.room.controlSystemSyncReboot) {
+    xapi.Event.BootEvent.Action.on(action => {
+      if (action == 'Restart') {
+        xapi.Command.Message.Send({text:RoomConfig.config.room.controlSystemRebootCommand});
+      }
+    });
+  }
   var bootTime = await getBootTime();
   if (bootTime > 100) {
 
@@ -424,7 +431,7 @@ xapi.Status.Standby.State.on(async value => {
   var bootTime = await getBootTime();
   if (bootTime > 100) {
     if (value == 'Off') {
-      controller.lights.activateLightScene('scene_normal',true);
+      controller.lights.activateLightScene('scene_normal', true);
       setTimeout(() => {
         xapi.Command.UserInterface.Message.Prompt.Display(
           {
@@ -438,7 +445,7 @@ xapi.Status.Standby.State.on(async value => {
       }, 100);
     }
     else if (value == 'Standby') {
-      controller.lights.activateLightScene('scene_normal',true);
+      controller.lights.activateLightScene('scene_normal', true);
     }
   }
   else {
