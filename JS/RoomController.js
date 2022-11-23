@@ -428,14 +428,14 @@ xapi.Status.Standby.State.on(async value => {
       setTimeout(() => {
         xapi.Command.UserInterface.Message.Prompt.Display(
           {
-            Duration: 5,
+            Duration: 7,
             FeedbackId: 'wakemessage',
             Text: 'Préparation du système, un instant s.v.p!',
             Title: `Nouvelle session`
           });
 
         createUi();
-      }, 2000);
+      }, 100);
     }
     else if (value == 'Standby') {
       controller.lights.activateLightScene('scene_normal',true);
