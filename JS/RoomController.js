@@ -281,7 +281,7 @@ function controllerStandbyRequest() {
             {
               Duration: 6,
               FeedbackId: 'standbymessage',
-              Text: 'Aurevoir, à la prochaine!',
+              Text: 'Aurevoir, à la prochaine!<br>',
               Title: `Fermeture de la session...`
             });
           setTimeout(function () {
@@ -305,7 +305,7 @@ async function loadingStart() {
   xapi.Command.UserInterface.Message.Prompt.Display({
     Duration: 10,
     FeedbackId: 'loadingstart',
-    Text: `Démarrage de l'application en cours...`,
+    Text: `Démarrage de l'application en cours...<br>`,
     Title: `Un instant s.v.p.`
   });
   setTimeout(loadingEnd, RoomConfig.config.room.loadingDelay);
@@ -430,7 +430,7 @@ xapi.Status.Standby.State.on(async value => {
           {
             Duration: 7,
             FeedbackId: 'wakemessage',
-            Text: 'Préparation du système, un instant s.v.p!',
+            Text: 'Préparation du système, un instant s.v.p!<br>',
             Title: `Nouvelle session`
           });
 
@@ -460,10 +460,10 @@ function displayFreshBootWarning() {
   var msg;
   alternateUpdateMessage = !alternateUpdateMessage;
   if (alternateUpdateMessage) {
-    msg = `Le système démarre. Ceci ne prendra que deux minutes...`
+    msg = `Le système démarre. Ceci ne prendra que deux minutes..<br>`
   }
   else {
-    msg = `Le système sera prêt dans quelques instants...`
+    msg = `Le système sera prêt dans quelques instants...<br>`
   }
   xapi.Command.UserInterface.Message.Prompt.Display(
     {
