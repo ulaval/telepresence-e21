@@ -28,6 +28,7 @@ var lastRemotePresentationValue = false;
 var ceilingMicsMode = 'on';
 var changePresenterLocationLocal;
 var changePresenterLocationRemote;
+var lastCommandResponse = '';
 
 function drawRoomConfigPanel() {
   xapi.Command.UserInterface.Extensions.Panel.Save({
@@ -119,9 +120,7 @@ function getAudioControls() {
           <Options>size=1</Options>
         </Widget>
       </Row>
-      <Row>
-        <Name>Niveau des microphones</Name>
-      </Row>
+
       
       
       `;
@@ -249,8 +248,8 @@ function getLightsControls() {
         </Widget>
       </Row>
     `;
-    xml += getZonesControls();
-    xml += getLightsScenes();
+  xml += getZonesControls();
+  xml += getLightsScenes();
 
 
   return xml;
@@ -328,7 +327,7 @@ function setDefaultValues() {
   if (RoomConfig.config.room.lightsControl) {
     tgl_autoLightsMode = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE, 'on');
   }
-  
+
 
 
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
@@ -524,19 +523,15 @@ function boolToOnOff(value) {
 function setCeilingMicsMode(mode) {
   if (mode == 'on') {
     ceilingMicsMode = 'on';
-    unmuteAudioInput(1);
-    unmuteAudioInput(2);
-    unmuteAudioInput(3);
-    unmuteAudioInput(4);
-    unmuteAudioInput(5);
+    for (const mic of RoomConfig.config.audio.roomMics) {
+      unmuteAudioInput(mic);
+    }
   }
   else {
     ceilingMicsMode = 'off';
-    muteAudioInput(1);
-    muteAudioInput(2);
-    muteAudioInput(3);
-    muteAudioInput(4);
-    muteAudioInput(5);
+    for (const mic of RoomConfig.config.audio.roomMics) {
+      muteAudioInput(mic);
+    }
   }
 }
 
@@ -602,40 +597,66 @@ function init(c) {
     }
   });
 
+
+
   xapi.Status.Call.on(e => {
     switch (e.RemoteNumber) {
-      case '.help':
-        msgbox('help', '.help .unlock .lock .restart .info');
-        clearCallHistory();
+      case '.':
+        displayAdvCmdPrompt();
         break;
-
-      case '.unlock':
-        xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
-        clearCallHistory();
-        msgbox('Configuration', 'UNLOCKED');
-        break;
-
-      case '.lock':
-        xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
-        clearCallHistory();
-        msgbox('Configuration', 'LOCKED');
-        break;
-
-      case '.restart':
-        clearCallHistory();
-        msgbox('restart', 'Macro runtime restarting...');
-        xapi.Command.Macros.Runtime.Restart();
-        break;
-
-      case '.info':
-        msgbox('info', `System Name: ${RoomConfig.config.room.name}<br>Version ${RoomConfig.config.version}`);
-        clearCallHistory();
-        break;
-
     }
+  });
+  xapi.Event.UserInterface.Message.TextInput.Response.on(value => {
+    if (value.FeedbackId == 'advcmd') {
+      switch (value.Text.toLowerCase()) {
+        case 'unlock':
+          xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
+          lastCommandResponse = 'Configuration unlocked'
+          break;
+        case 'lock':
+          xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
+          lastCommandResponse = 'Configuration locked'
+          break;
+        case 'info':
+          lastCommandResponse = `System Name: ${RoomConfig.config.room.name}<br>Version ${RoomConfig.config.version}`;
+          break;
+        case 'restart macros':
+          lastCommandResponse = 'Macros restarting';
+          xapi.Command.Macros.Runtime.Restart();
+          break;
+
+        case 'restart control':
+          xapi.Command.Message.Send({
+            text:'SYSTEM_CRESTRON_REBOOT'
+          });
+          xapi.Command.Message.Send({
+            text:'HW_RESTART'
+          });
+          lastCommandResponse = 'Restarting control system';
+          break;
+      }
+    }
+    displayAdvCmdPrompt();
+  });
+  xapi.Event.UserInterface.Message.TextInput.Clear.on(value => {
+    lastCommandResponse = '';
+    clearCallHistory();
   });
 
 
+}
+function displayAdvCmdPrompt() {
+  xapi.Command.UserInterface.Message.TextInput.Display({
+    Duration: 0,
+    FeedbackId: 'advcmd',
+    InputText: '',
+    InputType: 'SingleLine',
+    KeyboardState: 'Open',
+    Placeholder: '',
+    SubmitText: 'Exécuter',
+    Text: `Dernière réponse:<br>${lastCommandResponse}`,
+    Title: 'Commandes avancées'
+  });
 }
 function clearCallHistory() {
   setTimeout(() => {
