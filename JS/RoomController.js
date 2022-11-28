@@ -395,7 +395,7 @@ async function init() {
   if (RoomConfig.config.room.controlSystemSyncReboot) {
     xapi.Event.BootEvent.Action.on(action => {
       if (action == 'Restart') {
-        xapi.Command.Message.Send({text:RoomConfig.config.room.controlSystemRebootCommand});
+        xapi.Command.Message.Send({ text: RoomConfig.config.room.controlSystemRebootCommand });
       }
     });
   }
@@ -421,9 +421,18 @@ async function getBootTime() {
 
 xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
   if (status == 'Inactive') {
-    setTimeout(() =>{
+    setTimeout(() => {
       Rkhelper.System.DND.enable();
-    },2000);
+    }, 2000);
+  }
+  else if (status == 'Active') {
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      setTimeout(() => {
+        xapi.Command.Cameras.PresenterTrack.Set({
+          Mode: 'Follow'
+        });
+      }, 2000);
+    }
   }
 });
 
