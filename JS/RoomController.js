@@ -35,6 +35,8 @@ var enablePrivateMode;
 var disablePrivateMode;
 var enableUsbMode;
 var disableUsbMode;
+var UsbModeEnabled;
+var UsbModeDisabled;
 
 var csConnected = false;
 
@@ -321,6 +323,8 @@ function loadingEnd() {
   disablePrivateMode = Rkhelper.IMC.getFunctionCall('privatemode_disable');
   enableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_enable');
   disableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_disable');
+  UsbModeEnabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
+  UsbModeDisabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
   disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
 
   //Register callbacks 
@@ -421,11 +425,13 @@ async function getBootTime() {
 
 xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
   if (status == 'Inactive') {
+    UsbModeDisabled();
     setTimeout(() => {
       Rkhelper.System.DND.enable();
     }, 2000);
   }
   else if (status == 'Active') {
+    UsbModeEnabled();
     if (RoomConfig.config.room.autoEnablePresenterTrack) {
       setTimeout(() => {
         xapi.Command.Cameras.PresenterTrack.Set({
