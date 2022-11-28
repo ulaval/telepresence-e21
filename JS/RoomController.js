@@ -419,6 +419,14 @@ async function getBootTime() {
 }
 
 
+xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
+  if (status == 'Inactive') {
+    setTimeout(() =>{
+      Rkhelper.System.DND.enable();
+    },2000);
+  }
+});
+
 //Stop sharing on disconnect
 xapi.Event.CallDisconnect.on(value => {
   setTimeout(function () {
