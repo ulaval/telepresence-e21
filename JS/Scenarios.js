@@ -3,7 +3,7 @@ const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
 
-const DEBUG = true;
+const DEBUG = false;
 
 
 const PRES_NOPRES = 'PRES_NOPRESENTATION';
