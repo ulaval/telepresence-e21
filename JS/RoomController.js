@@ -11,6 +11,11 @@ const Scenarios = require('./Scenarios');
 const DEBUG = false;
 
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
+const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
+const CMD_MONITOR_ON = 'cmdmonitoron';
+const CMD_MONITOR_OFF = 'cmdmonitoroff';
+const CMD_PROJECTOR_ON = 'cmdprojectoron';
+const CMD_PROJECTOR_OFF = 'cmdprojectoroff';
 const STATUS_AWAKE = 'Off';
 const TVPOWER = 'tvpower';
 const PROJPOWER = 'projpower';
@@ -107,6 +112,28 @@ class Controller {
 
           case SCREENDOWN:
             this.disp_screen.down();
+            break;
+
+          case TGL_AUTODISPLAYMODE:
+            if (action.Value == 'on') {
+              this.autoDisplay = true;
+            }
+            else {
+              this.autoDisplay = false;
+            }
+            break;
+
+          case CMD_MONITOR_ON:
+            this.tvOn(true);
+            break;
+          case CMD_MONITOR_OFF:
+            this.tvOff(true);
+            break;
+          case CMD_PROJECTOR_ON:
+            this.projOn(true);
+            break;
+          case CMD_PROJECTOR_OFF:
+            this.projOff(true);
             break;
         }
       }
@@ -335,6 +362,7 @@ function loadingEnd() {
   Rkhelper.IMC.registerFunction(projOff);
   Rkhelper.IMC.registerFunction(screenUp);
   Rkhelper.IMC.registerFunction(screenDown);
+
 
 
   createUi();

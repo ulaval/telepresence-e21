@@ -93,8 +93,73 @@ function drawRoomConfigPanel() {
     <ActivityType>Custom</ActivityType>
   </Panel>
 </Extensions>
-  `)
+  `);
   }
+
+  xapi.Command.UserInterface.Extensions.Panel.Save({
+    PanelId: 'disp'
+  },
+    `
+  <Extensions>
+  <Version>1.9</Version>
+  <Panel>
+    <Order>7</Order>
+    <PanelId>disp</PanelId>
+    <Location>Hidden</Location>
+    <Icon>Lightbulb</Icon>
+    <Name>Affichages</Name>
+    <ActivityType>Custom</ActivityType>
+    <Page>
+      <Name>Affichages</Name>
+      <Row>
+        <Name>Auto</Name>
+        <Widget>
+          <WidgetId>tgl_autodisplaymode</WidgetId>
+          <Type>ToggleButton</Type>
+          <Options>size=1</Options>
+        </Widget>
+      </Row>
+      <Row>
+        <Name>Moniteur</Name>
+        <Widget>
+          <WidgetId>cmdmonitoroff</WidgetId>
+          <Name>OFF</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+        <Widget>
+          <WidgetId>cmdmonitoron</WidgetId>
+          <Name>ON</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+      </Row>
+      <Row>
+        <Name>Projecteur</Name>
+        <Widget>
+          <WidgetId>cmdprojectoroff</WidgetId>
+          <Name>OFF</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+        <Widget>
+          <WidgetId>cmdprojectoron</WidgetId>
+          <Name>ON</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+      </Row>
+      <Options/>
+    </Page>
+  </Panel>
+</Extensions>
+
+  `
+  );
+  xapi.Command.UserInterface.Extensions.Widget.SetValue({
+    WidgetId: 'tgl_autodisplaymode',
+    Value: 'On'
+  });
 }
 
 
@@ -650,6 +715,11 @@ function init(c) {
         case 'restart macros':
           lastCommandResponse = 'Macros restarting';
           xapi.Command.Macros.Runtime.Restart();
+          break;
+        case 'displays':
+          xapi.Command.UserInterface.Extensions.Panel.Open({
+            PanelId: 'disp'
+          });
           break;
 
         case 'restart control':
