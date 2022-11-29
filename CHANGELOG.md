@@ -15,6 +15,7 @@
 - New optional "Éclairage" icon
 - DND mode now works with the built-in USB mode
 - Presenter Tracking is now automatically enabled when using the built-in USB mode
+- Warning messages (optional) when presenter exits and enters the Presenter Tracking zone
 - The built-in USB mode now triggers signals "UsbModeEnabled" and "UsbModeDisabled"
 - The "Joindre Zoom" button has been renamed to "Zoom"
 - Added advanced menu for displays control
