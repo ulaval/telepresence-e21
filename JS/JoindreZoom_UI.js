@@ -36,7 +36,7 @@ module.exports.createUi = function createUi(options, io) {
   },
     `
 <Extensions>
-  <Version>1.8</Version>
+  <Version>1.9</Version>
   <Panel>
     <Order>${io}</Order>
     <PanelId>joinzoom</PanelId>
@@ -60,7 +60,7 @@ module.exports.createUi = function createUi(options, io) {
   },
     `
 <Extensions>
-  <Version>1.8</Version>
+  <Version>1.9</Version>
   <Panel>
     <Order>4</Order>
     <PanelId>panelZoom</PanelId>

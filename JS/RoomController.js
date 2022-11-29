@@ -233,7 +233,7 @@ function createUi() {
 
   }, `
   <Extensions>
-  <Version>1.8</Version>
+  <Version>1.9</Version>
   <Panel>
     <Order>${RoomConfig.config.ui.iconOrder.shutdown}</Order>
     <PanelId>endSession</PanelId>
@@ -463,7 +463,6 @@ xapi.Status.Standby.State.on(async value => {
             Text: 'Préparation du système, un instant s.v.p!<br>',
             Title: `Nouvelle session`
           });
-
         createUi();
       }, 100);
     }
