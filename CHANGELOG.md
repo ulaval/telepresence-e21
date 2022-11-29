@@ -1,5 +1,5 @@
-# [v10.0.0]
-- Support pour RoomOS11
+# [v7.0.0]
+- Support pour RoomOS11 seulement
 
 # [v5.0-pre]
 ## Fixed
