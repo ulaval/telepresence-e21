@@ -80,13 +80,13 @@ function callZoom() {
 
 function askPin() {
   zoomAskConferencePin(pin => {
-      zoomCallConfig.conferencePin = pin;
-      if (zoomCallConfig.conferenceType == CONFTYPE_HOST) {
-        askHostKey();
-      }
-      else {
-        callZoom();
-      }
+    zoomCallConfig.conferencePin = pin;
+    if (zoomCallConfig.conferenceType == CONFTYPE_HOST) {
+      askHostKey();
+    }
+    else {
+      callZoom();
+    }
   }, (cancel) => { });
 }
 function askConfNumber() {
@@ -120,12 +120,14 @@ function askHostKey() {
 
 xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
   if (panel.PanelId === 'joinzoom') {
-    zoomAskConferenceType(conftype => {
-      zoomCallConfig.conferenceType = conftype;
-      askConfNumber();
-    },
-      (cancel) => { }
-    );
+    xapi.Status.Video.Output.HDMI.Passthrough.Status.get().then(status => {
+      zoomAskConferenceType(conftype => {
+        zoomCallConfig.conferenceType = conftype;
+        askConfNumber();
+      },
+        (cancel) => { }
+      );
+    });
   }
 });
 
@@ -135,7 +137,7 @@ function zoomAskConferenceType(callback, cancelcallback) {
   Rkhelper.UI.prompt.display({
     Duration: 0,
     FeedbackId: 'fbZoomConfType',
-    Title: `Êtes-vous animateur ou un participant ?`,
+    Title: `Êtes-vous animateur ou participant ?`,
     Text: ``,
     Options: [
       {
@@ -280,7 +282,7 @@ function deleteCallHistory() {
       };
     }).catch(err => {
       console.warn(err);
-    }); 
+    });
   }
 }
 
