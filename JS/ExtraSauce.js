@@ -1,7 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
-
 import xapi from 'xapi';
 const roomconfig = require('./RoomConfig');
 

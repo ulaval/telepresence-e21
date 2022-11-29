@@ -1,6 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
 module.exports.config = {
   version:'7.0.0',
   extrasauce:{
