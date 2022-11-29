@@ -17,6 +17,11 @@
 - Presenter Tracking is now automatically enabled when using the built-in USB mode
 - The built-in USB mode now triggers signals "UsbModeEnabled" and "UsbModeDisabled"
 - The "Joindre Zoom" button has been renamed to "Zoom"
+- Added advanced menu for displays control
+- Added advanced command for endpoint status report
+- Added advanced command to restart macros
+- Added advanced command to restart room controller
+- Added advanced commands to lock and unlock settings menu
 - Many under-the-hood enhancements
 
 # [v5.0-pre]
