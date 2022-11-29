@@ -3,9 +3,9 @@ import xapi from 'xapi';
 const roomconfig = require('./RoomConfig');
 
 const ENABLE_SAUCE = true; //Mettre à 'false' pour la calibration
-const LIVE_CALIBRATION = true; //Une autre bonne solution pour la calibration
-const SHOW_BOOST_MODE = true; //Montre le mode actuel dans la console (désactiver avant de mettre en prod!)
-const SHOW_PROCESSING_TIME = true; //Montre le nombre de temps en MS pour le processing du DSP (le plus bas possible semble 198ms)
+const LIVE_CALIBRATION = false; //Une autre bonne solution pour la calibration
+const SHOW_BOOST_MODE = false; //Montre le mode actuel dans la console (désactiver avant de mettre en prod!)
+const SHOW_PROCESSING_TIME = false; //Montre le nombre de temps en MS pour le processing du DSP (le plus bas possible semble 198ms)
 const SAMPLE_INTERVAL = 50; //Je ne recommande pas <50ms. Entre 50 et 100 semble un bon choix
 const NUMBER_OF_SAMPLES = 2; //Nombre de lecture de VU fait. Une moyenne en est tirée. NUMBER_OF_SAMPLES * SAMPLE_INTERVAL
 
