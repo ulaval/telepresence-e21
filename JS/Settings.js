@@ -389,6 +389,24 @@ function getZonesControls() {
   return xml;
 }
 
+async function displayStatus() {
+  let webexStatus = await xapi.Status.Webex.Status.get();
+  let temperature = await xapi.Status.SystemUnit.Hardware.Monitoring.Temperature.Status.get();
+  let macrosdiag = await xapi.Status.Diagnostics.Message[1].References.get();
+  macrosdiag = macrosdiag.split('&')[1];
+  macrosdiag = macrosdiag.split('=')[1];
+  let uptime = await xapi.Status.SystemUnit.Uptime.get();
+  let upgradeStatus = await xapi.Status.Provisioning.Software.UpgradeStatus.Status.get();
+  setTimeout(() => {
+    xapi.Command.UserInterface.Message.Prompt.Display({
+      duration: 0,
+      title: 'Status',
+      text: `Webex: ${webexStatus}, Temp: ${temperature}, Crash: ${macrosdiag},<br> Upttime: ${uptime}, Upgrade: ${upgradeStatus}`
+    });
+  }, 1000);
+
+}
+
 function setDefaultValues() {
 
   currentactivity = RoomConfig.config.room.defaultActivity;
@@ -439,6 +457,8 @@ function setDefaultValues() {
   updateUiElements();
 
 }
+
+
 
 function getActivity(id) {
   var act;
@@ -730,6 +750,10 @@ function init(c) {
             text: 'HW_RESTART'
           });
           lastCommandResponse = 'Restarting control system';
+          break;
+
+        case 'status':
+          displayStatus();
           break;
       }
     }
