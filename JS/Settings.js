@@ -66,6 +66,14 @@ function drawRoomConfigPanel() {
       </Row>
 
     ${getActivitiesControls()}
+      <Row>
+        <Name>Guide cadrage automatique</Name>
+        <Widget>
+          <WidgetId>tgl_prestrackwarn</WidgetId>
+          <Type>ToggleButton</Type>
+          <Options>size=1</Options>
+        </Widget>
+      </Row>
     ${getManualScreenControls()}
     </Page>
     ${getAudioControls()}
@@ -159,6 +167,10 @@ function drawRoomConfigPanel() {
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
     WidgetId: 'tgl_autodisplaymode',
     Value: 'On'
+  });
+  xapi.Command.UserInterface.Extensions.Widget.SetValue({
+    WidgetId:'tgl_prestrackwarn',
+    Value: RoomConfig.config.room.presenterTrackWarningDisplay ? 'On' : 'Off'
   });
 }
 
@@ -400,7 +412,7 @@ async function displayStatus() {
   setTimeout(() => {
     xapi.Command.UserInterface.Message.Prompt.Display({
       duration: 0,
-      title: 'Status',
+      title: `${RoomConfig.config.room.name} ${RoomConfig.config.version}`,
       text: `Webex: ${webexStatus}, Temp: ${temperature}, Crash: ${macrosdiag},<br> Upttime: ${uptime}, Upgrade: ${upgradeStatus}`
     });
   }, 1000);
@@ -728,9 +740,6 @@ function init(c) {
         case 'lock':
           xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
           lastCommandResponse = 'Configuration locked'
-          break;
-        case 'info':
-          lastCommandResponse = `System Name: ${RoomConfig.config.room.name}<br>Version ${RoomConfig.config.version}`;
           break;
         case 'restart macros':
           lastCommandResponse = 'Macros restarting';
