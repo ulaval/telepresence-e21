@@ -67,7 +67,7 @@ function drawRoomConfigPanel() {
 
     ${getActivitiesControls()}
       <Row>
-        <Name>Guide cadrage automatique</Name>
+        <Name>Avertissements cadrage auto.</Name>
         <Widget>
           <WidgetId>tgl_prestrackwarn</WidgetId>
           <Type>ToggleButton</Type>

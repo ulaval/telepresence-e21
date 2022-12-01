@@ -159,13 +159,13 @@ class Controller {
           xapi.Status.Cameras.PresenterTrack.Status.get().then(status => {
             if ((pd == 'False' && status == 'Follow')) {
               xapi.Command.UserInterface.Message.TextLine.Display({
-                Text: '🚩 Cadrage automatique de la caméra DÉSACTIVÉ 🚩.<br>Rapprochez-vous de la caméra pour le réactiver.',
+                Text: '🔴 Cadrage automatique DÉSACTIVÉ 🔴.<br>Revenez dans la zone de présentation pour le réactiver.',
                 Duration: 0
               });
             }
             else if (pd == 'True' && status == 'Follow') {
               xapi.Command.UserInterface.Message.TextLine.Display({
-                Text: 'Cadrage automatique ACTIVÉ 👍',
+                Text: '🟢 Cadrage automatique ACTIVÉ 🟢',
                 Duration: 3
               });
             }
