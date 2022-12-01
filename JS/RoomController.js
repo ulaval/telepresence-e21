@@ -568,10 +568,10 @@ function displayFreshBootWarning() {
   var msg;
   alternateUpdateMessage = !alternateUpdateMessage;
   if (alternateUpdateMessage) {
-    msg = `Le système démarre. Ceci ne prendra que deux minutes..<br>`
+    msg = `Le système démarre. Ceci ne prendra que deux minutes..<br>`;
   }
   else {
-    msg = `Le système sera prêt dans quelques instants...<br>`
+    msg = `Le système sera prêt dans quelques instants...<br>`;
   }
   xapi.Command.UserInterface.Message.Prompt.Display(
     {

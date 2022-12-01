@@ -260,14 +260,6 @@ btnMenu.onClick(() => {
 });
 
 
-
-
-
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function deleteCallHistory() {
   if (zoomConfig.callHistory.autoDelete) {
     xapi.Command.CallHistory.Get().then(calls => {

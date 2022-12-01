@@ -735,11 +735,11 @@ function init(c) {
       switch (value.Text.toLowerCase()) {
         case 'unlock':
           xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
-          lastCommandResponse = 'Configuration unlocked'
+          lastCommandResponse = 'Configuration unlocked';
           break;
         case 'lock':
           xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
-          lastCommandResponse = 'Configuration locked'
+          lastCommandResponse = 'Configuration locked';
           break;
         case 'restart macros':
           lastCommandResponse = 'Macros restarting';

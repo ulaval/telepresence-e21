@@ -69,7 +69,6 @@ module.exports.Lights = class Lights {
   executeScene(sceneId, manual = false) {
     var delaycount = 0;
     const that = this;
-    var zone;
     if (this.lastScene != sceneId || manual) {
       this.lastScene = sceneId;
       if (DEBUG)
@@ -160,7 +159,7 @@ module.exports.Lights = class Lights {
   activateLightScene(id,manual = false) {
     this.executeScene(id,manual);
   }
-}
+};
 
 
 

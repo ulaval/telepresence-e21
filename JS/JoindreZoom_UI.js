@@ -140,4 +140,4 @@ module.exports.createUi = function createUi(options, io) {
 
 
       `);
-}
+};
