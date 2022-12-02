@@ -66,7 +66,7 @@
 * Activer les macros
   * JoindreZoom
   * RoomController
-  * USBMode OU USBModeDUal pour le comtois
+  * USBModeDual pour le comtois
   * AutoReboot pour le comtois
 * Sur l'écran tactile, appuyer sur "Appel", et composer le numéro "." (point)
   * Écrire la commande: restart macros
