@@ -64,6 +64,7 @@
 * Importer toute les macros de la nouvelle version sauf "ce-audio-config" et "RoomConfig"
 * Sauvegarder toute les macros et ignorer les erreurs si il y en a
 * Activer les macros
+  * ExtraSauce
   * JoindreZoom
   * RoomController
   * USBModeDual pour le comtois
