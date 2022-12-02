@@ -53,7 +53,7 @@
 * Ajouter ```module.exports.config.room.controlSystemRebootCommand```
   * Exemple (pour Crestron): ```controlSystemRebootCommand:'SYSTEM_CRESTRON_REBOOT'```
   * Exemple (pour RaspberryPi): ```controlSystemRebootCommand:'HW_RESET'```
-* Ajouter ```module.exports.config.room.presenterTrackWarningDisplay``
+* Ajouter ```module.exports.config.room.presenterTrackWarningDisplay```
   * Exemple: ```presenterTrackWarningDisplay:true```
 * Ajouter "Micro" ou "Entrée" devant les noms des entrées audio dans ```module.exports.config.audio.inputs```
 * Modifier la valeur de ```module.exports.config.version``` à ```7.0.0```
