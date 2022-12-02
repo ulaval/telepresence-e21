@@ -15,6 +15,11 @@
 * Supprimer tout les panels
 
 # Préparation pour la nouvelle version
+## Configurations
+### Avec la macro PREPARE-UPGRADE
+* Ajouter la macro PREPARE-UPGRADE et executez-la.
+* Supprimer la macro si tout s'est bien passé
+### Sans la macro PREPARE-UPGRADE
 * Aller dans la section "Personalization"
 * Ajouter le fond d'écran noir comme "Wallpaper"
 * Aller dans la section "Settings"
@@ -32,6 +37,7 @@
   * (pas au comtois) Mettre "HdmiPassthrough" à "Auto"
   * Mettre "JoinGoogleMeet" à "Hidden"
   * Mettre "JoinZoom" à "Hidden"
+## RoomConfig
 * Aller dans la section "Macro Editor"
 * Ouvrir le fichier "RoomConfig"
 * Supprimer ```module.exports.config.usbmode.showRecordingOption```
