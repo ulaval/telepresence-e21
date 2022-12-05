@@ -58,6 +58,9 @@
 * Ajouter "Micro" ou "Entrée" devant les noms des entrées audio dans ```module.exports.config.audio.inputs```
 * Modifier la valeur de ```module.exports.config.version``` à ```7.0.0```
 * Vérifier que le nom du système concorde dans ```module.exports.config.room.name``` exemple: ```CSL1640```
+## Suite
+* (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode" à "on"
+* (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name" à "Cisco USB"
 
 # Installation de la nouvelle version
 * Aller dans la section "Macro Editor"
