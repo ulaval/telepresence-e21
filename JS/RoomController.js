@@ -492,6 +492,7 @@ xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
   if (status == 'Inactive') {
     usbModeActive = false;
     UsbModeDisabled();
+     xapi.Command.UserInterface.Message.TextLine.Clear();
     setTimeout(() => {
       Rkhelper.System.DND.enable();
     }, 2000);
@@ -512,6 +513,7 @@ xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
 //Stop sharing on disconnect
 xapi.Event.CallDisconnect.on(value => {
   inCall = false;
+   xapi.Command.UserInterface.Message.TextLine.Clear();
   setTimeout(function () {
     xapi.Command.Presentation.Stop();
   }, 6000);
