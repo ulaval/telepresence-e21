@@ -32,6 +32,8 @@
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/OutputCOnnector" à "2"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/AutoDisconnect/Delay" à "480"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Enabled" à "True"
+  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode à "Inogeni"
+  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name à "Cisco USB"
 * Dans la sous-section "UserInterace"
   * Mettre "Help Tips" à "Hidden"
   * (pas au comtois) Mettre "HdmiPassthrough" à "Auto"
