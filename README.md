@@ -38,7 +38,7 @@
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/OutputCOnnector" à "2"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/AutoDisconnect/Delay" à "480"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Enabled" à "True"
-  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode à "Inogeni"
+  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode à "Custom"
   * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name à "Cisco USB"
 
 ## RoomConfig
@@ -62,9 +62,7 @@
 * Ajouter "Micro" ou "Entrée" devant les noms des entrées audio dans ```module.exports.config.audio.inputs```
 * Modifier la valeur de ```module.exports.config.version``` à ```7.0.0```
 * Vérifier que le nom du système concorde dans ```module.exports.config.room.name``` exemple: ```CSL1640```
-## Suite
-* (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode" à "on"
-* (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name" à "Cisco USB"
+
 
 # Installation de la nouvelle version
 * Dans Webex Control Hub, changer le système au canal de mise à jour "Vérification"
