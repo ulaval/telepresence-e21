@@ -68,7 +68,7 @@
 * Dans Webex Control Hub, changer le système au canal de mise à jour "Vérification"
 * Si la mise à jour ne démarre pas en 1 minute, aller sur la page du codec, dans "Developer API", et Exécuter la commande: xcommand provisioning completeupgrade
 * Attendre que la mise à jour soit complètement terminée, ce qui inclus une mise à jour de la caméra
-* Dans AudioConsole, créer un lien entre le groupe "Microphone" et "USB
+* Dans AudioConsole, créer un lien entre le groupe "Microphone" et "USB"
 * Aller dans la section "Macro Editor"
 * Importer toute les macros de la nouvelle version sauf "ce-audio-config" et "RoomConfig"
 * Sauvegarder toute les macros et ignorer les erreurs si il y en a
