@@ -1,6 +1,6 @@
 # VERSION 7.0.0 - Guide d'installation
 
-# Backup de sécurité
+# Backup de sécurité (macros et configs)
 * Se connecter à l'interface web du codec à travers Control Hub
 * Aller dans la section "Macro Editor"
 * Télécharger toute les macros sur votre ordinateur
