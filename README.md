@@ -16,10 +16,6 @@
 
 # Préparation pour la nouvelle version
 ## Configurations
-### Avec la macro PREPARE-UPGRADE
-* Ajouter la macro PREPARE-UPGRADE et executez-la.
-* Supprimer la macro si tout s'est bien passé
-### Sans la macro PREPARE-UPGRADE
 * Aller dans la section "Personalization"
 * Ajouter le fond d'écran noir comme "Wallpaper"
 * Aller dans la section "Settings"
@@ -28,18 +24,18 @@
   * Mettre "Output/Connector 1/MonitorRole" à "Second"
   * Mettre "Output/Connector 2/MonitorRole" à "Auto"
   * Mettre "Output/Connector 3"MonitorRole" à "First"
-* Dans la sous-section "UserInterace"
-  * Mettre "Help Tips" à "Hidden"
-  * (pas au comtois) Mettre "HdmiPassthrough" à "Auto"
-  * Mettre "JoinGoogleMeet" à "Hidden"
-  * Mettre "JoinZoom" à "Auto"
-### Peu importe la méthode
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Allowed" à "True"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/OutputCOnnector" à "2"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/AutoDisconnect/Delay" à "480"
   * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Enabled" à "True"
   * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode à "Custom"
   * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name à "Cisco USB"
+* Dans la sous-section "UserInterace"
+  * Mettre "Help Tips" à "Hidden"
+  * (pas au comtois) Mettre "HdmiPassthrough" à "Auto"
+  * Mettre "JoinGoogleMeet" à "Hidden"
+  * Mettre "JoinZoom" à "Auto"
+
 
 ## RoomConfig
 * Aller dans la section "Macro Editor"
@@ -69,6 +65,7 @@
 * Si la mise à jour ne démarre pas en 1 minute, aller sur la page du codec, dans "Developer API", et Exécuter la commande: xcommand provisioning completeupgrade
 * Attendre que la mise à jour soit complètement terminée, ce qui inclus une mise à jour de la caméra
 * Dans AudioConsole, créer un lien entre le groupe "Microphone" et "USB"
+* Dans AudioConsole, créer un groupe d'output "RECORDING", y placer le connecteur "LINE 3" et changer le mode à "Mono". Y connecter le groupe "Microphone" et "PC"
 * Aller dans la section "Macro Editor"
 * Importer toute les macros de la nouvelle version sauf "ce-audio-config" et "RoomConfig"
 * Sauvegarder toute les macros et ignorer les erreurs si il y en a
