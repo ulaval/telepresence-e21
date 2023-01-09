@@ -85,7 +85,7 @@ module.exports.Lights = class Lights {
                 that.zoneDim(tempzone, p.level);
               }, delaycount);
             }, delaycount);
-            delaycount += 500;
+            delaycount += 1000;
           });
         }
       });
