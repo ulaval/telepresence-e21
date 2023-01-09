@@ -140,7 +140,7 @@ export class Scenarios {
 
     /* SCREEN */
     if (status.activity == 'normal') {
-      if (status.presentationStatus.presentationType != PRES_NOPRES || status.presentationStatus.presentationType == PRES_REMOTE) {
+      if (status.presentationStatus.presentationType != PRES_NOPRES || status.presLocation == 'remote') {
         this.screenDown();
       }
     }
