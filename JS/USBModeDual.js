@@ -67,7 +67,7 @@ function enableNormalFunctions() {
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
   RoomConfig.config.video.autoShareInputs.forEach(input => {
     xapi.Config.Video.Input.Connector[input].PresentationSelection.set('AutoShare');
-    xapi.Config.Video.Input.Connector[1].Visibility.set('IfSignal');
+    xapi.Config.Video.Input.Connector[input].Visibility.set('IfSignal');
   });
   xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].Visibility.set('IfSignal');
   xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].Visibility.set('IfSignal');
