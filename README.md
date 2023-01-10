@@ -64,6 +64,8 @@
 * Dans Webex Control Hub, changer le système au canal de mise à jour "Vérification"
 * Si la mise à jour ne démarre pas en 1 minute, aller sur la page du codec, dans "Developer API", et Exécuter la commande: xcommand provisioning completeupgrade
 * Attendre que la mise à jour soit complètement terminée, ce qui inclus une mise à jour de la caméra
+* Dans les settings, dans "zoom", dans "DefaultDomain", mettre "zmca.us"
+* Dans les settings, dans "zoom", dans "DialStringOptions", mettre "200006"
 * Dans AudioConsole, créer un lien entre le groupe "Microphone" et "USB"
 * Dans AudioConsole, créer un groupe d'output "RECORDING", y placer le connecteur "LINE 3" et changer le mode à "Mono". Y connecter le groupe "Microphone" et "PC"
 * Aller dans la section "Macro Editor"
