@@ -45,6 +45,7 @@ function privatemode_disabled() {
 function disableNormalFunctions() {
   xapi.Config.UserInterface.Features.Call.Start.set('Hidden');
   xapi.Config.UserInterface.Features.Call.JoinWebex.set('Hidden');
+  xapi.Config.UserInterface.Features.Call.JoinZoom.set('Hidden');
   xapi.Config.UserInterface.Features.Share.Start.set('Hidden');
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSession', Visibility: 'Hidden' });
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Auto' });
@@ -62,6 +63,7 @@ function disableNormalFunctions() {
 function enableNormalFunctions() {
   xapi.Config.UserInterface.Features.Call.Start.set(RoomConfig.config.room.callFeatures);
   xapi.Config.UserInterface.Features.Call.JoinWebex.set('Auto');
+  xapi.Config.UserInterface.Features.Call.JoinZoom.set('Auto');
   xapi.Config.UserInterface.Features.Share.Start.set('Auto');
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSession', Visibility: 'Auto' });
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
@@ -152,7 +154,7 @@ function enableUsbModeDual() {
 
 
   /* CONFIGURE OSD */
-  xapi.Config.UserInterface.OSD.Mode.set('Unobstructed');
+  //xapi.Config.UserInterface.OSD.Mode.set('Unobstructed');
 
 
   /* AUDIO ROUTING */
@@ -203,7 +205,7 @@ function disableUsbModeDual() {
   xapi.Config.Audio.Input.HDMI[localPcInput2].VideoAssociation.MuteOnInactiveVideo.set('On');
 
   /* CONFIGURE OSD */
-  xapi.Config.UserInterface.OSD.Mode.set('Auto');
+  //xapi.Config.UserInterface.OSD.Mode.set('Auto');
 
   /* AUDIO ROUTING */
   xapi.Command.Audio.LocalOutput.DisconnectInput({
@@ -215,7 +217,7 @@ function disableUsbModeDual() {
   xapi.Command.Video.Matrix.Reset();
 
 
-  xapi.Config.UserInterface.OSD.Mode.set('Auto');
+  //xapi.Config.UserInterface.OSD.Mode.set('Auto');
 
   forceNotifyStatusChange();
 
