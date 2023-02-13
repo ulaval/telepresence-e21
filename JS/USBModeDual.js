@@ -51,13 +51,7 @@ function disableNormalFunctions() {
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Auto' });
   RoomConfig.config.video.autoShareInputs.forEach(input => {
     xapi.Config.Video.Input.Connector[input].PresentationSelection.set('Manual');
-    xapi.Config.Video.Input.Connector[input].Visibility.set('Never');
   });
-  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].Visibility.set('Never');
-  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].Visibility.set('Never');
-
-
-
   xapi.Command.Call.Disconnect();
 }
 function enableNormalFunctions() {
@@ -69,13 +63,7 @@ function enableNormalFunctions() {
   xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'endSessionUsbModeDual', Visibility: 'Hidden' });
   RoomConfig.config.video.autoShareInputs.forEach(input => {
     xapi.Config.Video.Input.Connector[input].PresentationSelection.set('AutoShare');
-    xapi.Config.Video.Input.Connector[input].Visibility.set('IfSignal');
   });
-  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].Visibility.set('IfSignal');
-  xapi.Config.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].Visibility.set('IfSignal');
-
-
-
 }
 
 /* SLEEP PREVENTION */
@@ -292,25 +280,35 @@ async function init() {
       });
     });
 
-    xapi.Event.UserInterface.Extensions.Panel.Clicked.on(event => {
-      if (event.PanelId == PANELID) {
+    xapi.Event.UserInterface.Extensions.Panel.Clicked.on(async event => {
+if (event.PanelId == PANELID) {
         if (usbModeDualEnabled) {
           disableUsbModeDual();
         }
         else {
-          xapi.Command.UserInterface.Message.Prompt.Display({
-            Duration: 30,
-            FeedbackId: 'enableusbmodedual',
-            Text: 'Reconfiguration du système, un instant s.v.p...',
-            Title: 'Comodal écrans étendus'
-          });
-          projOn();
-          setTimeout(function () {
-            enableUsbModeDual();
+          const pcOut1Signal = await xapi.Status.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput1].get();
+          const pcOut2Signal = await xapi.Status.Video.Input.Connector[RoomConfig.config.usbmode.localPcInput2].get();
+          if (pcOut1Signal.Connected == 'True' && pcOut1Signal.SignalState == 'OK' && pcOut2Signal.Connected == 'True' && pcOut2Signal.SignalState == 'OK') {
+            xapi.Command.UserInterface.Message.Prompt.Display({
+              Duration: 30,
+              FeedbackId: 'enableusbmodedual',
+              Text: 'Reconfiguration du système, un instant s.v.p...',
+              Title: 'Comodal écrans étendus'
+            });
+            projOn();
             setTimeout(function () {
-              forceNotifyStatusChange();
-            }, 25000);
-          }, 15000);
+              enableUsbModeDual();
+              setTimeout(function () {
+                forceNotifyStatusChange();
+              }, 25000);
+            }, 15000);
+          } else {
+            xapi.Command.UserInterface.Message.Alert.Display({
+              Duration: 0,
+              Text: 'Au moins une des deux sorties vidéo de l\'ordinateur local est présentement indisponible.<br>Vérifiez que l\'ordinateur est allumé et que l\'affichage est configuré en mode "Étendre"',
+              Title: 'Erreur - Activation impossible'
+            });
+          }
         }
       }
       if (event.PanelId == 'endSessionUsbModeDual') {
