@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+//VERSION:6.0
+
 const xapi = require('xapi');
 const JoindreZoomUI = require('./JoindreZoom_UI');
 const RoomConfig = require('./RoomConfig');
@@ -78,13 +80,13 @@ function callZoom() {
 
 function askPin() {
   zoomAskConferencePin(pin => {
-    zoomCallConfig.conferencePin = pin;
-    if (zoomCallConfig.conferenceType == CONFTYPE_HOST) {
-      askHostKey();
-    }
-    else {
-      callZoom();
-    }
+      zoomCallConfig.conferencePin = pin;
+      if (zoomCallConfig.conferenceType == CONFTYPE_HOST) {
+        askHostKey();
+      }
+      else {
+        callZoom();
+      }
   }, (cancel) => { });
 }
 function askConfNumber() {
@@ -118,14 +120,12 @@ function askHostKey() {
 
 xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
   if (panel.PanelId === 'joinzoom') {
-    xapi.Status.Video.Output.HDMI.Passthrough.Status.get().then(status => {
-      zoomAskConferenceType(conftype => {
-        zoomCallConfig.conferenceType = conftype;
-        askConfNumber();
-      },
-        (cancel) => { }
-      );
-    });
+    zoomAskConferenceType(conftype => {
+      zoomCallConfig.conferenceType = conftype;
+      askConfNumber();
+    },
+      (cancel) => { }
+    );
   }
 });
 
@@ -135,7 +135,7 @@ function zoomAskConferenceType(callback, cancelcallback) {
   Rkhelper.UI.prompt.display({
     Duration: 0,
     FeedbackId: 'fbZoomConfType',
-    Title: `Êtes-vous animateur ou participant ?`,
+    Title: `Êtes-vous animateur ou un participant ?`,
     Text: ``,
     Options: [
       {
@@ -260,6 +260,14 @@ btnMenu.onClick(() => {
 });
 
 
+
+
+
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function deleteCallHistory() {
   if (zoomConfig.callHistory.autoDelete) {
     xapi.Command.CallHistory.Get().then(calls => {
@@ -272,7 +280,7 @@ function deleteCallHistory() {
       };
     }).catch(err => {
       console.warn(err);
-    });
+    }); 
   }
 }
 

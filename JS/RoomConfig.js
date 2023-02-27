@@ -1,6 +1,13 @@
 /*jshint esversion: 6 */
+//VERSION:6.0
+
 module.exports.config = {
-  version:'7.0.0',
+  telemetry:{
+    url:'http://10.1.48.100:8081',
+    basepath:'systems/testvisio1',
+    username:'1f87d7a681bd2',
+    password:'MzA1MDkzMzg1MTAxNzA4Mzc4MTU5ODg3ODMxNjA1NTc1NjI'
+  },
   extrasauce:{
     presenterMics: [
       {
@@ -63,11 +70,10 @@ module.exports.config = {
     }
   },
   room: {
-    name: 'CSL1420',                        //Nom du système, doit être unique
+    name: 'PVE1115',                        //Nom du système, doit être unique
     supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
     displayControl: true,                   //Active le contrôle des affichages
     lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
-    showLightsIcon: true,                   //Ajoute un icone "Éclairage" sur le menu principal et en appel
     motorizedScreen: true,                  //Active le contrôle de la toile motorisée
     boardBehindScreen: true,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
@@ -76,8 +82,6 @@ module.exports.config = {
     controlSystemPollingInterval: 5000,     //Temps entre chaque vérification du système de contrôle (Crestron)
     fakeControlSystem: true,                //false = normal, true = developement
     controlSystemSerial: '1234567890',     //numéro de série du processeur crestron
-    controlSystemSyncReboot:true,           //Reboot le système de contrôle lorsque le codec reboot <true/false>
-    controlSystemRebootCommand:'SYSTEM_CRESTRON_REBOOT',  //Commande à envoyer pour rebooter le système de contrôle
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
@@ -97,9 +101,10 @@ module.exports.config = {
     ]
   },
   usbmode: {
+    showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
     localPcInput1:4,                          //Entrée 1 pc local
     localPcInput2:3,                          //Entrée 2 pc local
-    //autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
+    autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
   },
   zoom: {
     callHistoryAutoDelete: true,              //Effacement automatique du call history
@@ -121,12 +126,11 @@ module.exports.config = {
     autoShareInputs:[2]                       //Inputs qui sont en autoshare
   },
   audio: {
-    roomMics:[1,2,3,4,5],
     loud: 6,                                  //Nombre de DB à additionner pour le mode "Fort"
     louder: 12,                                //Nombre de DB à additionner pour le mode "Très fort"
     inputs: [
       {
-        name: 'Micro sans-fil (casque)',        //Nom de l'entrée audio
+        name: 'Sans-fil (casque)',        //Nom de l'entrée audio
         connector: 6,                         //Numéro de connecteur
         normal: 54,                           //Volume normal en DB
         defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)

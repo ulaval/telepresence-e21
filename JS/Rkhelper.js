@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+//VERSION:6.0
+
 const xapi = require('xapi');
 
 const DEBUG = false;
@@ -157,6 +159,11 @@ const System = {
           }
           else {
             if (dndConfig.strict && showDndMessages) {
+              UI.prompt.display({
+                title: 'Ne pas déranger désactivé',
+                text: `Durant les ${dndConfig.offTime} prochaines minutes, vous pouvez recevoir un appel.<p>Ensuite, le mode sera automatiquement réactivé.`,
+                'Option.1': 'OK'
+              });
               System.DND.disable();
             }
           }
