@@ -1,6 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 const Rkhelper = require('./Rkhelper');
@@ -18,7 +16,7 @@ var controller;
 var tgl_autoDisplayMode, tgl_autoLightsMode;
 
 var autodisplaymode, autolightsmode;
-var showdisplaycontrols = false, showlightcontrols = false;
+var showdisplaycontrols = false;
 
 var currentactivity = 'normal';
 
@@ -28,6 +26,7 @@ var lastRemotePresentationValue = false;
 var ceilingMicsMode = 'on';
 var changePresenterLocationLocal;
 var changePresenterLocationRemote;
+var lastCommandResponse = '';
 
 function drawRoomConfigPanel() {
   xapi.Command.UserInterface.Extensions.Panel.Save({
@@ -35,7 +34,7 @@ function drawRoomConfigPanel() {
   },
     `
 <Extensions>
-  <Version>1.8</Version>
+  <Version>1.9</Version>
   <Panel>
     <Order>${RoomConfig.config.ui.iconOrder.settings}</Order>
     <PanelId>roomconfig</PanelId>
@@ -43,7 +42,7 @@ function drawRoomConfigPanel() {
     <Type>Statusbar</Type>
     <Icon>Sliders</Icon>
     <Color>#c22987</Color>
-    <Name>Accéder aux paramètres</Name>
+    <Name>Paramètres</Name>
     <ActivityType>Custom</ActivityType>
       <Page>
       <Name>Salle</Name>
@@ -67,27 +66,112 @@ function drawRoomConfigPanel() {
       </Row>
 
     ${getActivitiesControls()}
+      <Row>
+        <Name>Avertissements cadrage auto.</Name>
+        <Widget>
+          <WidgetId>tgl_prestrackwarn</WidgetId>
+          <Type>ToggleButton</Type>
+          <Options>size=1</Options>
+        </Widget>
+      </Row>
+    ${getManualScreenControls()}
     </Page>
     ${getAudioControls()}
+    ${getLightsPage()}
+    
+
+  </Panel>
+</Extensions>
+`);
+  if (RoomConfig.config.room.showLightsIcon) {
+    xapi.Command.UserInterface.Extensions.Panel.Save({
+      PanelId: 'lighting'
+    },
+      `
+  <Extensions>
+  <Version>1.9</Version>
+  <Panel>
+    <Order>2</Order>
+    <PanelId>lighting</PanelId>
+    <Origin>local</Origin>
+    <Location>HomeScreenAndCallControls</Location>
+    <Icon>Lightbulb</Icon>
+    <Color>#CF7900</Color>
+    <Name>Éclairage</Name>
+    <ActivityType>Custom</ActivityType>
+  </Panel>
+</Extensions>
+  `);
+  }
+
+  xapi.Command.UserInterface.Extensions.Panel.Save({
+    PanelId: 'disp'
+  },
+    `
+  <Extensions>
+  <Version>1.9</Version>
+  <Panel>
+    <Order>7</Order>
+    <PanelId>disp</PanelId>
+    <Location>Hidden</Location>
+    <Icon>Lightbulb</Icon>
+    <Name>Affichages</Name>
+    <ActivityType>Custom</ActivityType>
     <Page>
-      <Name>Avancé</Name>
+      <Name>Affichages</Name>
       <Row>
-        <Name>Affichages automatiques</Name>
+        <Name>Auto</Name>
         <Widget>
           <WidgetId>tgl_autodisplaymode</WidgetId>
           <Type>ToggleButton</Type>
           <Options>size=1</Options>
         </Widget>
       </Row>
-      ${getDisplayControls()}
-      ${getLightsControls()}
+      <Row>
+        <Name>Moniteur</Name>
+        <Widget>
+          <WidgetId>cmdmonitoroff</WidgetId>
+          <Name>OFF</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+        <Widget>
+          <WidgetId>cmdmonitoron</WidgetId>
+          <Name>ON</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+      </Row>
+      <Row>
+        <Name>Projecteur</Name>
+        <Widget>
+          <WidgetId>cmdprojectoroff</WidgetId>
+          <Name>OFF</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+        <Widget>
+          <WidgetId>cmdprojectoron</WidgetId>
+          <Name>ON</Name>
+          <Type>Button</Type>
+          <Options>size=2</Options>
+        </Widget>
+      </Row>
       <Options/>
     </Page>
-    
-
   </Panel>
 </Extensions>
-`);
+
+  `
+  );
+  xapi.Command.UserInterface.Extensions.Widget.SetValue({
+    WidgetId: 'tgl_autodisplaymode',
+    Value: 'On'
+  });
+  xapi.Command.UserInterface.Extensions.Widget.SetValue({
+    WidgetId:'tgl_prestrackwarn',
+    Value: RoomConfig.config.room.presenterTrackWarningDisplay ? 'On' : 'Off'
+  });
 }
 
 
@@ -122,18 +206,16 @@ function getActivitiesControls() {
 }
 function getAudioControls() {
   var xml = `<Page>
-      <Name>Microphones</Name>
+      <Name>Son</Name>
       <Row>
-        <Name>Microphones salle (étudiants)</Name>
+        <Name>Microphones auditoire</Name>
         <Widget>
           <WidgetId>tgl_ceilingmics</WidgetId>
           <Type>ToggleButton</Type>
           <Options>size=1</Options>
         </Widget>
       </Row>
-      <Row>
-        <Name>Niveau des microphones</Name>
-      </Row>
+
       
       
       `;
@@ -212,7 +294,6 @@ function getDisplayControls() {
           </ValueSpace>
         </Widget>
       </Row>
-      ${getManualScreenControls()}
       `;
   }
   return xml;
@@ -237,10 +318,24 @@ function getManualScreenControls() {
     return controls;
   }
 }
+function getLightsPage() {
+  if (RoomConfig.config.room.lightsControl) {
+    var xml = `
+    <Page>
+      <PageId>lights</PageId>
+      <Name>Éclairage</Name>
+
+      ${getLightsControls()}
+      <Options/>
+    </Page>
+    `;
+    return xml;
+  }
+}
 function getLightsControls() {
   var xml = '';
-  if (RoomConfig.config.room.lightsControl) {
-    xml += `<Row>
+
+  xml += `<Row>
         <Name>Éclairage automatique</Name>
         <Widget>
           <WidgetId>tgl_autolightsmode</WidgetId>
@@ -249,13 +344,13 @@ function getLightsControls() {
         </Widget>
       </Row>
     `;
-  }
-  if (showlightcontrols) {
-    xml += getLightsScenes();
-    xml += getZonesControls();
-  }
+  xml += getZonesControls();
+  xml += getLightsScenes();
+
+
   return xml;
 }
+
 
 function getLightsScenes() {
   var xml = `<Row>
@@ -306,6 +401,24 @@ function getZonesControls() {
   return xml;
 }
 
+async function displayStatus() {
+  let webexStatus = await xapi.Status.Webex.Status.get();
+  let temperature = await xapi.Status.SystemUnit.Hardware.Monitoring.Temperature.Status.get();
+  let macrosdiag = await xapi.Status.Diagnostics.Message[1].References.get();
+  macrosdiag = macrosdiag.split('&')[1];
+  macrosdiag = macrosdiag.split('=')[1];
+  let uptime = await xapi.Status.SystemUnit.Uptime.get();
+  let upgradeStatus = await xapi.Status.Provisioning.Software.UpgradeStatus.Status.get();
+  setTimeout(() => {
+    xapi.Command.UserInterface.Message.Prompt.Display({
+      duration: 0,
+      title: `${RoomConfig.config.room.name} ${RoomConfig.config.version}`,
+      text: `Webex: ${webexStatus}, Temp: ${temperature}, Crash: ${macrosdiag},<br> Upttime: ${uptime}, Upgrade: ${upgradeStatus}`
+    });
+  }, 1000);
+
+}
+
 function setDefaultValues() {
 
   currentactivity = RoomConfig.config.room.defaultActivity;
@@ -321,11 +434,14 @@ function setDefaultValues() {
 
   }
 
-
+  /*
   tgl_autoDisplayMode = new Rkhelper.UI.Toggle(TGL_AUTODISPLAYMODE, 'on');
+  */
+
   if (RoomConfig.config.room.lightsControl) {
     tgl_autoLightsMode = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE, 'on');
   }
+
 
 
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
@@ -350,10 +466,11 @@ function setDefaultValues() {
   setCeilingMicsMode('on');
 
   showdisplaycontrols = false;
-  showlightcontrols = false;
   updateUiElements();
 
 }
+
+
 
 function getActivity(id) {
   var act;
@@ -368,16 +485,12 @@ function getActivity(id) {
 }
 
 function updateUiElements() {
+  /*
   xapi.Command.UserInterface.Extensions.Widget.SetValue({
     WidgetId: TGL_AUTODISPLAYMODE,
     Value: boolToOnOff(!showdisplaycontrols)
   }).catch();
-  if (RoomConfig.config.room.lightsControl) {
-    xapi.Command.UserInterface.Extensions.Widget.SetValue({
-      WidgetId: TGL_AUTOLIGHTSMODE,
-      Value: boolToOnOff(!showlightcontrols)
-    }).catch();
-  }
+  */
   for (const input of RoomConfig.config.audio.inputs) {
     xapi.Command.UserInterface.Extensions.Widget.SetValue({
       WidgetId: `audioinput_${input.connector}`,
@@ -419,16 +532,14 @@ function updateUiElements() {
 
 
 xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
+  /*
   if (action.WidgetId == TGL_AUTODISPLAYMODE) {
     showdisplaycontrols = !onOffToBool(action.Value);
     drawRoomConfigPanel();
     updateUiElements();
-
-
-
   }
-  else if (action.WidgetId == TGL_AUTOLIGHTSMODE) {
-    showlightcontrols = !onOffToBool(action.Value);
+  */
+  if (action.WidgetId == TGL_AUTOLIGHTSMODE) {
     drawRoomConfigPanel();
     updateUiElements();
   }
@@ -440,6 +551,7 @@ xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
       if ('audioinput_' + element.connector == action.WidgetId) {
         RoomConfig.config.audio.inputs[index].mode = action.Value;
         if (action.Value == 'mute') {
+
           muteAudioInput(element.connector);
         }
         else {
@@ -475,7 +587,15 @@ xapi.Event.UserInterface.Extensions.Panel.Clicked.on(panel => {
   if (panel.PanelId == 'roomconfig') {
     updateUiElements();
   }
+  if (panel.PanelId == 'lighting') {
+    xapi.Command.UserInterface.Extensions.Panel.Open({
+      PageId: 'lights',
+      PanelId: 'roomconfig'
+    });
+  }
 });
+
+
 
 function getAudioLevelFor(input, action) {
   input = RoomConfig.config.audio.inputs[input];
@@ -527,19 +647,15 @@ function boolToOnOff(value) {
 function setCeilingMicsMode(mode) {
   if (mode == 'on') {
     ceilingMicsMode = 'on';
-    unmuteAudioInput(1);
-    unmuteAudioInput(2);
-    unmuteAudioInput(3);
-    unmuteAudioInput(4);
-    unmuteAudioInput(5);
+    for (const mic of RoomConfig.config.audio.roomMics) {
+      unmuteAudioInput(mic);
+    }
   }
   else {
     ceilingMicsMode = 'off';
-    muteAudioInput(1);
-    muteAudioInput(2);
-    muteAudioInput(3);
-    muteAudioInput(4);
-    muteAudioInput(5);
+    for (const mic of RoomConfig.config.audio.roomMics) {
+      muteAudioInput(mic);
+    }
   }
 }
 
@@ -605,40 +721,72 @@ function init(c) {
     }
   });
 
+
+
   xapi.Status.Call.on(e => {
     switch (e.RemoteNumber) {
-      case '.help':
-        msgbox('help', '.help .unlock .lock .restart .info');
-        clearCallHistory();
+      case '.':
+        displayAdvCmdPrompt();
         break;
-
-      case '.unlock':
-        xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
-        clearCallHistory();
-        msgbox('Configuration', 'UNLOCKED');
-        break;
-
-      case '.lock':
-        xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
-        clearCallHistory();
-        msgbox('Configuration', 'LOCKED');
-        break;
-
-      case '.restart':
-        clearCallHistory();
-        msgbox('restart', 'Macro runtime restarting...');
-        xapi.Command.Macros.Runtime.Restart();
-        break;
-
-      case '.info':
-        msgbox('info', `System Name: ${RoomConfig.config.room.name}<br>Version ${RoomConfig.config.version}`);
-        clearCallHistory();
-        break;
-
     }
+  });
+  xapi.Event.UserInterface.Message.TextInput.Response.on(value => {
+    if (value.FeedbackId == 'advcmd') {
+      switch (value.Text.toLowerCase()) {
+        case 'unlock':
+          xapi.Config.UserInterface.SettingsMenu.Mode.set('Unlocked');
+          lastCommandResponse = 'Configuration unlocked';
+          break;
+        case 'lock':
+          xapi.Config.UserInterface.SettingsMenu.Mode.set('Locked');
+          lastCommandResponse = 'Configuration locked';
+          break;
+        case 'restart macros':
+          lastCommandResponse = 'Macros restarting';
+          xapi.Command.Macros.Runtime.Restart();
+          break;
+        case 'displays':
+          xapi.Command.UserInterface.Extensions.Panel.Open({
+            PanelId: 'disp'
+          });
+          break;
+
+        case 'restart control':
+          xapi.Command.Message.Send({
+            text: 'SYSTEM_CRESTRON_REBOOT'
+          });
+          xapi.Command.Message.Send({
+            text: 'HW_RESTART'
+          });
+          lastCommandResponse = 'Restarting control system';
+          break;
+
+        case 'status':
+          displayStatus();
+          break;
+      }
+    }
+    displayAdvCmdPrompt();
+  });
+  xapi.Event.UserInterface.Message.TextInput.Clear.on(value => {
+    lastCommandResponse = '';
+    clearCallHistory();
   });
 
 
+}
+function displayAdvCmdPrompt() {
+  xapi.Command.UserInterface.Message.TextInput.Display({
+    Duration: 0,
+    FeedbackId: 'advcmd',
+    InputText: '',
+    InputType: 'SingleLine',
+    KeyboardState: 'Open',
+    Placeholder: '',
+    SubmitText: 'Exécuter',
+    Text: `Dernière réponse:<br>${lastCommandResponse}`,
+    Title: 'Commandes avancées'
+  });
 }
 function clearCallHistory() {
   setTimeout(() => {

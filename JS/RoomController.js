@@ -1,6 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
@@ -12,8 +10,13 @@ const Scenarios = require('./Scenarios');
 
 const DEBUG = false;
 
-const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
 const TGL_AUTOLIGHTSMODE = 'tgl_autolightsmode';
+const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
+const TGL_PRESTRACKWARN = 'tgl_prestrackwarn';
+const CMD_MONITOR_ON = 'cmdmonitoron';
+const CMD_MONITOR_OFF = 'cmdmonitoroff';
+const CMD_PROJECTOR_ON = 'cmdprojectoron';
+const CMD_PROJECTOR_OFF = 'cmdprojectoroff';
 const STATUS_AWAKE = 'Off';
 const TVPOWER = 'tvpower';
 const PROJPOWER = 'projpower';
@@ -36,6 +39,12 @@ var enablePrivateMode;
 var disablePrivateMode;
 var enableUsbMode;
 var disableUsbMode;
+var UsbModeEnabled;
+var UsbModeDisabled;
+
+var usbModeActive = false;
+var inCall = false;
+var presTrackWarn = RoomConfig.config.room.presenterTrackWarningDisplay;
 
 var csConnected = false;
 
@@ -66,34 +75,25 @@ class Controller {
     this.lights = new Lights.Lights(this);
 
 
-    //nouvelle méthode
-    var autodisplaymodetoggle = new Rkhelper.UI.Toggle(TGL_AUTODISPLAYMODE);
-    autodisplaymodetoggle.onChange(value => {
-      let loadingPrompt;
-      loadingPrompt = Rkhelper.UI.perminfo.display(`Un instant s.v.p.`, `Changement de mode`);
-      if (value == 'off') {
-        this.autoDisplay = false;
-      }
-      else {
-        this.autoDisplay = true;
-      }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
-    });
-
     var autolightsmodetoggle = new Rkhelper.UI.Toggle(TGL_AUTOLIGHTSMODE);
     autolightsmodetoggle.onChange(value => {
-      let loadingPrompt;
-      loadingPrompt = Rkhelper.UI.perminfo.display(`Un instant s.v.p.`, `Changement de mode`);
       if (value == 'off') {
         this.autoLights = false;
       }
       else {
         this.autoLights = true;
+        Rkhelper.Status.notifyChange();
       }
-      setTimeout(function () { Rkhelper.UI.clearPrompt(loadingPrompt); }, 3000);
     });
 
     xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
+      if (action.Type == 'changed') {
+        switch (action.WidgetId) {
+          case TGL_PRESTRACKWARN:
+            presTrackWarn = action.Value == 'on' ? true : false;
+            break;
+        }
+      }
       if (action.Type == 'pressed') {
         switch (action.WidgetId) {
           case TVPOWER:
@@ -125,20 +125,69 @@ class Controller {
           case SCREENDOWN:
             this.disp_screen.down();
             break;
+
+          case TGL_AUTODISPLAYMODE:
+            if (action.Value == 'on') {
+              this.autoDisplay = true;
+            }
+            else {
+              this.autoDisplay = false;
+            }
+            break;
+
+          case CMD_MONITOR_ON:
+            this.tvOn(true);
+            break;
+          case CMD_MONITOR_OFF:
+            this.tvOff(true);
+            break;
+          case CMD_PROJECTOR_ON:
+            this.projOn(true);
+            break;
+          case CMD_PROJECTOR_OFF:
+            this.projOff(true);
+            break;
         }
       }
     });
 
-    xapi.Status.Standby.State.on(value => {
-      if (value == 'Standby') {
-        this.autoDisplay = RoomConfig.config.room.displayControl;
-        this.autoLights = RoomConfig.config.room.lightsControl;
-        this.tvOff();
-        this.projOff();
-        this.screenUp();
-      }
-    });
+    xapi.Command.UserInterface.Message.TextLine.Clear();
 
+    if (RoomConfig.config.room.presenterTrackWarningDisplay) {
+      xapi.Status.Cameras.PresenterTrack.PresenterDetected.on(pd => {
+        if ((inCall || usbModeActive) && presTrackWarn) {
+          xapi.Status.Cameras.PresenterTrack.Status.get().then(status => {
+            if ((pd == 'False' && status == 'Follow')) {
+              xapi.Command.UserInterface.Message.TextLine.Display({
+                Text: '🔴 Cadrage automatique DÉSACTIVÉ 🔴.<br>Revenez dans la zone de présentation pour le réactiver.',
+                Duration: 0
+              });
+            }
+            else if (pd == 'True' && status == 'Follow') {
+              xapi.Command.UserInterface.Message.TextLine.Display({
+                Text: '🟢 Cadrage automatique ACTIVÉ 🟢',
+                Duration: 3
+              });
+            }
+          });
+        }
+        else {
+          xapi.Command.UserInterface.Message.TextLine.Clear();
+        }
+      });
+    }
+
+    /*
+        xapi.Status.Standby.State.on(value => {
+          if (value == 'Standby') {
+            this.autoDisplay = RoomConfig.config.room.displayControl;
+            this.autoLights = RoomConfig.config.room.lightsControl;
+            this.tvOff();
+            this.projOff();
+            this.screenUp();
+          }
+        });
+    */
 
     xapi.Event.Message.Send.on(message => {
       message = message.Text;
@@ -202,10 +251,8 @@ class Controller {
   }
 
   activateLightScene(scene) {
-    {
-      if (this.autoLights && RoomConfig.config.room.lightsControl) {
-        this.lights.activateLightScene(scene);
-      }
+    if (this.autoLights && RoomConfig.config.room.lightsControl) {
+      this.lights.activateLightScene(scene);
     }
   }
   setCurrentScenario(name) {
@@ -250,7 +297,7 @@ function createUi() {
 
   }, `
   <Extensions>
-  <Version>1.8</Version>
+  <Version>1.9</Version>
   <Panel>
     <Order>${RoomConfig.config.ui.iconOrder.shutdown}</Order>
     <PanelId>endSession</PanelId>
@@ -295,11 +342,12 @@ function controllerStandbyRequest() {
         callback: function () {
           xapi.Command.Presentation.Stop();
           xapi.Command.Call.Disconnect();
+          controller.lights.activateLightScene('scene_normal', true);
           xapi.Command.UserInterface.Message.Prompt.Display(
             {
               Duration: 6,
               FeedbackId: 'standbymessage',
-              Text: 'Aurevoir, à la prochaine!',
+              Text: 'Aurevoir, à la prochaine!<br>',
               Title: `Fermeture de la session...`
             });
           setTimeout(function () {
@@ -323,7 +371,7 @@ async function loadingStart() {
   xapi.Command.UserInterface.Message.Prompt.Display({
     Duration: 10,
     FeedbackId: 'loadingstart',
-    Text: `Démarrage de l'application en cours...`,
+    Text: `Démarrage de l'application en cours...<br>`,
     Title: `Un instant s.v.p.`
   });
   setTimeout(loadingEnd, RoomConfig.config.room.loadingDelay);
@@ -339,6 +387,8 @@ function loadingEnd() {
   disablePrivateMode = Rkhelper.IMC.getFunctionCall('privatemode_disable');
   enableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_enable');
   disableUsbMode = Rkhelper.IMC.getFunctionCall('usbmode_disable');
+  UsbModeEnabled = Rkhelper.IMC.getFunctionCall('usbmode_enabled');
+  UsbModeDisabled = Rkhelper.IMC.getFunctionCall('usbmode_disabled');
   disableCustomScenario = Rkhelper.IMC.getFunctionCall('disableCustomScenario');
 
   //Register callbacks 
@@ -351,6 +401,7 @@ function loadingEnd() {
   Rkhelper.IMC.registerFunction(projOff);
   Rkhelper.IMC.registerFunction(screenUp);
   Rkhelper.IMC.registerFunction(screenDown);
+
 
 
   createUi();
@@ -410,6 +461,13 @@ function ui_InitDone() {
 
 
 async function init() {
+  if (RoomConfig.config.room.controlSystemSyncReboot) {
+    xapi.Event.BootEvent.Action.on(action => {
+      if (action == 'Restart') {
+        xapi.Command.Message.Send({ text: RoomConfig.config.room.controlSystemRebootCommand });
+      }
+    });
+  }
   var bootTime = await getBootTime();
   if (bootTime > 100) {
 
@@ -430,30 +488,67 @@ async function getBootTime() {
 }
 
 
+xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
+  if (status == 'Inactive') {
+    usbModeActive = false;
+    UsbModeDisabled();
+     xapi.Command.UserInterface.Message.TextLine.Clear();
+    setTimeout(() => {
+      Rkhelper.System.DND.enable();
+    }, 2000);
+  }
+  else if (status == 'Active') {
+    usbModeActive = true;
+    UsbModeEnabled();
+    if (RoomConfig.config.room.autoEnablePresenterTrack) {
+      setTimeout(() => {
+        xapi.Command.Cameras.PresenterTrack.Set({
+          Mode: 'Follow'
+        });
+      }, 2000);
+    }
+  }
+});
+
 //Stop sharing on disconnect
 xapi.Event.CallDisconnect.on(value => {
+  inCall = false;
+   xapi.Command.UserInterface.Message.TextLine.Clear();
   setTimeout(function () {
     xapi.Command.Presentation.Stop();
   }, 6000);
 });
+xapi.Event.CallSuccessful.on(() => inCall = true);
 
 
 xapi.Status.Standby.State.on(async value => {
   var bootTime = await getBootTime();
   if (bootTime > 100) {
     if (value == 'Off') {
-
+      presTrackWarn = RoomConfig.config.room.presenterTrackWarningDisplay;
+      xapi.Command.UserInterface.Extensions.Widget.SetValue({
+        WidgetId: 'tgl_prestrackwarn',
+        Value: RoomConfig.config.room.presenterTrackWarningDisplay ? 'On' : 'Off'
+      });
+      controller.lights.activateLightScene('scene_normal', true);
       setTimeout(() => {
         xapi.Command.UserInterface.Message.Prompt.Display(
           {
-            Duration: 5,
+            Duration: 7,
             FeedbackId: 'wakemessage',
-            Text: 'Préparation du système, un instant s.v.p!',
+            Text: 'Préparation du système, un instant s.v.p!<br>',
             Title: `Nouvelle session`
           });
-
         createUi();
-      }, 2000);
+      }, 100);
+    }
+    else if (value == 'Standby') {
+      controller.autoDisplay = RoomConfig.config.room.displayControl;
+      controller.autoLights = RoomConfig.config.room.lightsControl;
+      controller.tvOff();
+      controller.projOff();
+      controller.screenUp();
+      controller.lights.activateLightScene('scene_normal', true);
     }
   }
   else {
@@ -475,10 +570,10 @@ function displayFreshBootWarning() {
   var msg;
   alternateUpdateMessage = !alternateUpdateMessage;
   if (alternateUpdateMessage) {
-    msg = `Le système démarre. Ceci ne prendra que deux minutes...`
+    msg = `Le système démarre. Ceci ne prendra que deux minutes..<br>`;
   }
   else {
-    msg = `Le système sera prêt dans quelques instants...`
+    msg = `Le système sera prêt dans quelques instants...<br>`;
   }
   xapi.Command.UserInterface.Message.Prompt.Display(
     {

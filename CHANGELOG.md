@@ -1,3 +1,30 @@
+# [v7.0.0]
+- Support for RoomOS11 only
+- All new scenarios logic #26
+- Updated USBMode code #27
+- Updated USBModeDual code #28
+- Removed EMQX and Telemetry tests #39 #40
+- New settings panel #32 #33 #34 #38
+- New lights controls #36
+- Lights scene "scene_normal" is now recalled when system wakes up, goes to standby or shutdown
+- Lights scene "scene_normal" is now recalled when system goes to standby or shutdown
+- Welcome message is now faster (less delay) #29
+- Prompts are now displayed correctly wihout weird negative bottom-padding #35
+- Room microphones are now defined in RoomConfig #31
+- The codec can now command the control system to reboot #46
+- New optional "Éclairage" icon
+- DND mode now works with the built-in USB mode
+- Presenter Tracking is now automatically enabled when using the built-in USB mode
+- Warning messages (optional) when presenter exits and enters the Presenter Tracking zone
+- The built-in USB mode now triggers signals "UsbModeEnabled" and "UsbModeDisabled"
+- The "Joindre Zoom" button has been renamed to "Zoom"
+- Added advanced menu for displays control
+- Added advanced command for endpoint status report
+- Added advanced command to restart macros
+- Added advanced command to restart room controller
+- Added advanced commands to lock and unlock settings menu
+- Many under-the-hood enhancements
+
 # [v5.0-pre]
 ## Fixed
 - Screen is now coming down as soon as USBModeDual is enabled

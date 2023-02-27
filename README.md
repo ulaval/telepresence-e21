@@ -1,41 +1,96 @@
-# telepresence-e21
-Projet servant a partager les scripts d'automatisation des appareils de Cisco Webex Room Kit
+# VERSION 7.0.0 - Guide d'installation
 
-# Installation
-* AVANT TOUTE CHOSE: FAIRE UN BACKUP DE ce-audio-config.js ET DE RoomConfig.js!!!
-* Mettre à OFF toute les macros SAUF ce-audio-config.js
-* Importer toute les macros
-* Sauvegarder chaque script (ignorer les erreurs)
-* Ajouter les configurations pour la télémétrie dans RoomConfig.js (Nouvelle section 'telemetry'):
-```JS
-  telemetry:{
-    url:'http://telemetrie.mavc.ulaval.ca:8081',
-    basepath:'systems/<nom du système ici>',
-    username:'app id ici',
-    password:'app secret ici'
-  },
-```
-* Activer seulement les scripts suivants:
-  * ce-audio-config
-  * JoindreZoom
+# Backup de sécurité (macros et configs)
+* Se connecter à l'interface web du codec à travers Control Hub
+* Aller dans la section "Macro Editor"
+* Télécharger toute les macros sur votre ordinateur
+* Aller dans la section "Backup and Recovery"
+* Dans l'onglet "Backup", décocher tout sauf "Configuration" et cliquer sur "Download"
+
+# Supression de la version actuelle
+* Aller dans la section "Macro Editor"
+* Mettre toute les macros à OFF sauf "ce-audio-config"
+* Supprimer toute les macros sauf "ce-audio-config" et "RoomConfig"
+* Aller dans la section "UI Extensions Editor"
+* Supprimer tout les panels
+
+# Préparation pour la nouvelle version
+## Configurations
+* Aller dans la section "Personalization"
+* Ajouter le fond d'écran noir comme "Wallpaper"
+* Aller dans la section "Settings"
+* Dans la sous-section "Video"
+  * Mettre "Monitors" à "DualPresentationOnly"
+  * Mettre "Output/Connector 1/MonitorRole" à "Second"
+  * Mettre "Output/Connector 2/MonitorRole" à "Auto"
+  * Mettre "Output/Connector 3"MonitorRole" à "First"
+  * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Allowed" à "True"
+  * (pas au comtois) Mettre "Video/Output HDMI Passthrough/OutputCOnnector" à "2"
+  * (pas au comtois) Mettre "Video/Output HDMI Passthrough/AutoDisconnect/Delay" à "480"
+  * (pas au comtois) Mettre "Video/Output HDMI Passthrough/Enabled" à "True"
+  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Mode à "Custom"
+  * (Pas au comtois) Mettre "Video/Output/HDMI Passthrough/Name à "Cisco USB"
+* Dans la sous-section "UserInterace"
+  * Mettre "Help Tips" à "Hidden"
+  * (pas au comtois) Mettre "HdmiPassthrough" à "Auto"
+  * Mettre "JoinGoogleMeet" à "Hidden"
+  * Mettre "JoinZoom" à "Auto"
+
+
+## RoomConfig
+* Aller dans la section "Macro Editor"
+* Ouvrir le fichier "RoomConfig"
+* Supprimer ```module.exports.config.usbmode.showRecordingOption```
+* Supprimer ```module.exports.config.audio.useCombinedAecReference```
+* Supprimer ```module.exports.config.telemetry```
+* Supprimer ```module.exports.config.room.supportContact```
+* Ajouter ```module.exports.config.audio.roomMics``` et y ajouter un array d'input comme valeur (selon les micros dans la salle)
+  * Exemple: ```roomMics:[1,2,3]```
+* Si la salle est équipée d'éclairage controlable, ajouter ```module.exports.config.room.showLightsIcon```
+  * Exemple: ```showLightsIcon:true```
+* Ajouter ```module.exports.config.room.controlSystemSyncReboot```
+  * Exemple: ```controlSystemSyncReboot:true```
+* Ajouter ```module.exports.config.room.controlSystemRebootCommand```
+  * Exemple (pour Crestron): ```controlSystemRebootCommand:'SYSTEM_CRESTRON_REBOOT'```
+  * Exemple (pour RaspberryPi): ```controlSystemRebootCommand:'HW_RESET'```
+* Ajouter ```module.exports.config.room.presenterTrackWarningDisplay```
+  * Exemple: ```presenterTrackWarningDisplay:true```
+* Ajouter "Micro" ou "Entrée" devant les noms des entrées audio dans ```module.exports.config.audio.inputs```
+* Modifier la valeur de ```module.exports.config.version``` à ```7.0.0```
+* Vérifier que le nom du système concorde dans ```module.exports.config.room.name``` exemple: ```CSL1640```
+
+
+# Installation de la nouvelle version
+* Dans Webex Control Hub, changer le système au canal de mise à jour "Vérification"
+* Si la mise à jour ne démarre pas en 1 minute, aller sur la page du codec, dans "Developer API", et Exécuter la commande: xcommand provisioning completeupgrade
+* Attendre que la mise à jour soit complètement terminée, ce qui inclus une mise à jour de la caméra
+* Dans les settings, dans "zoom", dans "DefaultDomain", mettre "zmca.us"
+* Dans les settings, dans "zoom", dans "DialStringOptions", mettre "200006"
+* Dans AudioConsole, créer un lien entre le groupe "Microphone" et "USB"
+* Dans AudioConsole, créer un groupe d'output "RECORDING", y placer le connecteur "LINE 3" et changer le mode à "Mono". Y connecter le groupe "Microphone" et "PC"
+* Aller dans la section "Macro Editor"
+* Importer toute les macros de la nouvelle version sauf "ce-audio-config" et "RoomConfig"
+* Sauvegarder toute les macros et ignorer les erreurs si il y en a
+* Activer les macros
+  * ExtraSauce
   * RoomController
-  * Telemetry
-  * USBMode **OU** USBModeDual
-  * AutoReboot (AU BESOIN)
-  * ExtraSauce (AU BESOIN). Si ExtraSauce est utilisé, une nouvelle section doit être ajoutée à RoomConfig.js. Un modèle de cette section se trouve dans le fichier ExtraSauce.js
-```JS
-extrasauce:{}
-```
-* Sauvegarder n'importe quel script (ctrl+s) une dernière fois
-* Rebooter le système quand tout est OK
+  * USBModeDual pour le comtois
+  * AutoReboot pour le comtois
+* Sur l'écran tactile, appuyer sur "Appel", et composer le numéro "." (point)
+  * Écrire la commande: restart macros
+  * Appuyer sur "Executer"
+  * Le système se met en veille. Attendre environ 10 secondes
+* Tester en vérifiant si des erreurs surviennent dans le "Macro Editor"
+* Vérifier si les 3 presets de caméra sont présent:
+  * Console -> Zone de présentation
+  * Tableau -> Tableau en entier
+  * Salle -> Le plus de places dans la salle
 
-# Erreurs ce-audio-config
-Si des erreurs d'execution du script ce-audio-config surviennent
-* Essayer de remplacer le CONTENU du script par celui que vous avez pris en backup, sinon
-* Supprimer toute la configuration de audio-console et réapliquer le script que vous avez pris en backup
+# Dépannage, erreurs, bugs, etc...
+**ARRÊTER IMMÉDIATEMENT. NE TOUCHEZ PLUS À RIEN.**
 
-# Ménage
-Dans RoomConfig.js, enlever:
-```JS
-module.exports.config.scenarios
-```
+N'essayez pas de régler le problème si vous ne savez pas c'est quoi. 
+
+Prendre un screenshot, une photo de l'écran tactile, etc...
+
+Contactez-moi.
