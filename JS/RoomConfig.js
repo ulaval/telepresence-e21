@@ -1,94 +1,39 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
+//VERSION:5.0
+import xapi from 'xapi';
 
-module.exports.config = {
-  telemetry:{
-    url:'http://10.1.48.100:8081',
-    basepath:'systems/testvisio1',
-    username:'1f87d7a681bd2',
-    password:'MzA1MDkzMzg1MTAxNzA4Mzc4MTU5ODg3ODMxNjA1NTc1NjI'
-  },
-  extrasauce:{
-    presenterMics: [
-      {
-        connector: 6,
-        gains: [
-          {
-            gain: 64,
-            silence: 20
-          },
-          {
-            gain: 70,
-            silence: 25
-          },
-          {
-            gain: 'default',
-            silence: 20
-          }
-        ]
-      },
-      {
-        connector: 8,
-        gains: [
-          {
-            gain: 56,
-            silence: 15
-          },
-          {
-            gain: 70,
-            silence: 25
-          },
-          {
-            gain: 'default',
-            silence: 15
-          }
-        ]
-      }
-    ],
-    roomMics: [
-      {
-        connector: 1,
-        gain: 51
-      },
-      {
-        connector: 2,
-        gain: 51
-      },
-      {
-        connector: 3,
-        gain: 51
-      }
-    ],
-    roomMicsBoost: 10
-  },
-  ui:{
-    iconOrder:{ //Détermine l'ordre des icônes
-      zoom:1,
-      usbmode:2,
-      settings:3,
-      shutdown:4
+export var config = {
+  version: '7.0.0',
+  ui: {
+    iconOrder: {
+      zoom: 1,
+      usbmode: 2,
+      settings: 3,
+      shutdown: 4
     }
   },
   room: {
-    name: 'PVE1115',                        //Nom du système, doit être unique
-    supportContact: 'Courriel: zacharie.gignac.1@ulaval.ca',     //Email du soutien technique, '' si aucun
+    name: 'CSL1640',                        //Nom du système, doit être unique
     displayControl: true,                   //Active le contrôle des affichages
-    lightsControl: true,                    //Mode automatique de gestion de la salle <true, false>
-    motorizedScreen: true,                  //Active le contrôle de la toile motorisée
-    boardBehindScreen: true,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
+    lightsControl: false,                    //Mode automatique de gestion de la salle <true, false>
+    motorizedScreen: false,                  //Active le contrôle de la toile motorisée
+    boardBehindScreen: false,                //Est-ce que le tableau est caché par l'écran motorise ? <true, false>
     tvOffDelay: 5000,                       //Temps avant la fermeture de la TV (MS)
-    projOffDelay: 20000,                  //Temps avant la fermeture du projecteur (MS)
+    projOffDelay: 200000,                  //Temps avant la fermeture du projecteur (MS)
     loadingDelay: 5000,                     //Délais avant l'initialisation des scripts en ms. Défaut: 200000 (MS) (3 minutes 20 secondes)
     controlSystemPollingInterval: 5000,     //Temps entre chaque vérification du système de contrôle (Crestron)
-    fakeControlSystem: true,                //false = normal, true = developement
-    controlSystemSerial: '1234567890',     //numéro de série du processeur crestron
+    controlSystemSyncReboot:true,
+    controlSystemRebootCommand:'SYSTEM_CRESTRON_REBOOT',
+    fakeControlSystem: false,                //false = normal, true = developement
+    controlSystemSerial: '2123JBH00044',     //numéro de série du processeur crestron
     showActivities: true,                    //Affiche la liste des activités
     defaultActivity: 'normal',               //Activité par défaut (normal par défaut)
     defaultPresenterLocation: 'local',       //Emplacement par défaut du présentateur (local, remote, none)
     autoEnablePresenterTrack: true,          //Active automatiquement le PresenterTrack lorsque possible et utile
-    remotePresenterPIPPosition: 'UpperRight',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
+    presenterTrackWarningDisplay:true,
+    remotePresenterPIPPosition: 'LowerLeft',//Emplacement du PIP quand présentateur distant <CenterLeft, CenterRight, LowerLeft, LowerRight, UpperCenter, UpperLeft, UpperRight>
     callFeatures: 'Auto',
-    useRoomPreset:true,
+    useRoomPreset: true,                      //Utilise le preset "Salle" lorsque le présentateur est "Distant"
     activities: [                            //Activités. L'activité "normal" DOIT être présente même si elle n'est pas affichée
       {
         id: 'normal',                        //id de l'activité
@@ -102,9 +47,9 @@ module.exports.config = {
   },
   usbmode: {
     showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
-    localPcInput1:4,                          //Entrée 1 pc local
-    localPcInput2:3,                          //Entrée 2 pc local
-    autoStartPresentationConnector:2          //Démarre la présentation automatiquement en utilisant ce connecteur
+    autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
+    localPcInput1: 4,                          //Entrée 1 pc local
+    localPcInput2: 3                           //Entrée 2 pc local
   },
   zoom: {
     callHistoryAutoDelete: true,              //Effacement automatique du call history
@@ -112,7 +57,7 @@ module.exports.config = {
     callHistoryAutoDeleteTimeout: 30000       //Délais avant l'effacement du call history
   },
   camera: {
-    connector: 1,
+    connector: 6,
     defaultBrightness: 20                    //Brightness par défaut de la caméra
   },
   dnd: {
@@ -123,23 +68,95 @@ module.exports.config = {
     remoteMonitorOutputId: 3,                 //Connecteur HDMI du moniteur des sites distants
     projectorOutputId: 1,                     //Connecteur HDMI du projecteur
     usbOutputId: 2,                           //Connecteur HDMI du convertisseur HDMI->USB
-    autoShareInputs:[2]                       //Inputs qui sont en autoshare
+    autoShareInputs: [2]                       //Inputs qui sont en autoshare
   },
   audio: {
+    roomMics:[1,2,3],
     loud: 6,                                  //Nombre de DB à additionner pour le mode "Fort"
     louder: 12,                                //Nombre de DB à additionner pour le mode "Très fort"
     inputs: [
       {
-        name: 'Sans-fil (casque)',        //Nom de l'entrée audio
+        name: 'Micro sans-fil (casque)',        //Nom de l'entrée audio
         connector: 6,                         //Numéro de connecteur
-        normal: 54,                           //Volume normal en DB
+        normal: 55,                           //Volume normal en DB
+        defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
+      },
+      {
+        name: 'Micro bâton',        //Nom de l'entrée audio
+        connector: 8,                         //Numéro de connecteur
+        normal: 60,                           //Volume normal en DB
         defaultMode: 'normal'                 //Mode par défaut (mute, normal, loud, louder)
       }
     ],
     maxVolume: 100,                            //Volume maximal du système <0 - 100>
     defaultVolume: 60                          //Volume par défaut <0 - 100>
   },
+  extrasauce: {
+    presenterMics: [
+      {
+        connector: 6,
+        gains: [
+          {
+            gain: 55,
+            silence: 10
+          },
+          {
+            gain: 61,
+            silence: 15
+          },
+          {
+            gain: 65,
+            silence: 25
+          },
+          {
+            gain: 'default',
+            silence: 25
+          }
+        ]
+      },
+      {
+        connector: 8,
+        gains: [
+          {
+            gain: 60,
+            silence: 20
+          },
+          {
+            gain: 66,
+            silence: 22
+          },
+          {
+            gain: 70,
+            silence: 25
+          },
+          {
+            gain: 'default',
+            silence: 15
+          }
+        ]
+      }
+    ],
 
+    roomMics: [
+      {
+        connector: 1,
+        gain: 38
+      },
+      {
+        connector: 2,
+        gain: 51
+      },
+      {
+        connector: 3,
+        gain: 51
+      }
+    ],
+    roomMicsBoost: 12
+  },
+  scenarios: {
+    autoScenarioChange: true,                  //TODO: ENLEVER
+    displayPanel: false,                       //TODO: Affiche un panel de sélection de scénario. <true, false>. Défaut: false
+  },
   lights: {                                    //Configuration de l'éclairage
     zones: [
       {
@@ -262,4 +279,4 @@ module.exports.config = {
       }
     ]
   }
-};
+}

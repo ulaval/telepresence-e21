@@ -1,6 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
 const xapi = require('xapi');
 const RoomConfig = require('./RoomConfig');
 
@@ -52,7 +50,7 @@ module.exports.TV = class TV {
   getStatus() {
     return this.status;
   }
-}
+};
 module.exports.Projector = class Projector {
   constructor(controller) {
     this.controller = controller;
@@ -99,7 +97,7 @@ module.exports.Projector = class Projector {
   getStatus() {
     return this.status;
   }
-}
+};
 module.exports.Screen = class Screen {
   constructor(controller) {
     this.controller = controller;
@@ -132,4 +130,4 @@ module.exports.Screen = class Screen {
   getStatus() {
     return this.position;
   }
-}
+};

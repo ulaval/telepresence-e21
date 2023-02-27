@@ -1,6 +1,4 @@
 /*jshint esversion: 6 */
-//VERSION:6.0
-
 const xapi = require('xapi');
 const Rkhelper = require('./Rkhelper');
 const RoomConfig = require('./RoomConfig');
@@ -22,6 +20,7 @@ module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
 
 const OUT_MON = RoomConfig.config.video.remoteMonitorOutputId;
 const OUT_PROJ = RoomConfig.config.video.projectorOutputId;
+const OUT_USB = RoomConfig.config.video.usbOutputId;
 const MON_AUTO = 'Auto';
 const MON_DUAL = 'Dual';
 const MON_DUALPRESENTATIONONLY = 'DualPresentationOnly';
@@ -141,7 +140,7 @@ export class Scenarios {
 
     /* SCREEN */
     if (status.activity == 'normal') {
-      if (status.presentationStatus.presentationType != PRES_NOPRES || status.presentationStatus.presentationType == PRES_REMOTE) {
+      if (status.presentationStatus.presentationType != PRES_NOPRES || status.presLocation == 'remote') {
         this.screenDown();
       }
     }
@@ -152,26 +151,37 @@ export class Scenarios {
 
     /* MONITOR ROLES */
     if (status.activity == 'normal') {
+
       if (status.presLocation == 'local') {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        xapi.Command.Video.Matrix.Reset();
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
+        //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
         if (status.presentationStatus.presentationType == PRES_NOPRES) {
+          /*ROOMOS11
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
               Mode: 'Replace',
               Output: OUT_PROJ,
               RemoteMain: 4
             });
-          }, 1000);
+          }, 2000);
+          */
         }
       }
       else if (status.presLocation == 'remote') {
+
+
+        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        xapi.Config.Video.Monitors.set(MON_SINGLE);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        //xapi.Config.Video.Output.Connector[OUT_USB].MonitorRole.set(ROLE_FIRST);
+
+
+        /*
         if (status.presentationStatus.presentationType == PRES_NOPRES) {
           xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
           xapi.Command.Video.Matrix.Reset();
         }
         else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
@@ -185,77 +195,88 @@ export class Scenarios {
           xapi.Command.Video.ActiveSpeakerPIP.Set({
             Position: RoomConfig.config.room.remotePresenterPIPPosition
           });
+
+
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
               Mode: 'Replace',
               Output: OUT_MON,
               RemoteMain: 1,
             });
-          }, 1000);
-
+          }, 2000);
         }
+        */
+
+        /*
         else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
           xapi.Command.Video.Matrix.Reset();
+
+          xapi.Config.Video.Monitors.set(MON_SINGLE);
+          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
+          xapi.Config.Video.Output.Connector[OUT_USB].MonitorRole.set(ROLE_FIRST);
+          
+          
+          /*
           xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
+            LayoutFamily: 'Equal',
             Target: 'Local'
           });
+          */
 
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-          setTimeout(() => {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_MON,
-              RemoteMain: 1,
-            });
-          }, 1000);
 
-        }
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Command.Video.Matrix.Reset();
-          xapi.Command.Video.Layout.LayoutFamily.Set({
-            LayoutFamily: 'Overlay',
-            Target: 'Local'
-          });
+        /*
+        xapi.Command.Video.ActiveSpeakerPIP.Set({
+          Position: RoomConfig.config.room.remotePresenterPIPPosition
+        });
+        */
 
-          xapi.Command.Video.ActiveSpeakerPIP.Set({
-            Position: RoomConfig.config.room.remotePresenterPIPPosition
-          });
-          setTimeout(() => {
-            xapi.Command.Video.Matrix.Assign({
-              Mode: 'Replace',
-              Output: OUT_MON,
-              RemoteMain: 1,
-            });
-          }, 1000);
 
-        }
-      }
-
-    }
-    else if (status.activity == 'writeonboard') {
-      if (RoomConfig.config.room.boardBehindScreen) {
+        /*
         setTimeout(() => {
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
+            Output: OUT_MON,
+            RemoteMain: 1,
           });
-        }, 1000);
+        }, 2000);
+        */
 
       }
+      /*
+      else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
+        xapi.Config.Video.Monitors.set(MON_SINGLE);
+        xapi.Command.Video.Matrix.Reset();
+        xapi.Command.Video.Layout.LayoutFamily.Set({
+          LayoutFamily: 'Overlay',
+          Target: 'Local'
+        });
+
+        xapi.Command.Video.ActiveSpeakerPIP.Set({
+          Position: RoomConfig.config.room.remotePresenterPIPPosition
+        });
+
+
+        setTimeout(() => {
+          xapi.Command.Video.Matrix.Assign({
+            Mode: 'Replace',
+            Output: OUT_MON,
+            RemoteMain: 1,
+          });
+        }, 2000);
+
+      }
+      */
+
+
+    }
+
+    else if (status.activity == 'writeonboard') {
+
       if (status.presLocation == 'local') {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        xapi.Command.Video.Matrix.Reset();
-
-      }
-      else if (status.presLocation == 'remote') {
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
+        //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
         if (RoomConfig.config.room.boardBehindScreen) {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -263,30 +284,24 @@ export class Scenarios {
               Output: OUT_PROJ,
               RemoteMain: 4
             });
-          }, 1000);
+          }, 3000);
+        }
+      }
+      else if (status.presLocation == 'remote') {
+        xapi.Command.Video.Matrix.Reset();
+        xapi.Config.Video.Monitors.set(MON_SINGLE);
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
+        xapi.Config.Video.Output.Connector[OUT_USB].MonitorRole.set(ROLE_FIRST);
+        if (RoomConfig.config.room.boardBehindScreen) {
+          setTimeout(() => {
+            xapi.Command.Video.Matrix.Assign({
+              Mode: 'Replace',
+              Output: OUT_PROJ,
+              RemoteMain: 4
+            });
+          }, 3000);
 
         }
-        if (status.presentationStatus.presentationType == PRES_NOPRES) {
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        }
-        else if (status.presentationStatus.presentationType == PRES_LOCALPREVIEW || status.presentationStatus.presentationType == PRES_LOCALSHARE) {
-          xapi.Config.Video.Monitors.set(MON_SINGLE);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        }
-        else if (status.presentationStatus.presentationType == PRES_REMOTE) {
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        }
-        else if (status.presentationStatus.presentationType == PRES_REMOTELOCALPREVIEW) {
-          xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-          xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        }
-        xapi.Command.Video.Matrix.Reset();
       }
     }
 
@@ -404,22 +419,19 @@ export class Scenarios {
     /* VIDEO ROUTING */
     if (status.activity == 'normal') {
       if (status.presentationStatus.presentationType == PRES_NOPRES) {
-        xapi.Command.Video.Matrix.Reset();
+
+
+        xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
+        //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+
+        
         setTimeout(() => {
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_MON,
-            RemoteMain: 4
-          });
+          xapi.Command.Video.Matrix.Reset({ Output: OUT_PROJ });
+        }, 3000);
+        
 
-          xapi.Command.Video.Matrix.Assign({
-            Mode: 'Replace',
-            Output: OUT_PROJ,
-            RemoteMain: 4
-          });
-        }, 1000);
-
-
+        /*ROOMOS11
         if (selfViewStatus == 'On') {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -427,20 +439,31 @@ export class Scenarios {
               Output: OUT_MON,
               SourceId: RoomConfig.config.camera.connector
             });
-          }, 1000);
-
+          }, 2000);
         }
+        */
       }
       else {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
+        //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+
+        
+        setTimeout(() => {
+          xapi.Command.Video.Matrix.Reset({ Output: OUT_PROJ });
+        }, 3000);
+        
+
+        /*ROOMOS11
         xapi.Command.Video.Matrix.Reset({
           Output: OUT_PROJ
         });
         xapi.Command.Video.Matrix.Reset({
           Output: OUT_MON
         });
+        */
+
+        /*ROOMOS11
         if (selfViewStatus == 'On') {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -448,27 +471,31 @@ export class Scenarios {
               Output: OUT_MON,
               SourceId: RoomConfig.config.camera.connector
             });
-          }, 1000);
+          }, 2000);
 
         }
+        */
       }
     }
     else if (status.activity == 'writeonboard') {
       if (status.presentationStatus == PRES_NOPRES) {
-        xapi.Command.Video.Matrix.Reset();
+        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
         setTimeout(() => {
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_PROJ,
             RemoteMain: 4
           });
+          /*ROOMOS11
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
             Output: OUT_MON,
             RemoteMain: 4
           });
-        }, 1000);
+          */
+        }, 3000);
 
+        /*ROOMOS11
         if (selfViewStatus == 'On') {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -476,15 +503,16 @@ export class Scenarios {
               Output: OUT_MON,
               SourceId: RoomConfig.config.camera.connector
             });
-          }, 1000);
+          }, 2000);
 
         }
+        */
       }
       else {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_PRESENTATIONONLY);
-        xapi.Command.Video.Matrix.Reset();
+        xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
+        //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
+        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
         if (RoomConfig.config.room.boardBehindScreen) {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -492,9 +520,10 @@ export class Scenarios {
               Output: OUT_PROJ,
               RemoteMain: 4
             });
-          }, 1000);
+          }, 3000);
 
         }
+        /*ROOMOS11
         if (selfViewStatus == 'On') {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -502,9 +531,9 @@ export class Scenarios {
               Output: OUT_MON,
               SourceId: RoomConfig.config.camera.connector
             });
-          }, 1000);
-
+          }, 2000);
         }
+        */
       }
     }
 
@@ -525,11 +554,11 @@ export class Scenarios {
   update_SCE_STANDBY(status) {
     if (DEBUG)
       console.log('STANDBY -> statusChanged');
-    xapi.Command.Video.Matrix.Reset();
+      setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
     this.tvOffNow();
     this.projOffNow();
     this.screenUp();
-    xapi.Command.Video.Selfview.Set({ mode: 'Off' });
+    /*ROOMOS11xapi.Command.Video.Selfview.Set({ mode: 'Off' });*/
     this.controller.activateLightScene('scene_normal');
   }
 
