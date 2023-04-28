@@ -1,7 +1,8 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
-const RoomConfig = require('./RoomConfig');
-const Rkhelper = require('./Rkhelper');
+import xapi from 'xapi';
+import * as RoomConfig from './RoomConfig';
+import * as Rkhelper from './Rkhelper';
+
 
 const DEBUG = false;
 
@@ -667,7 +668,7 @@ xapi.Event.UserInterface.Extensions.Widget.on(event => {
   }
 });
 
-function init(c) {
+export function init(c) {
   changePresenterLocationLocal = Rkhelper.IMC.getFunctionCall('changePresenterLocationLocal');
   changePresenterLocationRemote = Rkhelper.IMC.getFunctionCall('changePresenterLocationRemote');
 
@@ -798,5 +799,4 @@ function msgbox(title, text) {
     { Duration: 0, "Option.1": 'OK', Text: text, Title: title });
 }
 
-module.exports.init = init;
 

@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 import xapi from 'xapi';
-const roomconfig = require('./RoomConfig');
+import * as roomconfig from './RoomConfig';
 
 const ENABLE_SAUCE = true; //Mettre à 'false' pour la calibration
 const LIVE_CALIBRATION = false; //Une autre bonne solution pour la calibration

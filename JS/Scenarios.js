@@ -1,22 +1,17 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
-const Rkhelper = require('./Rkhelper');
-const RoomConfig = require('./RoomConfig');
+import xapi from 'xapi';
+import * as Rkhelper from './Rkhelper';
+import * as RoomConfig from './RoomConfig';
 
 const DEBUG = false;
 
 
-const PRES_NOPRES = 'PRES_NOPRESENTATION';
-const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
-const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
-const PRES_REMOTE = 'PRES_REMOTE';
-const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+export const PRES_NOPRES = 'PRES_NOPRESENTATION';
+export const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
+export const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
+export const PRES_REMOTE = 'PRES_REMOTE';
+export const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
 
-module.exports.PRES_NOPRES = PRES_NOPRES;
-module.exports.PRES_LOCALPREVIEW = PRES_LOCALPREVIEW;
-module.exports.PRES_LOCALSHARE = PRES_LOCALSHARE;
-module.exports.PRES_REMOTE = PRES_REMOTE;
-module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
 
 const OUT_MON = RoomConfig.config.video.remoteMonitorOutputId;
 const OUT_PROJ = RoomConfig.config.video.projectorOutputId;
