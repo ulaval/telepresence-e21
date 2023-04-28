@@ -1,34 +1,21 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
+import xapi from 'xapi';
 
 const DEBUG = false;
 
 
-const PRES_NOPRES = 'PRES_NOPRESENTATION';
-const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
-const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
-const PRES_REMOTE = 'PRES_REMOTE';
-const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
-const CALLSTATUS_DIALING = 'Dialling';
-const CALLSTATUS_NOCALL = undefined;
-const CALLSTATUS_CONNECTED = 'Connected';
-const CALLSTATUS_CONNECTING = 'Connecting';
-const PRESLOCATION_LOCAL = 'local';
-const PRESLOCATION_REMOTE = 'remote';
-const PRESLOCATION_NONE = 'none';
-
-module.exports.PRES_NOPRES = PRES_NOPRES;
-module.exports.PRES_LOCALPREVIEW = PRES_LOCALPREVIEW;
-module.exports.PRES_LOCALSHARE = PRES_LOCALSHARE;
-module.exports.PRES_REMOTE = PRES_REMOTE;
-module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
-module.exports.CALLSTATUS_DIALING = CALLSTATUS_DIALING;
-module.exports.CALLSTATUS_NOCALL = CALLSTATUS_NOCALL;
-module.exports.CALLSTATUS_CONNECTED = CALLSTATUS_CONNECTED;
-module.exports.CALLSTATUS_CONNECTING = CALLSTATUS_CONNECTING;
-module.exports.PRESLOCATION_LOCAL = PRESLOCATION_LOCAL;
-module.exports.PRESLOCATION_REMOTE = PRESLOCATION_REMOTE;
-module.exports.PRESLOCATION_NONE = PRESLOCATION_NONE;
+export const PRES_NOPRES = 'PRES_NOPRESENTATION';
+export const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
+export const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
+export const PRES_REMOTE = 'PRES_REMOTE';
+export const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+export const CALLSTATUS_DIALING = 'Dialling';
+export const CALLSTATUS_NOCALL = undefined;
+export const CALLSTATUS_CONNECTED = 'Connected';
+export const CALLSTATUS_CONNECTING = 'Connecting';
+export const PRESLOCATION_LOCAL = 'local';
+export const PRESLOCATION_REMOTE = 'remote';
+export const PRESLOCATION_NONE = 'none';
 
 
 const TGL_AUTODISPLAYMODE = 'tgl_autodisplaymode';
@@ -60,10 +47,10 @@ var showDndMessages = false;
 
 
 
-var dndConfig;
-module.exports.dndConfig = dndConfig;
+export var dndConfig;
 
-const Audio = {
+
+export const Audio = {
 
   getLocalOutputId(name) {
     return new Promise((success, failure) => {
@@ -108,11 +95,9 @@ const Audio = {
   }
 };
 
-module.exports.Audio = Audio;
 
 
-
-const System = {
+export const System = {
   Camera: {
     getPresetId(name) {
       return new Promise((success, failure) => {
@@ -184,9 +169,8 @@ const System = {
   }
 
 };
-module.exports.System = System;
 
-const IMC = {
+export const IMC = {
   addMessageHandler(regex, callback) {
     var temphandler = {};
     temphandler.regex = regex;
@@ -249,11 +233,11 @@ const IMC = {
     return function () { IMC.callFunction(f); };
   }
 };
-module.exports.IMC = IMC;
 
 
 
-const Status = {
+
+export const Status = {
   async getPresentationStatus() {
     var status = {};
     return new Promise((success) => {
@@ -376,11 +360,11 @@ const Status = {
     });
   }
 };
-module.exports.Status = Status;
 
 
 
-const UI = {
+
+export const UI = {
   widgets: {
     addActionListener: function (listener) {
       widgetActionEventListeners.push(listener);
@@ -565,13 +549,13 @@ const UI = {
     }
   }
 };
-module.exports.UI = UI;
+
 
 
 export async function getSystemName() {
   return await xapi.Status.UserInterface.ContactInfo.Name.get();
 }
-module.exports.getSystemName = getSystemName;
+
 
 
 
@@ -579,7 +563,7 @@ module.exports.getSystemName = getSystemName;
 export function getUniqueId() {
   return (Date.now() + Math.floor(Math.random() * 100000));
 }
-module.exports.getUniqueId = getUniqueId;
+
 
 function privatemode_enabled() {
   privateModeEnabled = true;

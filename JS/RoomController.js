@@ -1,11 +1,12 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
-const Rkhelper = require('./Rkhelper');
-const RoomConfig = require('./RoomConfig');
-const Settings = require('./Settings');
-const Displays = require('./Displays');
-const Lights = require('./Lights');
-const Scenarios = require('./Scenarios');
+import xapi from 'xapi';
+
+import * as Rkhelper from './Rkhelper';
+import * as RoomConfig from './RoomConfig';
+import * as Settings from './Settings';
+import * as Displays from './Displays';
+import * as Lights from './Lights';
+import * as Scenarios from './Scenarios';
 
 
 const DEBUG = false;
@@ -63,7 +64,7 @@ var macroRestartTimeout;
 var alternateUpdateMessage = false;
 var freshBootWarningInterval;
 
-class Controller {
+export class Controller {
   constructor() {
     const that = this;
     this.currentScenario = undefined;
@@ -273,7 +274,7 @@ class Controller {
     });
   }
 }
-module.exports.Controller = Controller;
+
 
 
 

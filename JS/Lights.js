@@ -1,10 +1,10 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
-const RoomConfig = require('./RoomConfig');
+import xapi from 'xapi';
+import * as RoomConfig from './RoomConfig';
 
 const DEBUG = false;
 
-module.exports.Lights = class Lights {
+export class Lights {
   constructor(controller) {
     this.controller = controller;
     this.uiListener = undefined;

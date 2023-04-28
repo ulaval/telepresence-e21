@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
-const xapi = require('xapi');
-const Rkhelper = require('./Rkhelper');
-const RoomConfig = require('./RoomConfig');
+import xapi from 'xapi';
+import * as Rkhelper from './Rkhelper';
+import * as RoomConfig from './RoomConfig';
 
 const DEBUG = false;
 
@@ -485,7 +485,6 @@ xapi.Status.Standby.State.on(state => {
 /* USER INTERFACE */
 function createUi() {
 
-
   xapi.Command.UserInterface.Extensions.Panel.Save({
     PanelId: 'p_usbmodedual'
   },
@@ -510,6 +509,7 @@ function createUi() {
 
 
 `);
+
 }
 
 async function getCurrentCameraConnector() {
