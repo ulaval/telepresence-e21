@@ -45,17 +45,6 @@ export var config = {
       }
     ]
   },
-  usbmode: {
-    showRecordingOption: false,               //Affiche l'option "Enregistrement" dans le mode USB <true, false>
-    autoDetectUSBConnection: false,           //Détection de la connexion du USB pour lancer Mode USB. <true, false>
-    localPcInput1: 4,                          //Entrée 1 pc local
-    localPcInput2: 3                           //Entrée 2 pc local
-  },
-  zoom: {
-    callHistoryAutoDelete: true,              //Effacement automatique du call history
-    callHistoryAutoDeleteMethod: 'AUTODELETEMETHOD_ONDISCONNECT', //AUTODELETEMETHOD_ONDISCONNECT ou AUTODELETEMETHOD_ONSTANDBY
-    callHistoryAutoDeleteTimeout: 30000       //Délais avant l'effacement du call history
-  },
   camera: {
     connector: 6,
     defaultBrightness: 20                    //Brightness par défaut de la caméra
@@ -152,10 +141,6 @@ export var config = {
       }
     ],
     roomMicsBoost: 12
-  },
-  scenarios: {
-    autoScenarioChange: true,                  //TODO: ENLEVER
-    displayPanel: false,                       //TODO: Affiche un panel de sélection de scénario. <true, false>. Défaut: false
   },
   lights: {                                    //Configuration de l'éclairage
     zones: [
