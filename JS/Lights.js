@@ -13,44 +13,43 @@ export class Lights {
     const that = this;
     this.autolights = true;
 
-    if (that.uiListener != undefined) {
-      that.uiListener();
-    }
     that.uiListener = xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
       if (action.WidgetId == 'tgl_autolightsmode' && action.Type == 'changed' && action.Value == 'off') {
-        console.log('DISABLING AUTO LIGHTS!');
+        if (DEBUG)
+          console.log('DISABLING AUTO LIGHTS!');
         that.updateZoneWidgets();
       }
       if (action.WidgetId == 'tgl_autolightsmode' && action.Type == 'changed' && action.Value == 'on') {
-        console.log('ENABLING AUTO LIGHTS!');
+        if (DEBUG)
+          console.log('ENABLING AUTO LIGHTS!');
         that.executeScene(this.lastScene, true);
         that.updateZoneWidgets();
       }
 
-      that._lightsConfig.scenes.forEach(scene => {
+      for (let scene of that._lightsConfig.scenes) {
         if (action.WidgetId == scene.id && action.Type == 'clicked') {
           that.executeScene(scene.id, true);
         }
-      });
+      }
 
-      this._lightsConfig.zones.forEach(function (element, index) {
+      for (let element of that._lightsConfig.zones) {
         if (action.Type == 'changed') {
           if (action.WidgetId == element.id + '_onoff') {
-            that.zoneOnOff(that._lightsConfig.zones[index], action.Value);
+            that.zoneOnOff(element, action.Value);
             if (action.Value == 'on') {
-              that.zoneDim(that._lightsConfig.zones[index], that._lightsConfig.zones[index].level);
+              that.zoneDim(element, element.level);
             }
           }
         }
         if (action.Type == 'clicked') {
           if (action.WidgetId == element.id + '_dim' && action.Value == 'increment') {
-            that.zoneDimIncDec(that._lightsConfig.zones[index], element.steps);
+            that.zoneDimIncDec(element, element.steps);
           }
           else if (action.WidgetId == element.id + '_dim' && action.Value == 'decrement') {
-            that.zoneDimIncDec(that._lightsConfig.zones[index], -element.steps);
+            that.zoneDimIncDec(element, -element.steps);
           }
         }
-      });
+      }
     });
   }
 
@@ -74,9 +73,9 @@ export class Lights {
       if (DEBUG)
         console.log('Execute lights scene: ' + sceneId);
 
-      this._lightsConfig.scenes.forEach(s => {
+      for (let s of this._lightsConfig.scenes) {
         if (s.id == sceneId) {
-          s.presets.forEach(p => {
+          for (let p of s.presets) {
             let tempzone = {};
             tempzone.id = p.zone;
             setTimeout(function () {
@@ -86,34 +85,34 @@ export class Lights {
               }, delaycount);
             }, delaycount);
             delaycount += 500;
-          });
+          }
         }
-      });
-
+      }
     }
   }
 
+
+
   zoneOnOff(zone, onoff, executescene) {
     const that = this;
-    that._lightsConfig.zones.forEach(function (element, index) {
-
+    for (let element of that._lightsConfig.zones) {
       if (element.id == zone.id) {
-
-        that._lightsConfig.zones[index].state = onoff;
+        element.state = onoff;
         if (onoff == 'on') {
           if (!executescene) {
-            that.zoneDim(zone, that._lightsConfig.zones[index].lastDimLevel);
+            that.zoneDim(zone, element.lastDimLevel);
           }
         }
         else {
-          that._lightsConfig.zones[index].lastDimLevel = that._lightsConfig.zones[index].level;
+          element.lastDimLevel = element.level;
           that.zoneDim(zone, 0);
         }
         that.widgetSetValue(zone.id + '_onoff', onoff);
         that.updateZoneWidgets();
       }
-    });
+    }
   }
+
 
   zoneDimIncDec(zone, amount) {
     var level = zone.level + amount;
@@ -124,27 +123,27 @@ export class Lights {
 
   zoneDim(zone, level) {
     const that = this;
-    that._lightsConfig.zones.forEach(function (element, index) {
+    for (let element of that._lightsConfig.zones) {
       if (element.id == zone.id) {
 
-        that._lightsConfig.zones[index].level = level;
+        element.level = level;
         that.sendMessage(`${zone.id}_dim ${level}`);
         that.widgetSetValue(zone.id + '_dim', level + '%');
         that.updateZoneWidgets();
 
       }
-    });
+    }
   }
 
   updateZoneWidgets() {
     const that = this;
     setTimeout(function () { //gros fix innocent parce que l'interface est un peu lente
-      that._lightsConfig.zones.forEach(zone => {
+      for (let zone of that._lightsConfig.zones) {
         that.widgetSetValue(zone.id + '_onoff', zone.state);
         if (zone.type == 'dim') {
           that.widgetSetValue(zone.id + '_dim', zone.level + '%');
         }
-      });
+      }
     }, 500);
   }
 
@@ -156,10 +155,7 @@ export class Lights {
   }
 
 
-  activateLightScene(id,manual = false) {
-    this.executeScene(id,manual);
+  activateLightScene(id, manual = false) {
+    this.executeScene(id, manual);
   }
 };
-
-
-
