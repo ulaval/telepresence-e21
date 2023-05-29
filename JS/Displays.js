@@ -101,7 +101,8 @@ export class Projector {
 export class Screen {
   constructor(controller) {
     this.controller = controller;
-    this.position = 'up';
+    xapi.Command.GPIO.ManualState.Set({ Pin1:'high', Pin2:'low' });
+    this.position = 'up';    
   }
   up() {
     if (DEBUG)
@@ -110,6 +111,7 @@ export class Screen {
       xapi.Command.Message.Send({
         Text: `SCREEN_UP`
       });
+      xapi.Command.GPIO.ManualState.Set({ Pin1:'high', Pin2:'low' });
       this.position = 'up';
     }
   }
@@ -120,6 +122,7 @@ export class Screen {
       xapi.Command.Message.Send({
         Text: `SCREEN_DN`
       });
+      xapi.Command.GPIO.ManualState.Set({ Pin1:'low', Pin2:'high' });
       this.position = 'down';
     }
 
