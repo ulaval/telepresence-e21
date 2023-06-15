@@ -1,4 +1,4 @@
-# VERSION 7.0.0 - Guide d'installation
+# VERSION 7.1.0 - Guide d'installation
 
 # Backup de sécurité (macros et configs)
 * Se connecter à l'interface web du codec à travers Control Hub
