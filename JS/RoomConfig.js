@@ -47,7 +47,12 @@ export var config = {
   },
   camera: {
     connector: 6,
-    defaultBrightness: 20                    //Brightness par défaut de la caméra
+    defaultBrightness: 20,                    //Brightness par défaut de la caméra
+    presetsConnectors:{
+      Console:6,
+      Tableau:6,
+      Salle:6
+    }
   },
   dnd: {
     strict: true,                            //Force le mode "Do Not Disturb" avec période de grâce

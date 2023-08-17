@@ -1,17 +1,22 @@
 /*jshint esversion: 6 */
-import xapi from 'xapi';
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
 
 const DEBUG = false;
 
 
-export const PRES_NOPRES = 'PRES_NOPRESENTATION';
-export const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
-export const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
-export const PRES_REMOTE = 'PRES_REMOTE';
-export const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
+const PRES_NOPRES = 'PRES_NOPRESENTATION';
+const PRES_LOCALPREVIEW = 'PRES_LOCALPREVIEW';
+const PRES_LOCALSHARE = 'PRES_LOCALSHARE';
+const PRES_REMOTE = 'PRES_REMOTE';
+const PRES_REMOTELOCALPREVIEW = 'PRES_REMOTELOCALPREVIEW';
 
+module.exports.PRES_NOPRES = PRES_NOPRES;
+module.exports.PRES_LOCALPREVIEW = PRES_LOCALPREVIEW;
+module.exports.PRES_LOCALSHARE = PRES_LOCALSHARE;
+module.exports.PRES_REMOTE = PRES_REMOTE;
+module.exports.PRES_REMOTELOCALPREVIEW = PRES_REMOTELOCALPREVIEW;
 
 const OUT_MON = RoomConfig.config.video.remoteMonitorOutputId;
 const OUT_PROJ = RoomConfig.config.video.projectorOutputId;
@@ -41,6 +46,8 @@ var selfViewStatus = 'Off';
 function callPreset(name) {
 
   Rkhelper.System.Camera.getPresetId(name).then(preset => {
+    //find which connector the camera is on
+    xapi.Command.Video.Input.setMainVideoSource({ConnectorId:RoomConfig.config.camera.presetsConnectors[name]});
     xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
   }).catch(err => {
     //console.log('Preset not found');
@@ -151,7 +158,7 @@ export class Scenarios {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
         //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
         if (status.presentationStatus.presentationType == PRES_NOPRES) {
           /*ROOMOS11
           setTimeout(() => {
@@ -167,7 +174,7 @@ export class Scenarios {
       else if (status.presLocation == 'remote') {
 
 
-        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
         xapi.Config.Video.Monitors.set(MON_SINGLE);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_FIRST);
         //xapi.Config.Video.Output.Connector[OUT_USB].MonitorRole.set(ROLE_FIRST);
@@ -271,7 +278,7 @@ export class Scenarios {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
         //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
         if (RoomConfig.config.room.boardBehindScreen) {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -305,6 +312,7 @@ export class Scenarios {
     if (status.activity == 'normal') {
       if (status.presLocation == 'local') {
         if (RoomConfig.config.room.autoEnablePresenterTrack) {
+          callPreset('Console');
           xapi.Command.Cameras.PresenterTrack.Set({
             Mode: 'Follow'
           });
@@ -314,8 +322,9 @@ export class Scenarios {
         }
       }
       else if (status.presLocation == 'remote') {
-        if (RoomConfig.config.room.useRoomPreset)
+        if (RoomConfig.config.room.useRoomPreset) {
           callPreset('Salle');
+        }
       }
     }
     else if (status.activity == 'writeonboard') {
@@ -420,11 +429,11 @@ export class Scenarios {
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
         //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
 
-        
+
         setTimeout(() => {
           xapi.Command.Video.Matrix.Reset({ Output: OUT_PROJ });
         }, 3000);
-        
+
 
         /*ROOMOS11
         if (selfViewStatus == 'On') {
@@ -443,11 +452,11 @@ export class Scenarios {
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
         //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
 
-        
+
         setTimeout(() => {
           xapi.Command.Video.Matrix.Reset({ Output: OUT_PROJ });
         }, 3000);
-        
+
 
         /*ROOMOS11
         xapi.Command.Video.Matrix.Reset({
@@ -474,7 +483,7 @@ export class Scenarios {
     }
     else if (status.activity == 'writeonboard') {
       if (status.presentationStatus == PRES_NOPRES) {
-        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
         setTimeout(() => {
           xapi.Command.Video.Matrix.Assign({
             Mode: 'Replace',
@@ -507,7 +516,7 @@ export class Scenarios {
         xapi.Config.Video.Monitors.set(MON_DUALPRESENTATIONONLY);
         xapi.Config.Video.Output.Connector[OUT_PROJ].MonitorRole.set(ROLE_SECOND);
         //xapi.Config.Video.Output.Connector[OUT_MON].MonitorRole.set(ROLE_FIRST);
-        setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+        setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
         if (RoomConfig.config.room.boardBehindScreen) {
           setTimeout(() => {
             xapi.Command.Video.Matrix.Assign({
@@ -549,7 +558,7 @@ export class Scenarios {
   update_SCE_STANDBY(status) {
     if (DEBUG)
       console.log('STANDBY -> statusChanged');
-      setTimeout(()=>{xapi.Command.Video.Matrix.Reset()},2000);
+    setTimeout(() => { xapi.Command.Video.Matrix.Reset() }, 2000);
     this.tvOffNow();
     this.projOffNow();
     this.screenUp();
