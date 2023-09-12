@@ -47,10 +47,20 @@ function callPreset(name) {
 
   Rkhelper.System.Camera.getPresetId(name).then(preset => {
     //find which connector the camera is on
-    xapi.Command.Video.Input.setMainVideoSource({ConnectorId:RoomConfig.config.camera.presetsConnectors[name]});
-    xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+    async function callPreset(presetName) {
+      let allPresets = await xapi.Command.Camera.Preset.List();
+      let preset = allPresets.Preset.filter(p => p.Name == presetName)[0];
+      let presetDetails = await xapi.Command.Camera.Preset.Show({ PresetId:preset.PresetId });
+      let presetCamId = presetDetails.CameraId;
+      let connectors = await xapi.Config.Video.Input.Connector.get();
+      let camConnectorDetails = connectors.filter(connector => connector.CameraControl.CameraId == presetCamId)[0];
+      let camConnector = camConnectorDetails.id;
+      
+      xapi.Command.Camera.Preset.Activate({ PresetId: preset.PresetId });
+      xapi.Command.Video.Input.SetMainVideoSource({ ConnectorId:camConnector });
+    }
   }).catch(err => {
-    //console.log('Preset not found');
+    console.log('Preset not found');
   });
 }
 export class Scenarios {
