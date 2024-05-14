@@ -1,12 +1,11 @@
 /*jshint esversion: 6 */
-import xapi from 'xapi';
-
-import * as Rkhelper from './Rkhelper';
-import * as RoomConfig from './RoomConfig';
-import * as Settings from './Settings';
-import * as Displays from './Displays';
-import * as Lights from './Lights';
-import * as Scenarios from './Scenarios';
+const xapi = require('xapi');
+const Rkhelper = require('./Rkhelper');
+const RoomConfig = require('./RoomConfig');
+const Settings = require('./Settings');
+const Displays = require('./Displays');
+const Lights = require('./Lights');
+const Scenarios = require('./Scenarios');
 
 
 const DEBUG = false;
@@ -64,7 +63,7 @@ var macroRestartTimeout;
 var alternateUpdateMessage = false;
 var freshBootWarningInterval;
 
-export class Controller {
+class Controller {
   constructor() {
     const that = this;
     this.currentScenario = undefined;
@@ -274,7 +273,7 @@ export class Controller {
     });
   }
 }
-
+module.exports.Controller = Controller;
 
 
 
@@ -480,6 +479,15 @@ async function init() {
     configureRkhelper();
     loadingStart();
   }
+  else {
+    xapi.Command.UserInterface.Message.Prompt.Display({
+      Text:'Nouveau démarrage détecté. Veuillez patienter 120 secondes.'
+    });
+    setTimeout(() => {
+      xapi.Command.Macros.Runtime.Restart();
+    },120000);
+
+  }
 }
 
 
@@ -493,7 +501,7 @@ xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
   if (status == 'Inactive') {
     usbModeActive = false;
     UsbModeDisabled();
-     xapi.Command.UserInterface.Message.TextLine.Clear();
+    xapi.Command.UserInterface.Message.TextLine.Clear();
     setTimeout(() => {
       Rkhelper.System.DND.enable();
     }, 2000);
@@ -514,7 +522,7 @@ xapi.Status.Video.Output.HDMI.Passthrough.Status.on(status => {
 //Stop sharing on disconnect
 xapi.Event.CallDisconnect.on(value => {
   inCall = false;
-   xapi.Command.UserInterface.Message.TextLine.Clear();
+  xapi.Command.UserInterface.Message.TextLine.Clear();
   setTimeout(function () {
     xapi.Command.Presentation.Stop();
   }, 6000);
@@ -523,47 +531,31 @@ xapi.Event.CallSuccessful.on(() => inCall = true);
 
 
 xapi.Status.Standby.State.on(async value => {
-  var bootTime = await getBootTime();
-  if (bootTime > 100) {
-    if (value == 'Off') {
-      presTrackWarn = RoomConfig.config.room.presenterTrackWarningDisplay;
-      xapi.Command.UserInterface.Extensions.Widget.SetValue({
-        WidgetId: 'tgl_prestrackwarn',
-        Value: RoomConfig.config.room.presenterTrackWarningDisplay ? 'On' : 'Off'
-      });
-      controller.lights.activateLightScene('scene_normal', true);
-      setTimeout(() => {
-        xapi.Command.UserInterface.Message.Prompt.Display(
-          {
-            Duration: 7,
-            FeedbackId: 'wakemessage',
-            Text: 'Préparation du système, un instant s.v.p!<br>',
-            Title: `Nouvelle session`
-          });
-        createUi();
-      }, 100);
-    }
-    else if (value == 'Standby') {
-      controller.autoDisplay = RoomConfig.config.room.displayControl;
-      controller.autoLights = RoomConfig.config.room.lightsControl;
-      controller.tvOff();
-      controller.projOff();
-      controller.screenUp();
-      controller.lights.activateLightScene('scene_normal', true);
-    }
+  if (value == 'Off') {
+    presTrackWarn = RoomConfig.config.room.presenterTrackWarningDisplay;
+    xapi.Command.UserInterface.Extensions.Widget.SetValue({
+      WidgetId: 'tgl_prestrackwarn',
+      Value: RoomConfig.config.room.presenterTrackWarningDisplay ? 'On' : 'Off'
+    });
+    controller.lights.activateLightScene('scene_normal', true);
+    setTimeout(() => {
+      xapi.Command.UserInterface.Message.Prompt.Display(
+        {
+          Duration: 7,
+          FeedbackId: 'wakemessage',
+          Text: 'Préparation du système, un instant s.v.p!<br>',
+          Title: `Nouvelle session`
+        });
+      createUi();
+    }, 100);
   }
-  else {
-    if (freshBootWarningInterval == undefined) {
-      freshBootWarningInterval = setInterval(() => {
-        displayFreshBootWarning();
-        if (macroRestartTimeout == undefined) {
-          clearTimeout(macroRestartTimeout);
-          macroRestartTimeout = setTimeout(() => {
-            xapi.Command.Macros.Runtime.Restart();
-          }, 120000);
-        }
-      }, 5000);
-    }
+  else if (value == 'Standby') {
+    controller.autoDisplay = RoomConfig.config.room.displayControl;
+    controller.autoLights = RoomConfig.config.room.lightsControl;
+    controller.tvOff();
+    controller.projOff();
+    controller.screenUp();
+    controller.lights.activateLightScene('scene_normal', true);
   }
 });
 
